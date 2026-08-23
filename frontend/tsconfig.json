@@ -12,15 +12,18 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
+    
     "incremental": true,
+    
     "plugins": [
       {
         "name": "next"
       }
     ],
     "paths": {
-      "@/*": ["./*"]
-    }
+  "@/*": ["./*"],
+  "@shared/*": ["../shared/*"]
+}
   },
   "include": [
     "next-env.d.ts",
@@ -28,7 +31,10 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts"
-  ],
-  "exclude": ["node_modules"]
+    "**/*.mts",
+    "../shared/**/*.ts"
+, "../backend/src/utils/mocks/pj.ts", "../backend/src/utils/mocks/actionResult.ts", "../backend/src/utils/mocks/npcIntentChange.ts"],
+"exclude": [
+  "node_modules"
+]
 }

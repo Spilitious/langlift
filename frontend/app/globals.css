@@ -23,4 +23,76 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  cursor: url("/ui/cursor/Cursor1.png"), auto;
+
+}
+
+.menu {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.menu h1 {
+  margin-top: 50px;
+  font-size: 48px;
+}
+
+.buttons {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+}
+
+.buttons button {
+  width: 250px;
+  padding: 15px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.fighter-sprite {
+  
+  object-fit: contain;
+   position: relative;
+
+  left: 0;
+  top: 0;
+
+  width: 240px;
+  height: 160px;
+
+
+  display: block;
+}
+
+img,
+button,
+.fight-ui {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+@keyframes npcShake {
+  from {
+    transform: translateX(-2px);
+  }
+
+  to {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes intentFadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }

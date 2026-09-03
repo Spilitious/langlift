@@ -31,19 +31,25 @@ import actionRouter from "./action.js";
 router.use( actionRouter);
 
 
+/* AlechemyRoutert */
+import alchemyRouter from "./action.js";
+router.use( alchemyRouter);
+
+/* Déplacement d'objet  */
+import MoveObject from "./equipment.js";
+router.use( "/equipment", MoveObject);
+
 router.get("/game-state", (req, res) => {
   res.json(gameState.toView());
 });
 
-//Route temporaire pour reset l'histoire au debut
-router.post("/reset/:pageId", (req, res) => {
-  const pageId = Number(req.params.pageId);
-
-  gameState.reset(pageId);
+router.post("/reset", (req, res) => {
+  gameState.reset();
 
   return res.json(
     gameState.toView()
   );
 });
+
 
 export default router;

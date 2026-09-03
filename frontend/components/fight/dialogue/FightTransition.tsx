@@ -1,32 +1,23 @@
 "use client";
 
-
-import NextButton from "../history/NextButton";
-import type { RoomView } from "../../../shared/types/roomView.js";
-
+import FightButton from "@/components/history/FightButton";
+import {historyTransitions } from   "@shared/utils/historyTransitions";
 
 
-type FightVictoryDialogProps = {
-  roomId: number;
+type FightTransitionDialogProps = {
+  transitionId: number;
   onContinue: () => void;
 };
 
-export default function FightVictoryDialog({
-  roomId,
+export default function FightTransitionDialog({
+  transitionId,
   onContinue,
-}: FightVictoryDialogProps) {
+}: FightTransitionDialogProps) {
 
-   // const room = getRoom(roomId);
-   /* const buildText = (room:RoomView):string => {
+    const currentText =
+        historyTransitions[transitionId];
 
-
-  return `Victoire
-  
-  Vous avez gagné ${room.xp} xp`;
-} */
-
- const currentText = "Victoire"; //buildText(room);
-
+   
   return (
     <div
       style={{
@@ -72,9 +63,9 @@ export default function FightVictoryDialog({
           textAlign: "center",
         }}
       >
-       <div>
-  {currentText}
-</div>
+        <div>
+          {currentText}
+        </div>
 
         <div
           style={{
@@ -84,7 +75,7 @@ export default function FightVictoryDialog({
             justifyContent: "center",
           }}
         >
-          <NextButton
+          <FightButton
             onClick={onContinue}
           />
         </div>

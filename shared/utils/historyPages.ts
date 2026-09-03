@@ -115,7 +115,7 @@ export const historyPages: HistoryPage[] = [
   {
     id: 19,  // Etablissement du camps
     textId: 19,
-    imageId: 10,
+    imageId: 14,
     choices: HistoryChoices.Choice17,
   },
   {
@@ -133,7 +133,7 @@ export const historyPages: HistoryPage[] = [
   {
     id: 22,  // Fin du combat contre les loups
     textId: 22,
-    imageId: 10,
+    imageId: 15,
     choices: HistoryChoices.Choice20,
   },
   {
@@ -141,6 +141,24 @@ export const historyPages: HistoryPage[] = [
     textId: 23,
     imageId: 13,
     choices: HistoryChoices.Choice21,
+  },
+  {
+    id: 24,  // Dialogue avec le chef de la garde
+    textId: 24,
+    imageId: 17,
+    choices: HistoryChoices.Choice22,
+  },
+   {
+    id: 25,  // Gladys entraine Troylan à l'équipement
+    textId: 25,
+    imageId: 18,
+    choices: HistoryChoices.Choice23,
+  },
+   {
+    id: 26,  // Choix d'un métier
+    textId: 26,
+    imageId: 3,
+    choices: HistoryChoices.Choice24,
   },
 
 ];

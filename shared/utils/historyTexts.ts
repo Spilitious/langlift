@@ -42,7 +42,7 @@ Affamé ou simplement furieux de vous trouver sur son territoire, il s'avance ve
 
 // 4 
 `
-Le combat a été âpre, mais vous en êtes sorti victorieux.
+Vous vous êtes défendu contre ce rat avec adresse et courage.
 
 Pour autant, rien n'est encore gagné. Il vous faut quitter ces égouts et, surtout, découvrir qui vous a abandonné ici... et pourquoi.
 
@@ -68,7 +68,7 @@ Quelque chose approche...
 
 // 6 
 `
-La créature émerge de la pénombre : un crapaud gigantesque, à la peau jaunâtre et aux yeux globuleux qui vous fixent avec avidité.
+La créature émerge de la pénombre : un crapaud gigantesque, à la peau jaunâtre et aux yeux globuleux, vous fixent avec avidité.
 
 Il vous a repéré. Un croassement sourd résonne tandis que sa longue langue jaillit frénétiquement dans votre direction.
 
@@ -312,5 +312,52 @@ Aux portes de la ville, les sentinelles ne semblent guère surprises par votre r
 — Je vous avais promis une récompense. Un vieil homme doit savoir tenir parole. Je tiens cette équipement de mon grand-père, elle vous sera plus utile qu'a moi. 
 
 Il s'agit de : 
+`,
+
+// 24
+
 `
+Après avoir quitté le vieil homme, vous retournez voir le chef de la garde d'Irostat, dans l'espoir d'en apprendre davantage sur l'attaque.
+
+— Cette histoire me laisse perplexe. Des brigands qui pillent des voyageurs ou attaquent un hameau isolé, ça n'a rien d'exceptionnel. Mais s'en prendre à une ville de cette taille… Ça n'a aucun sens. 
+
+Ma garnison est bien trop réduite pour tenter une expédition. Et de toute façon, les brigands ne resteront pas. Ils savent très bien qu'ils ne pourraient pas tenir la ville face à l'armée royale. À mon avis, ils auront quitté les lieux d'ici demain.
+
+Mes éclaireurs reviendront me prévenir dès qu'ils auront la confirmation que les brigands sont partis
+
+Pour l'instant, nous ne pouvons qu'attendre.
+`,
+
+// 25
+
+`
+Gladys se tourne vers vous et vous adresse un regard compatissant. Mais son sourire revient presque aussitôt.
+
+— Viens ! On va acheter de l'équipement
+
+Vous la regardez, surpris.
+
+— Tu as de l'argent ?
+— Bien sûr ! J'ai quarante pièces d'or.
+
+Vous ne pouvez retenir un éclat de rire.
+Gladys prend aussitôt un air faussement vexé.
+
+— Quoi 
+— Quarante pièces… Ç'est loin d'être assez.
+—  C'est pas grave ! Viens, on va voir !
+
+Elle vous attrape par la main et vous entraîne déjà avec elle.
+`,
+
+//26 
+
+`
+Le combat a été âpre, mais vous en êtes sorti victorieux.
+Vous reprenez votre souffle et ramassez les deux potions de vie qui avaient été déposées près de l'épée. Vous les rangez soigneusement dans votre ceinture.
+Vous vous apprêtez à repartir lorsque votre regard se pose sur les cadavres des rats.
+Presque inconsciemment, comme guidé par un vieux souvenir, vous vous accroupissez près de l'une des créatures...
+
+`,
+
 ];

@@ -23,7 +23,7 @@ export const getHistoryImage = (
 };
 
 
-import type { TypeEquipment } from "../../shared/types/equipment";
+import type { TypeEquipment } from "../../shared/types/equipmentView";
 export function getImageEquipment(type:TypeEquipment, image:number) {
     return `/sprites/equipment/${type}${image}.png`;
 }

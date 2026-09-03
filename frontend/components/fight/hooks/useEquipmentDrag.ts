@@ -1,14 +1,17 @@
 import { useState } from "react";
-import type { PjView } from "@/types/fighterView";
-import type { EquipmentSlot } from "@/types/equipment";
+import type { PjView } from "@shared/types/fighterView";
+import type { EquipmentSlot } from "@shared/types/equipmentView";
+import { useGame } from "@/context/GameContext";
+import {
+  moveEquipmentToInventory,
+  moveEquipmentToBelt,
+  equipEquipment,
+} from "@/utils/api/equipmentApi";
 
 type Props = {
   selectedPjId: number | null;
   selectedPj: PjView | null;
 
-  setPjs: React.Dispatch<
-    React.SetStateAction<PjView[]>
-  >;
 
    onEquipmentDropOnPj: (
     equipmentId: number,
@@ -19,11 +22,11 @@ type Props = {
 export function useEquipmentDrag({
   selectedPjId,
   selectedPj,
-  setPjs,
   onEquipmentDropOnPj,
 }: Props) {
 
- 
+ const { gameState, setGameState} = useGame();
+
   const [draggedEquipmentId, setDraggedEquipmentId] =
     useState<number | null>(null);
 
@@ -80,86 +83,71 @@ export function useEquipmentDrag({
     });
   };
 
-  const handleDropOnBeltSlot = (
-    newSlot: number
+  const handleDropOnBeltSlot = async (equipmentId:number,
+    newSlot: number,
+
   ) => {
-    if (
-      draggedEquipmentId === null ||
-      selectedPjId === null
-    ) {
-      return;
-    }
-
-    setPjs((current) =>
-      current.map((pj) => {
-        if (pj.id !== selectedPjId) {
-          return pj;
-        }
-
-        return {
-          ...pj,
-
-          equipment: pj.equipment.map(
-            (equipment) =>
-              equipment.id ===
-              draggedEquipmentId
-                ? {
-                    ...equipment,
-
-                    location: "belt",
-                    beltSlot: newSlot,
-
-                    x: null,
-                    y: null,
-                  }
-                : equipment
-          ),
-        };
-      })
-    );
-
-    setDraggedEquipmentId(null);
+    if (selectedPjId === null) return;
+       
+       
+     const response =
+       await moveEquipmentToBelt(
+         selectedPjId,
+         equipmentId,
+         newSlot
+       );
+   
+     setGameState(response.gameState);
+   
+     setDraggedEquipmentId(
+       response.moveResult.newEquipmentDragged || null
+     );
   };
 
-  const handleDropInInventory = (
+  const handleDropInInventory = async (
     equipmentId: number,
     x: number,
     y: number
   ) => {
-    if (selectedPjId === null) return;
+   if (selectedPjId === null) return;
 
-    setPjs((current) =>
-      current.map((pj) => {
-        if (pj.id !== selectedPjId) {
-          return pj;
-        }
-
-        return {
-          ...pj,
-
-          equipment: pj.equipment.map(
-            (equipment) =>
-              equipment.id === equipmentId
-                ? {
-                    ...equipment,
-
-                    location: "inventory",
-
-                    x,
-                    y,
-
-                    beltSlot: undefined,
-                  }
-                : equipment
-          ),
-        };
-      })
+  const response =
+    await moveEquipmentToInventory(
+      selectedPjId,
+      equipmentId,
+      x,
+      y
     );
 
-    setDraggedEquipmentId(null);
+  const newDraggedId =
+  response.moveResult.newEquipmentDragged;
+
+setGameState(response.gameState);
+
+if (newDraggedId !== 0) {
+  const newDraggedEquipment =
+    response.gameState.team.pjs
+      .find((pj) => pj.id === selectedPjId)
+      ?.equipment.find(
+        (equipment) =>
+          equipment.id === newDraggedId
+      );
+
+  if (newDraggedEquipment) {
+    setDragOffset({
+      x: newDraggedEquipment.width * 50 / 2,
+      y: newDraggedEquipment.height * 50 / 2,
+    });
+  }
+
+  setDraggedEquipmentId(newDraggedId);
+} else {
+  setDraggedEquipmentId(null);
+}
   };
 
-  const handleDropOnEquipmentSlot = (
+  const handleDropOnEquipmentSlot = async (
+  equipmentId:number,
   slot: EquipmentSlot
 ) => {
   if (
@@ -175,42 +163,21 @@ export function useEquipmentDrag({
 
   if (!equipment) return;
 
-  // Vérification évidente côté front
-  if (equipment.type !== slot) {
-    setDraggedEquipmentId(null);
-    return;
-  }
+  if (selectedPjId === null) return;
 
-  setPjs((current) =>
-    current.map((pj) => {
-      if (pj.id !== selectedPjId) {
-        return pj;
-      }
+  const response =
+    await equipEquipment(
+      selectedPjId,
+      equipmentId,
+      slot
+    );
 
-      return {
-        ...pj,
-
-        equipment: pj.equipment.map((item) =>
-          item.id === draggedEquipmentId
-            ? {
-                ...item,
-
-                location: "equipped",
-                slot,
-
-                x: null,
-                y: null,
-
-                beltSlot: undefined,
-              }
-            : item
-        ),
-      };
-    })
+    setGameState(response.gameState);
+      setDraggedEquipmentId(
+    response.moveResult.newEquipmentDragged || null
   );
-
-  setDraggedEquipmentId(null);
 };
+
 
 const handleDropOnPj = (
   targetId: number

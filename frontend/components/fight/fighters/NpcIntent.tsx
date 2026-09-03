@@ -1,4 +1,4 @@
-import type { NpcIntentView } from "@/types/npcIntentView";
+import { NpcIntentView } from "@shared/types/npcIntentView";
 import { getIntentImagePath } from "@/utils/spritePaths";
 
 import { getPjImagePath } from "@/utils/spritePaths";
@@ -26,8 +26,11 @@ export default function NpcIntent({
         src={getIntentImagePath(intent.action)}
         alt="Intention du NPC"
         style={{
-          width: "100%",
-          height: "100%",
+           position: "relative",
+          width: "48px",
+          height: "48px",
+           top: "13px",
+          left: "15px",
           objectFit: "contain",
           pointerEvents: "none",
           userSelect: "none",
@@ -37,7 +40,7 @@ export default function NpcIntent({
       <div
         style={{
           position: "relative",
-          top: "-65px",
+          top: "-5px",
           left: "42px",
 
           width: "20px",

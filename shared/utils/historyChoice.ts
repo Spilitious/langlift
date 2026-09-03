@@ -3,6 +3,7 @@ import type { HistoryChoice } from "../types/history";
 export const Choice1: HistoryChoice = {
   choices: [
     {
+      id:1,
       text: "Next",
       destination: {
         type: "text",
@@ -16,6 +17,7 @@ export const Choice1: HistoryChoice = {
 export const Choice2: HistoryChoice = {
   choices: [
     {
+      id:2,
       text: "Votre constitution. Depuis toujours, vous êtes dur au mal et capable d'endurer les pires épreuves.",
       destination: {
         type: "text",
@@ -25,6 +27,7 @@ export const Choice2: HistoryChoice = {
     },
 
     {
+      id:3,
       text: "Votre force. Les longues années de labeur à la ferme vous ont forgé un corps puissant.",
       destination: {
         type: "text",
@@ -34,6 +37,7 @@ export const Choice2: HistoryChoice = {
     },
 
     {
+      id:4,
       text: "Votre affinité avec les énergies qui vous entourent. Depuis l'enfance, vous percevez parfois ce que les autres ne ressentent pas.",
       destination: {
         type: "text",
@@ -49,6 +53,7 @@ export const Choice2: HistoryChoice = {
 export const Choice3: HistoryChoice = {
   choices: [
     {
+      id:5,
       text: "Combattre",
       destination: {
         type: "fight",
@@ -63,6 +68,7 @@ export const Choice3: HistoryChoice = {
 export const Choice4: HistoryChoice = {
   choices: [
     {
+      id:6,
       text: "Next",
       destination: {
         type: "text",
@@ -77,6 +83,7 @@ export const Choice4: HistoryChoice = {
 export const Choice5: HistoryChoice = {
   choices: [
     {
+      id:7,
       text: "Next",
       destination: {
         type: "text",
@@ -90,6 +97,7 @@ export const Choice5: HistoryChoice = {
 export const Choice6: HistoryChoice = {
   choices: [
     {
+      id:8,
       text: "Ramasser la potion et prendre la fuite.",
       destination: {
         type: "text",
@@ -99,6 +107,7 @@ export const Choice6: HistoryChoice = {
     },
 
     {
+      id:9,
       text: "Abandonner la potion et fuir immédiatement.",
       destination: {
         type: "text",
@@ -108,11 +117,12 @@ export const Choice6: HistoryChoice = {
     },
 
     {
+      id:10,
       text: "Ramasser la potion et faire face à la créature.",
       destination: {
         type: "text",
         id: 9,
-         consequenceId:5, 
+         consequenceId:6, 
       },
     },
   ],
@@ -123,6 +133,7 @@ export const Choice6: HistoryChoice = {
 export const Choice7: HistoryChoice = {
   choices: [
     {
+      id:11,
       text: "Combattre",
       destination: {
         type: "fight",
@@ -137,6 +148,7 @@ export const Choice7: HistoryChoice = {
 export const Choice8: HistoryChoice = {
   choices: [
     {
+      id:12,
       text: "Next",
       destination: {
         type: "text",
@@ -151,6 +163,7 @@ export const Choice8: HistoryChoice = {
 export const Choice9: HistoryChoice = {
   choices: [
     {
+      id:13,
       text: "Next",
       destination: {
         type: "text",
@@ -165,7 +178,8 @@ export const Choice9: HistoryChoice = {
 export const Choice10: HistoryChoice = {
   choices: [
     {
-      text: "Sans réfléchir vous vous lancez à sa poursuite",
+      id:14,
+      text: "Vous réagissez rapidement et vous vous lancez à sa poursuite",
       destination: {
         type: "text",
         id: 13,
@@ -173,6 +187,7 @@ export const Choice10: HistoryChoice = {
       }
       },
        {
+        id:15,
       text: "Vous dégainnez votre arme et avancez prudemment",
       destination: {
         type: "text",
@@ -180,15 +195,7 @@ export const Choice10: HistoryChoice = {
         consequenceId:8, 
       }
     },
-       {
-      text: "Autre",
-      destination: {
-        type: "text",
-        id: 13,
-        consequenceId:9, 
-       }
-      },
-    
+         
   ],
 };
 
@@ -197,6 +204,7 @@ export const Choice10: HistoryChoice = {
 export const Choice11: HistoryChoice = {
   choices: [
     {
+      id:16,
       text: "Combattre",
       destination: {
         type: "fight",
@@ -210,6 +218,7 @@ export const Choice11: HistoryChoice = {
 export const Choice12: HistoryChoice = {
   choices: [
     {
+      id:17,
       text: "Next",
       destination: {
         type: "text",
@@ -224,6 +233,7 @@ export const Choice12: HistoryChoice = {
 export const Choice13: HistoryChoice = {
   choices: [
     {
+      id:18,
       text: "Next",
       destination: {
         type: "text",
@@ -238,6 +248,7 @@ export const Choice13: HistoryChoice = {
 export const Choice14: HistoryChoice = {
   choices: [
     {
+      id:19,
       text: "Next",
       destination: {
         type: "text",
@@ -252,6 +263,7 @@ export const Choice14: HistoryChoice = {
 export const Choice15: HistoryChoice = {
   choices: [
     {
+      id:20,
       text: "Next",
       destination: {
         type: "text",
@@ -266,6 +278,7 @@ export const Choice15: HistoryChoice = {
 export const Choice16: HistoryChoice = {
   choices: [
     {
+       id:21,
       text: "Next",
       destination: {
         type: "text",
@@ -280,22 +293,27 @@ export const Choice16: HistoryChoice = {
 export const Choice17: HistoryChoice = {
   choices: [
     {
+       id:22,
       text: "Suivre leur exemple et vous coucher. Après cette journée, vous avez grand besoin de repos.",
       destination: {
         type: "text",
         id: 20,
-         consequenceId:10, 
+        consequenceId:10, 
       },
     },
     {
-      text: "Profiter du calme pour vous exercer à l'épée. Les combats d'aujourd'hui vous ont montré tout ce qu'il vous reste à apprendre.",
+       id:23,
+      text: "Il est temps de regarder si vous pouvez tirer quelque chose de ces ingrédients que vous avez récupérés sur les différents monstres.",
       destination: {
         type: "text",
         id: 20,
          consequenceId:11, 
+          
       },
+      condition: (gameState) => gameState.team.profession.alchimie > 0,
     },
     {
+       id:24,
       text: "Prendre soin de votre épée. Jusqu'ici, cette lame est peut-être la seule chose qui vous ait maintenu en vie.",
       destination: {
         type: "text",
@@ -311,6 +329,7 @@ export const Choice17: HistoryChoice = {
 export const Choice18: HistoryChoice = {
   choices: [
     {
+       id:25,
       text: "Combattre",
       destination: {
         type: "fight",
@@ -325,6 +344,7 @@ export const Choice18: HistoryChoice = {
 export const Choice19: HistoryChoice = {
   choices: [
     {
+       id:26,
       text: "Décider de confiance à Gladys et lui raconter votre amnésie partielle et votre réveil dans les égouts.",
       destination: {
         type: "text",
@@ -333,6 +353,7 @@ export const Choice19: HistoryChoice = {
       },
     },
     {
+       id:27,
       text: "Lui répondre honnêtement, mais rester vague sur votre amnésie et les circonstances de votre réveil.",
       destination: {
         type: "text",
@@ -341,6 +362,7 @@ export const Choice19: HistoryChoice = {
       },
     },
     {
+       id:28,
       text: "Inventer une histoire. Après tout, vous ne connaissez presque rien de cette jeune femme.",
       destination: {
         type: "text",
@@ -356,6 +378,7 @@ export const Choice19: HistoryChoice = {
 export const Choice20: HistoryChoice = {
   choices: [
     {
+       id:29,
       text: "Next",
       destination: {
         type: "text",
@@ -368,6 +391,7 @@ export const Choice20: HistoryChoice = {
 export const Choice21: HistoryChoice = {
   choices: [
     {
+       id:30,
       text: "Une épée de belle facture autrement plus fiable que votre vieille lame.",
       destination: {
         type: "text",
@@ -376,6 +400,7 @@ export const Choice21: HistoryChoice = {
       },
     },
     {
+       id:31,
       text: "Un bâton de mage qui dégage une grande énergie.",
       destination: {
         type: "text",
@@ -384,6 +409,7 @@ export const Choice21: HistoryChoice = {
       },
     },
     {
+       id:32,
       text: "Une armure de cuir renforcé, légère et robuste",
       destination: {
         type: "text",
@@ -393,3 +419,69 @@ export const Choice21: HistoryChoice = {
     },
   ],
 };
+
+
+// Le récit du chef de la garde
+export const Choice22: HistoryChoice = {
+  choices: [
+    {
+       id:33,
+      text: "Next",
+      destination: {
+        type: "text",
+        id: 25,
+      },
+    },
+  ],
+};
+
+
+
+// Gladys entraine troylan au shop
+export const Choice23: HistoryChoice = {
+  choices: [
+    {
+       id:34,
+      text: "Next",
+      destination: {
+        type: "shop",
+        id: 1,
+      },
+    },
+  ],
+};
+
+
+// Gladys entraine troylan au shop
+export const Choice24: HistoryChoice = {
+   choices: [
+    {
+       id:35,
+      text: "Prélever la queue du rat. Vous avez entendu dire qu'ils sont des ingrédients précieux pour la fabrication de potions.",
+      destination: {
+        type: "text",
+        id: 4,
+         consequenceId:19, 
+      },
+    },
+    {
+       id:36,
+      text: "Récupérer les dents du rat. Leur surface rugueuse pourrait servir à reprendre grossièrement le fil de votre épée.",
+      destination: {
+        type: "text",
+        id: 4,
+         consequenceId:20, 
+      },
+    },
+    {
+       id:37,
+      text: "Prélever la fourrure. Quelques morceaux correctement découpés pourraient renforcer vos protections aux endroits les plus exposés.",
+      destination: {
+        type: "text",
+        id: 4,
+         consequenceId:21, 
+      },
+    },
+  ],
+};
+

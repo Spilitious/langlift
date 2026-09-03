@@ -225,7 +225,7 @@ export default function Npc({
             }}
           >
             <BlockShield
-              block={npc_data.shield}
+              block={npc_data.stats.shield}
               size={60}
             />
 

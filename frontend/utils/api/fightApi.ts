@@ -1,6 +1,7 @@
-import type { ActionResult } from "@shared/types/actionResult";
+import type { ActionResult, ActionResponse} from "@shared/types/actionResult";
 import type { ActionRequest } from "@shared/types/action";
-import type { PotionRequest } from "@shared/types/action";
+import type { PotionRequest} from "@shared/types/action";
+
 
 
 export async function sendAction(
@@ -32,9 +33,9 @@ export async function sendAction(
 
 export async function usePotion(
   request: PotionRequest
-): Promise<ActionResult> {
+): Promise<ActionResponse> {
   const response = await fetch(
-    "http://localhost:3001/api/fight/potion",
+    "http://localhost:3001/api/usePotion",
     {
       method: "POST",
 
@@ -54,3 +55,4 @@ export async function usePotion(
 
   return response.json();
 }
+

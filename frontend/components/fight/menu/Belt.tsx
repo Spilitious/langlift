@@ -1,8 +1,8 @@
 import { getImageEquipment } from "@/utils/spritePaths";
-import type { Equipment } from "@shared/types/equipment";
+import type { EquipmentView } from "@shared/types/equipmentView";
 
 type BeltProps = {
-  equipment: Equipment[];
+  equipment: EquipmentView[];
 
    draggedEquipmentId: number | null;
 
@@ -11,7 +11,7 @@ type BeltProps = {
     equipmentId: number
   ) => void;
 
-  onDropOnBeltSlot: (
+  onDropOnBeltSlot: (equipmentId:number,
     slot: number
   ) => void;
 };
@@ -25,6 +25,22 @@ export default function Belt({
   onEquipmentPointerDown,
   onDropOnBeltSlot,
 }: BeltProps) {
+
+  
+  const handlePointerUp = (event:React.PointerEvent,
+  slot: number
+) => {
+  if (draggedEquipmentId === null) {
+    return;
+  }
+
+    event.stopPropagation();
+  onDropOnBeltSlot(
+    draggedEquipmentId,
+    slot
+  );
+};
+
   return (
       <div
         style={{
@@ -61,8 +77,7 @@ export default function Belt({
     return (
       <div
         key={slot}
-        onPointerUp={() =>
-          onDropOnBeltSlot(slot)
+        onPointerUp={(event) => handlePointerUp(event,slot)
         }
         style={{
          

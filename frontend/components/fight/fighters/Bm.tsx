@@ -124,6 +124,7 @@ function BmItem({ bm, size, onDisappear }: BmItemProps) {
     </div>
   );
 }
+
 type BmProps = {
   bms: BmView[];
   size?: number;
@@ -135,6 +136,7 @@ export default function Bm({
  
 }: BmProps) {
   const [displayedBms, setDisplayedBms] =
+  
     useState<BmView[]>(bms);
 
   useEffect(() => {

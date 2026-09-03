@@ -8,15 +8,14 @@ import type { FightPopup } from "../../../shared/types/fightPopUp";
 
 
 import type {
-  NpcView,
-  PjView,
-} from "../../../shared/types/fighterView";
-
+  NpcSprite,
+  PjSprite,
+} from "@/types/fighterSprite";
 
 
 type BattlefieldProps = {
-  pjs: PjView[];
-  npcs: NpcView[];
+  pjs: PjSprite[];
+  npcs: NpcSprite[];
 
   selectedPjId: number | null;
   selectedNpcId: number | null;

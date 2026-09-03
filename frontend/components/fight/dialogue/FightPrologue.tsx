@@ -1,22 +1,22 @@
 "use client";
 
 import FightButton from "@/components/history/FightButton";
-import {historyTransitions } from   "@shared/utils/historyTransitions";
+import {historyPrologues } from   "@shared/utils/historyPrologues"
 
 
-type FightTransitionDialogProps = {
-  transitionId: number;
+type FightPrologueDialogProps = {
+  prologueId: number;
   onContinue: () => void;
 };
 
-export default function FightTransitionDialog({
-  transitionId,
+export default function FightPrologueDialog({
+  prologueId,
   onContinue,
-}: FightTransitionDialogProps) {
+}: FightPrologueDialogProps) {
 
     const currentText =
-        historyTransitions[transitionId];
-
+        historyPrologues[prologueId];
+  console.log("prologueID", prologueId);
   return (
     <div
       style={{

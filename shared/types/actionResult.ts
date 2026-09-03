@@ -1,7 +1,10 @@
-import { BmView } from "./bmView";
-import {AnimationName} from "./animation"
-import { FightPopupData } from "./fightPopUp";
-import { NpcIntentView } from "./npcIntentView";
+import type { BmView } from "./bmView";
+import type {AnimationName} from "./animation"
+import type { FightPopupData } from "./fightPopUp";
+import type { NpcIntentView } from "./npcIntentView";
+import type { GameStateView } from "./gameStateView";
+import type {EquipmentView} from "./equipmentView";
+import Equipment = require("../../backend/src/classes/Equipment");
 
 
 export type FightStatus =
@@ -24,7 +27,7 @@ export type TargetResult = {
 
   bm_end: BmView[];
 
-  new_intent: NpcIntentView;
+  new_intent?: NpcIntentView;
 
   popup: FightPopupData;
 };
@@ -37,4 +40,27 @@ export type ActionResult = {
 
   steps: TargetResult[][];
   fightStatus: FightStatus;
+};
+
+export type ActionResponse = {
+  result: ActionResult;
+  gameState: GameStateView;
+};
+
+export type VictoryResult= {
+    xpResult:XpResult[];
+    loots:EquipmentView[];
+}
+
+export type XpResult = {
+  pjName: string;
+  xpGained: number;
+  level_up: boolean;
+};
+
+export type CreatePotionResult = {
+  success: boolean;
+  potion: EquipmentView | null;
+  ingredientUsed:boolean;
+  gameState: GameStateView;
 };

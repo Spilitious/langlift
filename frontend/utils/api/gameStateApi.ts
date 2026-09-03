@@ -19,3 +19,20 @@ export const loadGameState = async (): Promise<GameStateView> => {
 
   return response.json();
 };
+
+export async function resetGameState(): Promise<GameStateView> {
+  const response = await fetch(
+    "http://localhost:3001/api/reset",
+    {
+      method: "POST",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Impossible de reset le GameState"
+    );
+  }
+
+  return response.json();
+}

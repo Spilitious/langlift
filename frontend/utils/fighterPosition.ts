@@ -4,15 +4,15 @@ export const getNpcPosition = (
   switch (position) {
     case 1: return [50, 10];
     case 2: return [50, 40];
-    case 3: return [50, 70];
+    case 3: return [50, 65];
 
     case 4: return [65, 10];
     case 5: return [65, 40];
-    case 6: return [65, 70];
+    case 6: return [65, 65];
 
     case 7: return [80, 10];
     case 8: return [80, 40];
-    case 9: return [80, 70];
+    case 9: return [80, 65];
 
     default: return [65, 24];
   }

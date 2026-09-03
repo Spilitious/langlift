@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { PjView } from "@shared/types/fighterView";
 import { getImageEquipment } from "@/utils/spritePaths"
 import EquipmentSlots from "./EquipmentSlots";
-import type { EquipmentSlot } from "@shared/types/equipment";
+import type { EquipmentSlot } from "@shared/types/equipmentView";
 
 type InventoryProps = {
   pj: PjView;
@@ -23,7 +23,7 @@ type InventoryProps = {
   ) => void;
 
   onDropEquipmentSlot: (
-    
+   equipmentId:number, 
    slot:EquipmentSlot
   ) => void;
 
@@ -48,14 +48,7 @@ export default function Inventory({
   onDropEquipmentSlot,
   
 }: InventoryProps) {
-  const [draggedId, setDraggedId] =
-    useState<number | null>(null);
-
-  const [mousePosition, setMousePosition] =
-    useState({
-      x: 0,
-      y: 0,
-    });
+  
 
    
 
@@ -85,27 +78,8 @@ function snapToCell(
     : baseCell;
 }
 
-  const draggedEquipment =
-    pj.equipment.find(
-      (equipment) =>
-        equipment.id === draggedId
-    ) ?? null;
-
     
  
-
-  const handlePointerMove = (
-    event: React.PointerEvent<HTMLDivElement>
-  ) => {
-    if (draggedId === null) return;
-
-    setMousePosition({
-      x: event.clientX,
-      y: event.clientY,
-    });
-  };
-
-
 const handlePointerUp = (
   event: React.PointerEvent<HTMLDivElement>
 ) => {
@@ -193,13 +167,13 @@ const handlePointerUp = (
       equipment={equipped}
       draggedEquipmentId={draggedEquipmentId}
       onEquipmentPointerDown={onEquipmentPointerDown}
-      onDropEquipmentSlot={onDropEquipmentSlot} />
+      onDrop={onDropEquipmentSlot} />
     </div>
 
     
       {/* ZONE EXACTE DE L'INVENTAIRE */}
       <div
-        onPointerMove={handlePointerMove}
+       
         onPointerUp={handlePointerUp}
         style={{
             position: "relative",
@@ -268,41 +242,7 @@ const handlePointerUp = (
     );
   })}
 
-  {draggedEquipment && (
-    <img
-      src={getImageEquipment(
-        draggedEquipment.type,
-        draggedEquipment.image
-      )}
-      alt={draggedEquipment.name}
-      draggable={false}
-      style={{
-        position: "fixed",
-
-        left: mousePosition.x,
-        top: mousePosition.y,
-
-        width:
-          draggedEquipment.width *
-          CELL_WIDTH,
-
-        height:
-          draggedEquipment.height *
-          CELL_HEIGHT,
-
-        objectFit: "contain",
-
-        transform: `translate(
-          ${-dragOffset.x}px,
-          ${-dragOffset.y}px
-        )`,
-
-        pointerEvents: "none",
-
-        zIndex: 10000,
-      }}
-    />
-  )}
+ 
 </div></div>
 );
 }

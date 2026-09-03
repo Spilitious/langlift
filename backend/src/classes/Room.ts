@@ -1,49 +1,71 @@
 import type { RoomView } from "../../../shared/types/roomView.js";
+import type { HistoryDestination } from "../../../shared/types/history.js";
+import type { VictoryResult } from "../../../shared/types/actionResult.js";
 
-import {
-  getBasicRoom,
-} from "../utils/basicRoom.js";
-
+import { getBasicRoom } from "../utils/basicRoom.js";
+import { Npc } from "./Npc.js";
 
 export class Room {
-  data: RoomView;
-  
+  id: number;
+  imageId: number;
+  destination: HistoryDestination;
+  transitionId: number;
+  prologueId:number;
+  xp: number;
+  npcs: Npc[];
+  cleared:boolean;
+  victoryResult: VictoryResult | null = null;
 
   constructor(basicRoomId: number) {
-    const basicRoom =
-      getBasicRoom(basicRoomId);
+  const basicRoom = getBasicRoom(basicRoomId);
 
-      
-/*
-    const npcs = basicRoom.npcs_idBasicRace.map(
-      (basicRaceId, index) => {
-        const npc =
-          Npc.generate(basicRaceId);
+  if (!basicRoom) {
+    throw new Error(`BasicRoom ${basicRoomId} introuvable`);
+  }
 
-        npc.data.position =
-          basicRoom.npcs_position[index];
+  this.id = basicRoom.id;
+  this.imageId = basicRoom.imageId;
+  this.destination = basicRoom.destination;
+  this.transitionId = basicRoom.transitionId;
+  this.prologueId = basicRoom.prologueId;
+  this.xp = basicRoom.xp;
+  this.npcs = [];
+  this.cleared= false;
 
-        return npc.data;
-      }
-    );*/
+  for (const npcData of basicRoom.npcs) {
+    const level =
+      Math.floor(
+        Math.random() * (npcData.level_max - npcData.level_min + 1)
+      ) + npcData.level_min;
 
-    this.data = {
-      id: basicRoom.id,
+    const npc = new Npc(npcData.basicRaceId, level);
 
-      imageId:
-        basicRoom.imageId,
+    npc.position = npcData.position;
 
-      destination:
-        basicRoom.destination,
-
-      transitionId:
-        basicRoom.transitionId,
-
-      npcs,
-
-      xp:basicRoom.xp,
-    };
-
-   
+    this.npcs.push(npc);
   }
 }
+
+  toView(): RoomView {
+    return {
+      id: this.id,
+      imageId: this.imageId,
+      destination: this.destination,
+      transitionId: this.transitionId,
+      prologueId: this.prologueId,
+      xp: this.xp,
+
+      npcs: this.npcs.map(
+        (npc) => npc.toView()
+      ),
+    };
+  }
+
+   buildNpc() {
+     
+
+    
+  }
+}
+
+ 

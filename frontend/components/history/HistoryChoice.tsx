@@ -3,14 +3,12 @@
 import { useState } from "react";
 import NextButton from "./NextButton";
 import FightButton from "./FightButton";
+import { useGame } from "@/context/GameContext";
 
-import type {
-  HistoryChoice as HistoryChoiceType,
-  HistoryDestination,
-} from "../../../shared/types/history";
+import type { HistoryChoice, HistoryDestination} from "../../../shared/types/history";
 
 type HistoryChoiceProps = {
-  choice: HistoryChoiceType;
+  choice: HistoryChoice;
   onChoice: (destination: HistoryDestination) => void;
 };
 
@@ -32,35 +30,26 @@ function ChoiceButton({
       onMouseLeave={() => setHover(false)}
       style={{
         position: "relative",
-
         width: "100%",
         minHeight: "45px",
-
         display: "flex",
         alignItems: "center",
-
         // On réserve la place pour la flèche
         padding: "8px 15px 8px 55px",
-
         background: hover
           ? "rgba(232, 215, 165, 0.12)"
           : "transparent",
-
         border: "none",
-
         color: hover
-  ? "#f0c35a"
-  : "#c18a32",
-
+          ? "#f0c35a"
+          : "#c18a32",
         fontSize: "20px",
         fontFamily: "Georgia, serif",
         fontWeight: "bold",
-
         cursor: "pointer",
         textAlign: "left",
         whiteSpace: "normal",
         lineHeight: "1.4",
-
         transition:
           "background 200ms ease, color 200ms ease",
       }}
@@ -73,17 +62,12 @@ function ChoiceButton({
           draggable={false}
           style={{
             position: "absolute",
-
             left: "5px",
             top: "50%",
-
             width: "40px",
             height: "28px",
-
             objectFit: "contain",
-
             transform: "translateY(-50%)",
-
             pointerEvents: "none",
           }}
         />
@@ -99,12 +83,23 @@ export default function HistoryChoice({
   onChoice,
 }: HistoryChoiceProps) {
 
+
+  const { gameState, setGameState } = useGame();
+  if(!gameState)
+    return;
+
+  const availableChoices = choice.choices.filter(
+      choice =>
+        !choice.condition ||
+        choice.condition(gameState)
+    );
+
   // Aucun choix
   if (choice.choices.length === 0) {
     return null;
   }
 
-  // Un seul choix → bouton SUITE
+  // Un seul choix → bouton SUITE ou COMBATTRE
   if (choice.choices.length === 1) {
     if(choice.choices[0].text === "Next")
     {
@@ -129,6 +124,8 @@ export default function HistoryChoice({
     );
     }
 
+    
+    
 
 
     }
@@ -137,15 +134,13 @@ export default function HistoryChoice({
     <div
       style={{
         width: "100%",
-
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",
-
         gap: "8px",
       }}
     >
-      {choice.choices.map(
+      {availableChoices.map(
         (currentChoice, index) => (
           <ChoiceButton
             key={index}

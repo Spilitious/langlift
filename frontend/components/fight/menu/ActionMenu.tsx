@@ -15,7 +15,7 @@ type ActionMenuProps = {
   onEndTurn : () => void;
 
   dragEquipmentId : number | null;
-  onDropBeltSlot : (slot:number) => void,
+  onDropBeltSlot : (equipmentId:number, slot:number) => void,
   onEquipmentPointerDown :  (
      event: React.PointerEvent,
      equipmentId: number

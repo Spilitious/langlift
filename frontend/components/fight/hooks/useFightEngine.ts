@@ -88,7 +88,7 @@ const showFightPopup = (
 
   setPjs((current) =>
     current.map((pj) =>
-      pj.hp <= 0
+      pj.base_att.currhp <= 0
         ? pj
         : {
             ...pj,

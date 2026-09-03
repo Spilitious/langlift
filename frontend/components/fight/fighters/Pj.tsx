@@ -33,9 +33,9 @@ type PjProps = {
    selected:boolean;
     onClick: () => void;
     onAuthorImpact?: () => void;
-  onReactionImpact?: () => void;
-  onReactionEnd: () => void;
- onEquipmentDrop: () => void;
+    onReactionImpact?: () => void;
+    onReactionEnd: () => void;
+    onEquipmentDrop: () => void;
 };
 
 export default function Pj({
@@ -226,7 +226,7 @@ switch (animationType) {
   }}
 >
   <BlockShield
-    block={pj_data.shield}
+    block={pj_data.stats.shield}
     size={60}
   />
 
@@ -236,8 +236,8 @@ switch (animationType) {
     }}
   >
     <HealthBar
-      hp={pj_data.hp}
-      maxHp={pj_data.maxHp}
+      hp={pj_data.base_att.currhp}
+      maxHp={pj_data.stats.maxhp}
     />
     </div>
 </div>

@@ -1,8 +1,8 @@
 import { getImageEquipment } from "@/utils/spritePaths"
 import type {
-  Equipment,
-  TypeEquipment,
-} from  "@shared/types/equipment";
+  EquipmentView,
+  EquipmentType,
+} from  "@shared/types/equipmentView";
 
 type EquipmentSlot =
   | "helm"
@@ -11,7 +11,7 @@ type EquipmentSlot =
   | "shield";
 
 type EquipmentSlotsProps = {
-  equipment: Equipment[];
+  equipment: EquipmentView[];
   draggedEquipmentId: number | null;
 
   onEquipmentPointerDown: (
@@ -19,7 +19,8 @@ type EquipmentSlotsProps = {
     equipmentId: number
   ) => void;
 
-  onDropEquipmentSlot: (
+  onDrop: (
+    EquipmentId:number,
     slot: EquipmentSlot
   ) => void;
 };
@@ -28,7 +29,7 @@ export default function EquipmentSlots({
   equipment,
   draggedEquipmentId,
   onEquipmentPointerDown,
-  onDropEquipmentSlot,
+  onDrop,
 }: EquipmentSlotsProps) {
 
   const getEquipped = (
@@ -48,11 +49,24 @@ export default function EquipmentSlots({
 ) => {
   const item = getEquipped(slot);
 
+  const handlePointerUp = ( event: React.PointerEvent,
+  slot: EquipmentSlot
+) => {
+  if (draggedEquipmentId === null) {
+    return;
+  }
+
+  event.stopPropagation();
+  onDrop(
+    draggedEquipmentId,
+    slot
+  );
+};
+
   return (
     <div
-      onPointerUp={() =>
-        onDropEquipmentSlot(slot)
-      }
+      onPointerUp={(event) => handlePointerUp(event, slot)}
+      
       style={{
         position: "relative",
 

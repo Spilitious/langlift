@@ -9,20 +9,12 @@ router.post("/destination", (req, res) => {
     const destination =
       req.body as HistoryDestination;
 
-    console.log(
-      "DESTINATION RECUE =",
-      destination
-    );
 
     gameState.setDestination(destination);
 
     const view =
       gameState.toView();
 
-    console.log(
-      "GAMESTATE APRES =",
-      view
-    );
 
     return res.json(view);
   } catch (error) {

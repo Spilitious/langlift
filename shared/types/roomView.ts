@@ -7,5 +7,6 @@ export type RoomView = {
     destination:HistoryDestination,
     npcs:NpcView[],
     transitionId:number,
+    prologueId:number,
     xp:number,
 }

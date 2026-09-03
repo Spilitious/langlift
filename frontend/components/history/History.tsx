@@ -50,12 +50,13 @@ export default function History({
   destination: HistoryDestination
 ) => {
 
-/*
+
   if (destination.consequenceId !== undefined) {
+    console.log("addConsequence");
    await executeConsequence(
       destination.consequenceId
     );
-  } */
+  } 
  
   onDestination(destination);
 };

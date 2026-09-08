@@ -1,16 +1,18 @@
-import type { Action } from "../../../../shared/types/action";
+
 import ActionButton from "./ActionButton";
 import InventoryButton from "./InventoryButton";
-import EndTurnButton from "./EndTurnButton";
-import { getActionImagePath } from "@/utils/actionImagePath";
+import MainButton from "../../button/MainButton";
+import { getActionImagePath } from "@/utils/spritePaths";
 import type { PjView } from "../../../../shared/types/fighterView";
 import Belt from "./Belt";
+import { AbilityView } from "@shared/types/abilityView";
+import PjProfil from "./PjProfil";
 
 type ActionMenuProps = {
-    pj: PjView | null;
-  selectedAction: Action | null;
+  pj: PjView;
+  selectedAction: AbilityView | null;
   inventoryOpen : boolean;
-  onSelectAction: (action: Action) => void;
+  onSelectAction: (action: AbilityView) => void;
   onToggleInventory : () => void;
   onEndTurn : () => void;
 
@@ -37,7 +39,7 @@ export default function ActionMenu({
 
 }: ActionMenuProps) {
 
-  const actions = pj?.actions ?? [];
+  const abilitys = pj?.ability ?? [];
 
 const beltEquipment =
   pj?.equipment.filter(
@@ -46,26 +48,39 @@ const beltEquipment =
   ) ?? [];
 
 
-  const baseActions: Action[] = [
+  const baseAbility: AbilityView[] = [ 
     {
       id: 1,
-      name: "Attack",
-      type: "base",
-      target_type: "npc",
+      basicAbilityId:1,
       image: 1,
+      name: "Attack",
+      type: "ability",
+      school : "Guerrier",
+      formula : "",
+      detail: "",
+      target: "npc",
+      ap: 1,
+      duration:0
+
     },
     {
       id: 2,
-      name: "Block",
-      type: "base",
-      target_type: "self",
+      basicAbilityId:2,
       image: 2,
+      name: "Shield",
+      type:'ability',
+      school : "Guerrier",
+      formula : "",
+      detail: "",
+      target: "self",
+      ap: 1,
+      duration:0
     },
   ];
 
-  const allActions = [
-    ...baseActions,
-    ...actions,
+  const allAbilitys = [
+    ...baseAbility,
+    ...abilitys,
   ];
  return (
   <div
@@ -76,22 +91,33 @@ const beltEquipment =
       height: "100%",
     }}
   >
+    <div 
+     style={{
+      position:"relative",
+      left : "60px",
+      top: "10px" }}
+      >
+    <PjProfil 
+       player={pj}/>
+    </div>
+    
+    
+    
     {/* ACTIONS */}
     <div
       style={{
         display: "flex",
         gap: "10px",
-        marginLeft: "50px",
+        marginLeft: "150px",
+       
       }}
     >
-      {allActions.map((action) => (
+      {allAbilitys.map((action) => (
         <ActionButton
-          key={`${action.type}-${action.id}`}
-          image={getActionImagePath(
-            action.image,
-            action.type
-          )}
-          selected={selectedAction?.id === action.id}
+          key={action.basicAbilityId}
+          image={getActionImagePath(action.image)}
+          selected={selectedAction?.basicAbilityId === action.basicAbilityId}
+          disabled={pj.ap < action.ap}
           onClick={() => onSelectAction(action)}
         />
       ))}
@@ -104,26 +130,12 @@ const beltEquipment =
       }}
     ></div>
 
-<Belt equipment={beltEquipment} 
+  <Belt equipment={beltEquipment} 
     draggedEquipmentId={dragEquipmentId}
      onEquipmentPointerDown={onEquipmentPointerDown}
      onDropOnBeltSlot={onDropBeltSlot}
    />
-    {/* INVENTAIRE À DROITE */}
-    <div
-      style={{
-        marginLeft: "auto",
-        marginRight: "50px",
-        userSelect: "none",
-        WebkitUserSelect: "none",
-      }}
-    >
-      <InventoryButton
-        open={inventoryOpen}
-        onClick={onToggleInventory}
-      />
-    </div>
-
+    
      <div
       style={{
         marginLeft: "auto",
@@ -132,9 +144,9 @@ const beltEquipment =
                 WebkitUserSelect: "none",
       }}
     >
-      <EndTurnButton
+      <MainButton
         onClick={onEndTurn}
-         
+        name="endTurn"
         disabled={disabled}
       />
     </div>

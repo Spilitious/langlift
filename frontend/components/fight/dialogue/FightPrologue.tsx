@@ -1,6 +1,6 @@
 "use client";
 
-import FightButton from "@/components/history/FightButton";
+import MainButton from "@/components/button/MainButton";
 import {historyPrologues } from   "@shared/utils/historyPrologues"
 
 
@@ -74,8 +74,9 @@ export default function FightPrologueDialog({
             justifyContent: "center",
           }}
         >
-          <FightButton
+          <MainButton
             onClick={onContinue}
+            name="fight"
           />
         </div>
       </div>

@@ -5,6 +5,9 @@ import type { BuyResult } from "../../../shared/types/shop.js"
 import type { ActionResult } from "../../../shared/types/actionResult.js";
 import type { XpResult } from "../../../shared/types/actionResult.js";
 import type { Profession } from "../../../shared/types/teamView.js";
+import { basicAbilities } from "../utils/basicAbility.js";
+import type { AbilityView } from "../../../shared/types/abilityView.js";
+import { Ability } from "./Abitlity.js";
 
 export class Team {
   pjs: Pj[];
@@ -12,7 +15,7 @@ export class Team {
   profession:Profession;
 
 
- constructor() {
+constructor() {
     this.pjs = [];
     this.gold =1000;
     this.profession = {
@@ -20,26 +23,53 @@ export class Team {
       blacksmith: 0,
       armorsmith: 0
     }
+}
 
-
- }
-
- addPj(pj:Pj) {
-    this.pjs.push(pj);
- }
-
- getNumberPj():number {
-  return this.pjs.length
- }
-
- toView():TeamView {
+ 
+toView():TeamView {
     return {
     pjs: this.pjs.map((pj) => pj.toView()),
     gold: this.gold,
     profession: this.profession,
     }
+}
+
+/* ****************************************** GESTION DES PJ ************************************************** */
+
+addPj(pj:Pj) {
+    this.pjs.push(pj);
  }
 
+getPj(pjId:number):Pj {
+    const pj = this.pjs.find((pj) => pj.id === pjId);
+    if(!pj) {
+       throw new Error(`Pj introuvable : ${pjId}`);
+    }
+    return pj;
+ }
+
+ 
+/* ****************************************** GESTION DES ABILITY ************************************************** */
+learnAbility(pjId:number, basicAbilityId:number) {
+  this.getPj(pjId).learAbility(basicAbilityId);
+}
+
+levelUp(pjId:number):number {
+  return this.getPj(pjId).levelUp();
+}
+
+getLearnableAbilities(pjId:number):AbilityView[] {
+  
+  return this.getPj(pjId).getLearnableAbilities();
+}
+
+
+
+ initNewFight() {
+   for(const pj of this.pjs)
+      pj.initNewFight();
+ }
+ 
   transferEquipment(
     fromPjId: number,
     toPjId: number,
@@ -66,12 +96,15 @@ dealXp(xp: number): XpResult[] {
       rest--;
     }
 
+    let levelUp = false;
     pj.addXp(xpGained);
+    if(pj.xp >= pj.getNextLevelXP())
+        levelUp = true;
 
     results.push({
       pjName: pj.name,
       xpGained,
-      level_up: false,
+      level_up: levelUp,
     });
   }
 
@@ -208,4 +241,6 @@ usePotion(
 
   return result;
 }
+
+
 }

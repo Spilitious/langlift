@@ -51,7 +51,11 @@ export default function Npc({
   const animationType =
     getAnimationType(npc_data.animation.name);
 
-   
+   console.log(
+  "NPC RENDER",
+  npc_data.id,
+  JSON.stringify(npc_data.bms, null, 2)
+);
   const idleSprite = (
     <div
       onClick={onClick}
@@ -164,7 +168,8 @@ export default function Npc({
 
       <ShakeAnimation
         trigger={npc_data.animation.id}
-        onImpact={onAuthorImpact}
+       
+        onEnd={onReactionEnd}
       />
     </>
   );
@@ -235,8 +240,8 @@ export default function Npc({
               }}
             >
               <HealthBar
-                hp={npc_data.hp}
-                maxHp={npc_data.maxHp}
+                hp={npc_data.stats.currhp}
+                maxHp={npc_data.stats.maxhp}
               />
             </div>
           </div>
@@ -249,6 +254,7 @@ export default function Npc({
           >
             <Bm
               bms={npc_data.bms}
+              armor={npc_data.stats.armor}
               size={28}
             />
           </div>
@@ -264,7 +270,8 @@ export default function Npc({
     }}
   >
     <NpcIntent
-      intent={npc_data.npc_intent}
+      intent={npc_data.intent}
+      
       size={70}
     />
   </div>

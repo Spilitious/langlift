@@ -1,5 +1,4 @@
 
-import { EndTurnResult } from  "../../../../shared/types/ia";
 import { useRef, useState } from "react";
 import { getNpcPosition, getPjPosition } from "@/utils/fighterPosition";
 
@@ -102,7 +101,7 @@ const showFightPopup = (
 
   setNpcs((current) =>
     current.map((npc) =>
-      npc.hp <= 0
+      npc.stats.currhp <= 0
         ? npc
         : {
             ...npc,
@@ -210,15 +209,19 @@ const applyTargetResult = (
       name: target.animationName
     };
 
+
     if (target.target_type === "pj") {
       setPjs((current) =>
         current.map((pj) =>
           pj.id === target.id_target
             ? {
                 ...pj,
-
-                hp: target.hp_end,
+                stats: {
+                ...pj.stats,
+                currhp: target.hp_end,
                 shield: target.shield_end,
+                armor: target.armor_end,
+                },
                 bms: target.bm_end,
 
                 animation,
@@ -229,23 +232,29 @@ const applyTargetResult = (
     }
 
     if (target.target_type === "npc") {
-     
+     console.log(
+  "APPLY TARGET",
+  target.id_target,
+  "BM_END",
+  JSON.stringify(target.bm_end, null, 2)
+);
     setNpcs((current) =>
     current.map((npc) => {
       if (npc.id !== target.id_target) {
         return npc;
       }
 
-     
-
       return {
         ...npc,
-
-       old_intent: npc.npc_intent,
+       old_intent: npc.intent,
        pending_intent: target.new_intent,
-
-        hp: target.hp_end,
-        shield: target.shield_end,
+       
+        stats: {
+          ...npc.stats,
+          currhp: target.hp_end,
+          shield: target.shield_end,
+          armor : target.armor_end,
+        },
         bms: target.bm_end,
 
         animation,
@@ -338,6 +347,10 @@ showFightPopup(
   const handleReactionEnd = () => {
  
     pendingReactions.current -= 1;
+    console.log(
+    "pendingReactions:",
+    pendingReactions.current
+  );
     if (
       pendingReactions.current > 0
     ) {
@@ -362,9 +375,9 @@ showFightPopup(
           npc.id === target.id_target
             ? {
                 ...npc,
-                npc_intent:
+                intent:
                   npc.pending_intent ??
-                  npc.npc_intent,
+                  npc.intent,
 
                 pending_intent: undefined,
                 old_intent: undefined,
@@ -377,17 +390,19 @@ showFightPopup(
 
     currentStep.current += 1;
 
+    resetAnimations();
     if (
       currentStep.current <
       result.steps.length
     ) {
+       
       playCurrentStep();
       return;
     }
 
     pendingResult.current = null;
 
-    resetAnimations();
+    
 
    
     // Signale que l'ActionResult
@@ -399,16 +414,25 @@ showFightPopup(
 
   /* ********************************************* Lance les animations du result de l'IA après EndTurn ********************* */
  const playEndTurn = async (
-  result: EndTurnResult
+  result: ActionResult[]
 ) => {
 
-  for (const event of result.events) {
-      await playActionResult(event); 
+  for (const r of result) {
+    if (r.animationName === "idle" && r.steps.length === 0)
+       continue;
+ 
+    await playActionResult(r); 
   }
 
 
-};
+}
   
+const playEntryInRoom = async(result:ActionResult[]) => {
+  for (const r of result) {
+      await playActionResult(r); 
+  }
+
+}
   
 
 
@@ -424,6 +448,7 @@ showFightPopup(
     handleAuthorImpact,
     handleReactionImpact,
     handleReactionEnd,
+    playEntryInRoom,
     
   };
 }

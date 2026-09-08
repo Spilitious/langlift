@@ -1,31 +1,32 @@
 import type { NpcView } from "../../../shared/types/fighterView.js";
 import type { NpcIntentView } from "../../../shared/types/npcIntentView.js";
-
-import type {StatName,  } from "../../../shared/types/label.js";
+import type {StatName} from "../../../shared/types/label.js";
+import type { BasicNpc } from "../types/basicNpc.js";
+import type { NpcBaseAttributes } from "../../../shared/types/label.js";
+import type { BmView } from "../../../shared/types/bmView.js";
 import {STAT_NAMES} from "../../../shared/types/label.js";
-import   {Bm } from "./Bm.js"
-import type { BasicNpc } from "../types/basicPj.js";
+
 import { basicNpcs } from "../utils/basicNpc.js";
 
-export class Npc {
+import   {Bm } from "./Bm.js"
+import { Fighter } from "./Fighter.js";
+
+
+
+export class Npc extends Fighter{
   private static nextId = 1;
   id: number;
   basicRaceId: number;
   image: number;
   level: number;
   name: string;
-  hp: number;
-  maxHp:number;
-  armor:number;
+  base_att:NpcBaseAttributes;
   position: number;
-  npcIntent: NpcIntentView;
-  power:number[];
-  bms:Bm[];
+  intent: NpcIntentView;
+  
 
-
-
-  constructor(basicRaceId: number, level:number) {
-   
+constructor(basicRaceId: number, level:number) {
+    super();
     this.id = Npc.nextId++;
     this.basicRaceId = basicRaceId;
     const basicNpc = basicNpcs.find(npc => npc.id === basicRaceId);
@@ -37,23 +38,32 @@ export class Npc {
     this.name = basicNpc.name;
     this.image = basicNpc.image;
     this.level = level;
-    this.maxHp = basicNpc.hp_start;
-    this.armor = basicNpc.armor_start;
-    this.power = [...basicNpc.power_start];
-    this.bms = [...basicNpc.bms];
+    this.base_att = {
+      maxHp: basicNpc.hp_start+Math.floor(Math.random()*basicNpc.hp_start/7),
+      damage: basicNpc.damage_start,
+      magicSkill: basicNpc.magicSkill_start,
+      currhp:0,
+      shield:0,
+      armor:basicNpc.armor_start,
+      power:basicNpc.power_start,
+    };
+    this.bms = [];
+    for(const basicBmId of basicNpc.bms) {
+        this.bms.push(new Bm(basicBmId, 1))
+    }
 
     const levelsToGenerate = level - basicNpc.level_start;
     for (let i = 0; i < levelsToGenerate; i++) {
         this.upgrade(basicNpc);
     }
-
-    this.hp = this.maxHp;
+    
+    this.base_att.currhp = this.base_att.maxHp;
     this.position = 0;
-    this.npcIntent = {
+    this.intent = {
       action:1,
       target:1,
       target_image:1,
-      value:this.getStat("power1"),
+      value:this.getStat("damage"),
     }
 
   }
@@ -67,10 +77,8 @@ export class Npc {
       image: this.image,
       name:this.name,
       level:this.level,
-      hp: this.hp,
-      maxHp: this.maxHp,
       position: this.position,
-      npc_intent: this.npcIntent,
+      intent: this.intent,
       bms: this.bms.map( (bm) => bm.toView()),
        stats: Object.fromEntries(
       STAT_NAMES.map((stat) => [
@@ -82,7 +90,12 @@ export class Npc {
   }
 
 
-    getStat(stat:StatName):number {
+    getBmViews():BmView[] {
+      return this.bms.map((bm) => bm.toView());
+    }
+
+
+getStat(stat:StatName):number {
       let value = 0;
   
       switch (stat) {
@@ -90,86 +103,123 @@ export class Npc {
         value = 0;
         break;
   
-      case "shield":
-        value = 0;
-        break;
-      
       case "maxhp": 
-        value = this.maxHp;
-        break;
-
-      case "power1": 
-        if(this.power[0])
-          value = this.power[0]; 
-        break;
-
-      case "power2": 
-       if(this.power[1])
-        value = this.power[1];
+        value = this.base_att.maxHp;
         break;
       
-      case "power3":
-        if(this.power[2])
-          value = this.power[2]; 
+      case "currhp": 
+        value = this.base_att.currhp;
+        break;
+
+      case "damage": 
+        value = this.base_att.damage;
+        break;
+      
+      case "shield": 
+        value = this.base_att.shield;
+        break;
+
+      case "armor": 
+        value = this.base_att.armor;
+        break;
+      
+      case "magicSkill": 
+        value = this.base_att.magicSkill;
+        break;
+    
+      case "power": 
+        value = this.base_att.power;
         break;
       
       }
       
-      return value;
+      return value+this.getBmBonus(stat);
     }
 
-  private upgrade(basicNpc: BasicNpc) {
+private upgrade(basicNpc: BasicNpc) {
+
+  
+
   const dice = Math.random() * 100;
 
   let limit = basicNpc.upgradeRate.hp;
 
   if (dice < limit) {
-    this.maxHp += 6;
+    this.base_att.maxHp += 6;
     return;
   }
 
   limit += basicNpc.upgradeRate.armor;
 
   if (dice < limit) {
-    this.armor += 1;
+    this.base_att.armor += 1;
+    return;
+  }
+
+  limit += basicNpc.upgradeRate.damage;
+  
+  if (dice < limit) {
+    this.base_att.damage += 1;
+    return;
+  }
+
+  limit += basicNpc.upgradeRate.magicSkill;
+  
+  if (dice < limit) {
+    this.base_att.magicSkill += 1;
+    return;
+  }
+
+  limit += basicNpc.upgradeRate.power;
+  
+  if (dice < limit) {
+    this.base_att.damage += 1;
     return;
   }
 
   limit += basicNpc.upgradeRate.bm_start;
-  
   if(dice < limit) {
     //add one effect on the bm présent
     return;
   }
-  for (let i = 0; i < basicNpc.power_start.length; i++) {
-    const rate = basicNpc.upgradeRate.power[i];
-
-    if (rate === undefined) {
-      throw new Error(
-        `Upgrade rate manquant pour power[${i}] de ${basicNpc.name}`
-      );
-    }
-
-    limit += rate;
-
-    if (dice < limit) {
-      this.addPower(i, 1);
-      return;
-    }
-  }
+  
+  
 
 
 }
 
-addPower(index: number, value: number) {
-  const currentPower = this.power[index];
 
-  if (currentPower === undefined) {
-    throw new Error(
-      `Power ${index} inexistante pour ${this.name}`
-    );
+setIntent(basicActionId: number, value:number, targetId?: number,  target_image?: number): void {
+  this.intent = {
+    action: basicActionId,
+    target: targetId ?? 0,
+    target_image: target_image ?? 0,
+    value: value,
+  };
+}
+
+
+setHp(value:number):number {
+    if(value > 0)
+      return this.getHealed(value);
+    else 
+      return this.getHit(-value);
   }
 
-  this.power[index] = currentPower + value;
+  
+getHit(damage:number):number {
+  const realHp = Math.min(damage, this.base_att.currhp);
+  this.base_att.currhp -= realHp;
+  return realHp;
+ 
 }
+
+getHealed(hp: number): number {
+
+  const realHp = Math.min(hp,this.getStat("maxhp") - this.base_att.currhp);
+  this.base_att.currhp += realHp;
+  return realHp;
+  }
+
+
 }

@@ -345,7 +345,7 @@ export const Choice19: HistoryChoice = {
   choices: [
     {
        id:26,
-      text: "Décider de confiance à Gladys et lui raconter votre amnésie partielle et votre réveil dans les égouts.",
+      text: "Décider de faire confiance à Gladys et lui raconter votre amnésie partielle et votre réveil dans les égouts.",
       destination: {
         type: "text",
         id: 21,
@@ -475,7 +475,7 @@ export const Choice24: HistoryChoice = {
     },
     {
        id:37,
-      text: "Prélever la fourrure. Quelques morceaux correctement découpés pourraient renforcer vos protections aux endroits les plus exposés.",
+      text: "Prélever la fourrure. Quelques morceaux correctement découpés pourraient former de bonnes protections.",
       destination: {
         type: "text",
         id: 4,

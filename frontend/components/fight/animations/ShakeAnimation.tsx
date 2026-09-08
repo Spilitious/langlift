@@ -1,40 +1,44 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 type ShakeAnimationProps = {
   trigger: number;
-  onImpact?: () => void;
-  
+  onEnd?: () => void;
 };
 
 export default function ShakeAnimation({
   trigger,
-  onImpact,
-  
+  onEnd,
 }: ShakeAnimationProps) {
+
+  const onEndRef = useRef(onEnd);
+
+  useEffect(() => {
+    onEndRef.current = onEnd;
+  }, [onEnd]);
 
   useEffect(() => {
     if (trigger === 0) return;
 
-    
+    let cancelled = false;
 
     const play = async () => {
-
-      // Déclenche la réaction intent_change
-      // après 100 ms
-      await new Promise((resolve) =>
-        setTimeout(resolve, 500)
+      await new Promise(resolve =>
+        setTimeout(resolve, 800)
       );
 
-      
-      onImpact?.();
+      if (cancelled) return;
 
+      onEndRef.current?.();
     };
 
     play();
 
-  }, [trigger, onImpact]);
+    return () => {
+      cancelled = true;
+    };
+  }, [trigger]);
 
   return null;
 }

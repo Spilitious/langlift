@@ -1,7 +1,7 @@
 import { NpcIntentView } from "@shared/types/npcIntentView";
 import { getIntentImagePath } from "@/utils/spritePaths";
 
-import { getPjImagePath } from "@/utils/spritePaths";
+import { getPjImagePath, getPjAvatarPath } from "@/utils/spritePaths";
 
 type NpcIntentProps = {
   intent: NpcIntentView;
@@ -105,7 +105,7 @@ export default function NpcIntent({
     }}
   >
     <img
-      src={getPjImagePath(intent.target_image)+"-idle.png"}
+      src={getPjAvatarPath(intent.target_image)}
       alt={`PJ ${intent.target}`}
       style={{
         width: "100%",

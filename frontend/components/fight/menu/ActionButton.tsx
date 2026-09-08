@@ -5,6 +5,7 @@ import { useState } from "react";
 type ActionButtonProps = {
   image: string;
   selected: boolean;
+  disabled?: boolean;
   onClick: () => void;
 };
 
@@ -12,13 +13,16 @@ export default function ActionButton({
   image,
   selected,
   onClick,
+  disabled = false,
 }: ActionButtonProps) {
   const [hover, setHover] = useState(false);
 
   return (
     <button
       onClick={onClick}
-      onMouseEnter={() => setHover(true)}
+       onMouseEnter={() => {
+       if (!disabled) setHover(true);
+       }}
       onMouseLeave={() => setHover(false)}
       style={{
         padding: 0,
@@ -91,17 +95,21 @@ export default function ActionButton({
 
             background: "#172033",
 
-            filter:
-              selected || hover
-                ? "brightness(1.2)"
-                : "brightness(1)",
+            filter: disabled
+             ? "grayscale(1) brightness(0.55)"
+            : selected || hover
+              ? "brightness(1.2)"
+            : "brightness(1)",
 
-            boxShadow: selected
-              ? "inset 4px 4px 8px rgba(0,0,0,0.65)"
-              : hover
-                ? "0 0 10px rgba(255,210,80,0.8)"
-                : "none",
+           boxShadow: disabled
+            ? "inset 2px 2px 5px rgba(0,0,0,0.6)"
+          : selected
+          ? "inset 4px 4px 8px rgba(0,0,0,0.65)"
+          : hover
+            ? "0 0 10px rgba(255,210,80,0.8)"
+          : "none",
 
+            opacity: disabled ? 0.65 : 1,
             transition:
               "filter 120ms ease, box-shadow 120ms ease",
           }}

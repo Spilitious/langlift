@@ -39,6 +39,16 @@ router.use( alchemyRouter);
 import MoveObject from "./equipment.js";
 router.use( "/equipment", MoveObject);
 
+
+/* IA  */
+import Ia from "./ia.js";
+router.use(  Ia);
+
+
+/* LevelUp  */
+import levelUp from "./levelUp.js";
+router.use(  levelUp);
+
 router.get("/game-state", (req, res) => {
   res.json(gameState.toView());
 });

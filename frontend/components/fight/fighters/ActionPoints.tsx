@@ -1,11 +1,13 @@
 type ActionPointsProps = {
   ap: number;
   size?: number;
+  previousApCost: number;
 };
 
 export default function ActionPoints({
   ap,
   size = 32,
+  previousApCost,
 }: ActionPointsProps) {
   const displayedAp = Math.max(0, Math.min(3, ap));
 
@@ -19,6 +21,14 @@ export default function ActionPoints({
     >
       {Array.from({ length: 3 }).map((_, index) => {
         const visible = index >= 3 - displayedAp;
+
+        // Position parmi les AP actuellement visibles
+        const visibleIndex = index - (3 - displayedAp);
+
+        // On rend transparents les premiers AP en partant du haut
+        const previewSpent =
+          visible &&
+          visibleIndex < previousApCost;
 
         return (
           <div
@@ -38,6 +48,9 @@ export default function ActionPoints({
                   objectFit: "contain",
                   pointerEvents: "none",
                   userSelect: "none",
+
+                  opacity: previewSpent ? 0.3 : 1,
+                  transition: "opacity 300ms ease",
                 }}
               />
             )}

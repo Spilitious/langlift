@@ -354,10 +354,13 @@ Elle vous attrape par la main et vous entraîne déjà avec elle.
 
 `
 Le combat a été âpre, mais vous en êtes sorti victorieux.
-Vous reprenez votre souffle et ramassez les deux potions de vie qui avaient été déposées près de l'épée. Vous les rangez soigneusement dans votre ceinture.
-Vous vous apprêtez à repartir lorsque votre regard se pose sur les cadavres des rats.
-Presque inconsciemment, comme guidé par un vieux souvenir, vous vous accroupissez près de l'une des créatures...
 
+Vous reprenez votre souffle et ramassez les deux potions de vie qui avaient été déposées près de l'épée.
+Vous les rangez soigneusement dans votre ceinture.
+
+Vous vous apprêtez à repartir lorsque votre regard se pose sur les cadavres des rats.
+
+Presque inconsciemment, comme guidé par un vieux souvenir, vous vous accroupissez près de l'une des créatures...
 `,
 
 ];

@@ -1,6 +1,4 @@
 import type { PjView } from "../../../shared/types/fighterView.js";
-import type { Action } from "../../../shared/types/action.js";
-import type { BmView } from "../../../shared/types/bmView.js";
 import type { BasicPj, makePotionResult } from "../types/basicPj.js";
 import type {  EquipmentSlot, MoveObjectResult} from "../../../shared/types/equipmentView.js";
 import { Equipment } from "./Equipment.js";
@@ -10,49 +8,60 @@ import type { ActionResult } from "../../../shared/types/actionResult.js";
 import {Bm} from "./Bm.js";
 import { Const_Equipment } from "../types/basicEquipment.js";
 import {getAlchemyResult} from "../utils/receipe.js"
+import { Ability } from "./Abitlity.js";
+import { BM_ID, FIGHT_VALUE } from "../utils/constants.js";
+import type { AbilityView } from "../../../shared/types/abilityView.js";
+import { basicAbilities} from "../utils/basicAbility.js";
 
+import { Fighter } from "./Fighter.js";
 
-export class Pj {
+export class Pj extends Fighter {
   id: number;
   image: number;
+  avatar:number;
   name:string;
   level:number;
   ap: number;
   position: number;
   xp: number;
   base_att:BaseAttributes;
-  bms: Bm[];
-  actions:Action[];
+  
+  
   inventory: number[][];
   equipment: Equipment[];
+  ability:Ability[];
 
 
    constructor(data: BasicPj) {
+    super();
     this.id = data.id;
     this.image = data.image;
     this.name = data.name;
     this.level = data.level;
     this.position = data.position;
+    this.avatar = data.avatar;
    
     this.base_att = {
-      constitution: 5,
-      strength: 5,
+      constitution: 0,
+      strength: 0,
       magicSkill: 0,
       currhp:0,
+      shield:0,
     };
 
+    this.equipment = [];
     this.base_att.currhp=this.getStat("maxhp"),
 
     this.ap = 3;
     this.xp = 0;
 
-    this.actions = [];
-    this.bms = [];
-    this.equipment = [];
+   
+    
+    
     this.inventory = [];
+    this.ability = [];
 
-   // const stats = Object.fromEntries(STAT_NAMES.map((stat) => [stat, this.getStat(stat),])) as Record<StatName, number>;
-
+    
 
     
     this.createEmptyInventory();
@@ -62,16 +71,20 @@ export class Pj {
     return {
       id: this.id,
       image: this.image,
+      avatar:this.avatar,
       name: this.name,
       level: this.level,
       ap: this.ap,
       xp:this.xp,
+      nextLevelXp:this.getNextLevelXP(),
       position: this.position,
       bms: this.bms.map(bm => bm.toView()),
-      actions: this.actions,
       inventory: this.inventory,
       equipment: this.equipment,
+      ability:this.ability,
       base_att:this.base_att,
+      canLevelUp:this.canLevelUp(),
+      isUnconscious:this.isUnconscious(),
       stats: Object.fromEntries(
       STAT_NAMES.map((stat) => [
         stat,
@@ -80,28 +93,97 @@ export class Pj {
     };
   }
 
-  createEmptyInventory() {
+  isUnconscious(): boolean {
+  return this.base_att.currhp <= 0;
+}
+
+canLevelUp():boolean {
+  if(this.xp >= this.getNextLevelXP())
+      return true;
+   return false;
+
+}
+
+createEmptyInventory() {
     this.inventory = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   ]
-  }
-  
-  getFirstPotionId():number {
+}
+
+initNewFight() {
+  this.ap = this.getNewTurnAp();
+  this.base_att.currhp = this.getStat("maxhp");
+  this.base_att.shield = 0;
+  this.bms = [];
+}
+
+getFirstPotionId():number {
     const p = this.equipment.find((equip) => equip.location === "belt")
     if(!p)
        throw new Error("Pas de potion trouvé");
     
     return p.id;
 
+}
+
+
+getLearnableAbilities():AbilityView[] {
+  
+  let learnableAbilities:AbilityView[] = [];
+  for( const ability of basicAbilities)
+    if(!this.hasAbility(ability.id))
+      learnableAbilities.push(new Ability(ability.id).toView());
+
+  return learnableAbilities;
+}
+
+getAbility(basicAbilityId:number):Ability {
+  
+    const ability = this.ability.find((ability) => ability.basicAbilityId === basicAbilityId);
+    
+    if(!ability) {
+       throw new Error(`Ability introuvable : ${basicAbilityId}`);
+    }
+    console.log(ability.name);
+    return ability;
+}
+
+hasAbility(basicAbilityId:number):boolean {
+  for(const ability of this.ability) {
+    if(ability.basicAbilityId === basicAbilityId)
+        return true;
   }
+  return false;
+}
+learAbility(basicAbilityId: number) {
+  this.ability.push(new Ability(basicAbilityId));
+}
 
-  addXp(xp:number) {
+  /* **************************************** Methode autour des XP ******************************* */
+getNextLevelXP():number {
+		return  this.level * 20;      
+}
+
+
+addXp(xp:number) {
     this.xp +=  xp; 
-   }
+  
+}
 
+  
+levelUp():number {
+		  this.xp -= this.getNextLevelXP();
+      const maxHpStart = this.getStat("maxhp");
+		  this.level+= 1;
+      const maxHpEnd = this.getStat("maxhp"); 
+		  this.base_att.currhp = this.getStat("maxhp");
+      return maxHpEnd-maxHpStart;
+}
+
+ /***********************************************************************************************  */   
   getStat(stat:StatName):number {
     let value = 0;
 
@@ -118,28 +200,54 @@ export class Pj {
       value = this.base_att.magicSkill;
       break;
 
-    case "armor":
-      value = 0;
+    case "shield":
+      value = this.base_att.shield;
+      break;
+    
+    case "currhp":
+      value = this.base_att.currhp;
       break;
 
-    case "shield":
-      value = 0;
-      break;
-    
     case "maxhp": 
-      value =28 + 2*this.level + 4*(this.getStat("constitution")-5)*this.level + 2*((this.getStat("strength")-5)*this.level);
+      value =28 + 2*this.level + 6*this.getStat("constitution")*this.level + 2*this.getStat("strength")*this.level;
       break;
     }
-    
+    value += this.getEquipmentBonus(stat);
+    value += this.getBmBonus(stat);
     return value;
   }
 
-heal(hp: number): number {
+getEquipmentBonus(stat:StatName):number {
+      let value = 0;
+       for (const equip of this.equipment) {
+          if(equip.location === "equipped")
+             value+= equip.getBonus(stat);
+        }
+      return value;
+  }
+
+setHp(value:number):number {
+    if(value > 0)
+      return this.getHealed(value);
+    else 
+      return this.getHit(-value);
+  }
+
+  
+getHit(damage:number):number {
+  const realHp = Math.min(damage, this.base_att.currhp);
+  this.base_att.currhp -= realHp;
+  return realHp;
+ 
+}
+
+getHealed(hp: number): number {
 
   const realHp = Math.min(hp,this.getStat("maxhp") - this.base_att.currhp);
   this.base_att.currhp += realHp;
   return realHp;
-}
+  }
+
 
 drinkPotion(
   idPj: number,
@@ -157,7 +265,7 @@ drinkPotion(
   if(potion.basicEquipmentId === Const_Equipment.HP_POTION) {
       const currHp = this.base_att.currhp;
       const hp = Math.floor(Math.random() * 5) + 3;
-      const realHp = this.heal(hp);
+      const realHp = this.getHealed(hp);
       const shield = this.getStat("shield");
       const result: ActionResult = {
           author_type: "pj",
@@ -176,6 +284,9 @@ drinkPotion(
 
             shield_start: shield,
             shield_end: shield,
+
+            armor_start:this.getStat("armor"),
+            armor_end: this.getStat("armor"),
 
             bm_end: this.bms.map((bm) => bm.toView()), 
             popup: {
@@ -196,6 +307,10 @@ drinkPotion(
   }
 }
 
+getNewTurnAp():number {
+  
+  return FIGHT_VALUE.NEW_TURN_AP + this.getStat("ap");
+}
 
 addBaseAtt(
   name: keyof BaseAttributes,
@@ -218,10 +333,8 @@ spendAp(cost: number): boolean {
   return true;
 }
 
+
 /* ******************************************** GESTION DES OBJETS DANS LES INVENTAIRES ************************ */
-
-
-
 private getInventoryCollision(
   equipment: Equipment,
   x: number,
@@ -303,6 +416,7 @@ private getInventoryCollision(
     collidedEquipmentId: 0,
   };
 }
+
 private clearEquipmentFromInventory(
   equipmentId: number
 ) {
@@ -886,10 +1000,6 @@ equip(
 }
 
 /* ************************************************ Gestion des BMs ************************************************ */
-addBm(basicBmId:number) 
-{
-  this.bms.push(new Bm(basicBmId));
-}
 
 makePotion(
   ingredientIds: (number | null)[],

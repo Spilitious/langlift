@@ -2,6 +2,7 @@ import type { EquipmentType, EquipmentLocation, EquipmentSlot } from "../../../s
 import type { BasicEquipment } from "../types/basicEquipment.js";
 import type { EquipmentView } from "../../../shared/types/equipmentView.js";
 import { getBasicEquipment } from "../utils/basicEquipment.js";
+import type { StatName } from "../../../shared/types/label.js";
 
 export class Equipment {
  private static nextId = 1;
@@ -21,6 +22,7 @@ export class Equipment {
   slot?: EquipmentSlot;
   beltSlot?: number;
   text:string;
+   bonus: Partial<Record<StatName, number>>;
 
   constructor(basicEquipmentId: number)
    {
@@ -35,10 +37,13 @@ export class Equipment {
       this.height = basic.height;
       this.price = basic.price;
       this.text = basic.text;
-
       this.location = "dragged";
       this.x = null;
       this.y = null;
+      this.bonus = {};
+      
+
+     
   }
 
   toView():EquipmentView {
@@ -55,14 +60,24 @@ export class Equipment {
         text:this.text,
         x:this.x,
         y:this.y,
-         ...(this.slot !== undefined && {
-      slot: this.slot,
-    }),
+        bonus: { ...this.bonus },
+        ...(this.slot !== undefined && {slot: this.slot,}),
+        ...(this.beltSlot !== undefined && {beltSlot: this.beltSlot,}),
+    };
+   
+  }
 
-    ...(this.beltSlot !== undefined && {
-      beltSlot: this.beltSlot,
-    }),
-  };
+  
+  getBonus(stat: StatName): number {
+    return this.bonus[stat] ?? 0;
+  }
+
+  setBonus(stat: StatName, value: number): void {
+    this.bonus[stat] = value;
+  }
+
+  incBonus(stat: StatName, value: number): void {
+    this.bonus[stat] = this.getBonus(stat) + value;
   }
 }
 

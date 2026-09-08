@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import NextButton from "../../history/NextButton";
+import MainButton from "../../button/MainButton";
 import type { VictoryResult, XpResult} from "@shared/types/actionResult";
 import {victoryRoom} from "../../../utils/api/roomApi"
 import type { EquipmentView } from "@shared/types/equipmentView";
+import { useGame } from "@/context/GameContext";
 
 
 
@@ -16,15 +17,20 @@ export default function FightVictoryDialog({
   roomId,
   onContinue,
 }: FightVictoryDialogProps) {
+
+  const { gameState, setGameState } = useGame();
 const [xpResults, setXpResults] = useState<XpResult[]>([]);
 const [loots, setLoots] = useState<EquipmentView[]>([]);
 
 
+
 useEffect(() => {
   const loadVictory = async () => {
-    const results = await victoryRoom();
-    setXpResults(results.xpResult);
-      setLoots(results.loots);
+    const response = await victoryRoom();
+    setXpResults(response.results.xpResult);
+      setLoots(response.results.loots);
+
+    setGameState(response.gameState);
 
   
   };
@@ -129,8 +135,8 @@ const groupedLoots = loots.reduce((acc, loot) => {
       {result.level_up && (
         <div
           style={{
-            fontSize: "28px",
-            fontWeight: "bold",
+          //  fontSize: "28px",
+           // fontWeight: "bold",
           }}
         >
           {result.pjName} gagne un niveau !
@@ -154,8 +160,9 @@ const groupedLoots = loots.reduce((acc, loot) => {
             justifyContent: "center",
           }}
         >
-          <NextButton
+          <MainButton
             onClick={onContinue}
+            name="next"
           />
         </div>
       </div>

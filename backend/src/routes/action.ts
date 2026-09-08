@@ -12,13 +12,17 @@ router.post("/action", (req, res) => {
   try {
     const action = req.body as ActionRequest;
 
-    console.log("ACTION RECUE :", action);
+    
 
     const result: ActionResult =
       gameState.playAction(action);
 
-    return res.json(result);
-
+    
+    return res.json({
+      result,
+      gameState: gameState.toView(),
+  });
+     
   } catch (error) {
     console.error("Erreur action :", error);
 
@@ -39,7 +43,7 @@ router.post("/usePotion", (req, res) => {
         p.id_potion
       );
     
-    console.log(result)
+   
    
    
     return res.json({

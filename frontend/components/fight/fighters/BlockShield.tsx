@@ -16,39 +16,42 @@ export default function BlockShield({
   const [displayBlock, setDisplayBlock] = useState(block);
   const [impact, setImpact] = useState(false);
 
-  useEffect(() => {
-    const oldValue = previousBlock.current;
+ useEffect(() => {
+  const oldValue = previousBlock.current;
 
-    // Si le block baisse
-    if (block < oldValue) {
-      setImpact(true);
+  if (block !== oldValue) {
+    setImpact(true);
 
-      let currentValue = oldValue;
+    let currentValue = oldValue;
 
-      const interval = setInterval(() => {
-        currentValue -= 1;
+    const direction = block > oldValue ? 1 : -1;
 
-        if (currentValue <= block) {
-          currentValue = block;
-          clearInterval(interval);
+    const interval = setInterval(() => {
+      currentValue += direction;
 
-          setTimeout(() => {
-            setImpact(false);
-          }, 150);
-        }
+      const finished =
+        direction > 0
+          ? currentValue >= block
+          : currentValue <= block;
 
-        setDisplayBlock(currentValue);
-      }, 60);
+      if (finished) {
+        currentValue = block;
+        clearInterval(interval);
 
-      previousBlock.current = block;
+        setTimeout(() => {
+          setImpact(false);
+        }, 150);
+      }
 
-      return () => clearInterval(interval);
-    }
+      setDisplayBlock(currentValue);
+    }, 60);
 
-    // Si le block augmente, pas forcément besoin d'animation pour l'instant
-    setDisplayBlock(block);
     previousBlock.current = block;
-  }, [block]);
+
+    return () => clearInterval(interval);
+  }
+
+}, [block]);
 
   return (
     <div

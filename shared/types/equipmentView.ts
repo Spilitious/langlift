@@ -1,3 +1,4 @@
+import type { StatName } from "./label";
 
 export type EquipmentSlot =
   | "helm"
@@ -33,6 +34,7 @@ export type EquipmentView = {
   beltSlot?: number;
 
   text:string;
+  bonus:Partial<Record<StatName, number>>;
 };
 
 export type EquipmentType = "sword" | "helm" | "armor" | "shield" | "potion" | "ingredient" | "item"

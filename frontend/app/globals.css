@@ -23,7 +23,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  cursor: url("/ui/cursor/Cursor1.png"), auto;
+  cursor: url("/ui/cursor/cursor5.png"), auto;
 
 }
 
@@ -96,3 +96,50 @@ button,
     opacity: 0;
   }
 }
+
+.level-up-glow {
+  position: absolute;
+  inset: -4px;
+
+  border: 3px solid #f6d365;
+  border-radius: 10px;
+
+  box-shadow:
+    0 0 8px #ffd65a,
+    0 0 18px rgba(255, 190, 40, 0.8),
+    inset 0 0 8px rgba(255, 220, 100, 0.4);
+
+  pointer-events: none;
+
+  animation: levelUpGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes levelUpGlow {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+
+
+button,
+a,
+[role="button"],
+
+.draggable {
+  cursor: url("/ui/cursor/cursor5.png") 8 2, pointer;
+}
+
+.draggable {
+  cursor: url("/ui/cursor/cursor6.png") 8 2, grab;
+}
+
+.draggable:active {
+  cursor: url("/ui/cursor/cursor6.png") 8 2, grabbing;
+}
+  

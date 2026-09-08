@@ -340,6 +340,56 @@ export const overlayAnimation: Record<
     y: 0,
     duration: 250,
   }, ],
+   "athlan" : [
+  {
+    image: "/sprites/effects/athlan/athlan1.png",
+    x: 0,
+    y: 0,
+    duration: 180,
+  },
+  {
+    image: "/sprites/effects/athlan/athlan2.png",
+    x: 0,
+    y: 0,
+    duration: 180,
+  },
+  {
+    image: "/sprites/effects/athlan/athlan3.png",
+    x: 0,
+    y: 0,
+    duration: 180,
+  },
+  {
+    image: "/sprites/effects/athlan/athlan4.png",
+    x: 0,
+    y: 0,
+    duration: 250,
+  }, ],
+   "fire_barrier" : [
+  {
+    image: "/sprites/effects/fire_barrier/fire_barrier1.png",
+    x: 0,
+    y: 0,
+    duration: 180,
+  },
+  {
+    image: "/sprites/effects/fire_barrier/fire_barrier2.png",
+    x: 0,
+    y: 0,
+    duration: 180,
+  },
+  {
+    image: "/sprites/effects/fire_barrier/fire_barrier3.png",
+    x: 0,
+    y: 0,
+    duration: 180,
+  },
+  {
+    image: "/sprites/effects/fire_barrier/fire_barrier4.png",
+    x: 0,
+    y: 0,
+    duration: 250,
+  }, ],
 "potion_hp" : [
   {
     image: "/sprites/effects/potion_hp/potion_hp1.png",
@@ -396,6 +446,8 @@ export const overlayAnimation: Record<
   
 export type OverlayAnimationName =
   | "heal"
+  | "athlan"
+  | "fire_barrier"
   | "potion_hp"
   | "potion_standard";
 

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import NextButton from "./NextButton";
-import FightButton from "./FightButton";
+import MainButton from "../button/MainButton";
 import { useGame } from "@/context/GameContext";
 
 import type { HistoryChoice, HistoryDestination} from "../../../shared/types/history";
@@ -105,10 +104,11 @@ export default function HistoryChoice({
     {
         const currentChoice = choice.choices[0];
          return (
-        <NextButton
+        <MainButton
             onClick={() =>
             onChoice(currentChoice.destination)
             }
+            name="next"
         />
     );
     }
@@ -116,10 +116,11 @@ export default function HistoryChoice({
     {
     const currentChoice = choice.choices[0];
          return (
-        <FightButton
+        <MainButton
             onClick={() =>
             onChoice(currentChoice.destination)
             }
+          name="fight"
         />
     );
     }

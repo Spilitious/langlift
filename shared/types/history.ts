@@ -28,6 +28,11 @@ export type HistoryDestination =
       type: "profession";
       id: number;
       consequenceId?:number;
+    }
+     | {
+      type: "inventory";
+      id: number;
+      consequenceId?:number;
     };
 
 

@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import type { PjView } from "@shared/types/fighterView";
 import { getImageEquipment } from "@/utils/spritePaths"
-import EquipmentSlots from "@/components/fight/inventory/EquipmentSlots";
+import EquipmentSlots from "@/components/inventory/EquipmentSlots";
 import type { EquipmentSlot } from "@shared/types/equipmentView";
 import Belt from "../fight/menu/Belt";
 import type { EquipmentView } from "@shared/types/equipmentView";

@@ -4,8 +4,12 @@ import type { FightPopupData } from "./fightPopUp";
 import type { NpcIntentView } from "./npcIntentView";
 import type { GameStateView } from "./gameStateView";
 import type {EquipmentView} from "./equipmentView";
-import Equipment = require("../../backend/src/classes/Equipment");
 
+
+export type buildRoomResult = {
+  animation:ActionResult[];
+  gameState:GameStateView;
+}
 
 export type FightStatus =
   | "ongoing"
@@ -24,6 +28,9 @@ export type TargetResult = {
 
   shield_start: number;
   shield_end: number;
+
+  armor_start: number,
+  armor_end: number,
 
   bm_end: BmView[];
 
@@ -50,6 +57,19 @@ export type ActionResponse = {
 export type VictoryResult= {
     xpResult:XpResult[];
     loots:EquipmentView[];
+   
+}
+
+
+export type VictoryResponse= {
+   results:VictoryResult;
+   gameState:GameStateView;
+   
+}
+
+export type LevelUpResponse = {
+  hpDelta:number;
+  gameState:GameStateView;
 }
 
 export type XpResult = {

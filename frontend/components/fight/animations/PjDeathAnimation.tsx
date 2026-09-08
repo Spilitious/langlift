@@ -1,20 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
-import { getPjDeathFrames} from "@/utils/animationFrame";
-
-
+import { getPjDeathFrames } from "@/utils/animationFrame";
 
 type PjDeathProps = {
-  image:number;
-   trigger: number;
-   onImpact?: () => void;
-   onHideUi?: () => void;
-   onEnd?: () => void;
+  image: number;
+  trigger: number;
+  onHideUi?: () => void;
+  onImpact?: () => void;
+  onEnd?:() => void;
 };
-
-
 
 export default function PjDeathAnimation({
   image,
@@ -24,13 +19,16 @@ export default function PjDeathAnimation({
   onEnd,
 }: PjDeathProps) {
   const [step, setStep] = useState(0);
-  const frames = getPjDeathFrames(image)
   const [opacity, setOpacity] = useState(1);
-  const current = frames[step];
-  useEffect(() => {
-  if (trigger === 0) return;
 
-   let cancelled = false;
+ 
+  const frames = getPjDeathFrames(image);
+  const current = frames[step];
+
+  useEffect(() => {
+    if (trigger === 0) return;
+
+    let cancelled = false;
 
     const death = async () => {
       setStep(0);
@@ -48,7 +46,7 @@ export default function PjDeathAnimation({
 
         setTimeout(() => {
     onHideUi?.();
-  }, 1000);
+  }, 350);
   
         await new Promise((resolve) =>
           setTimeout(resolve, frames[i].duration)
@@ -59,7 +57,7 @@ export default function PjDeathAnimation({
 
       // On garde la dernière frame et on lance le fade
       setOpacity(0);
-       await new Promise((resolve) =>
+      await new Promise((resolve) =>
   setTimeout(resolve, 800)
 );
 
@@ -94,7 +92,7 @@ onEnd?.();
 
         transition: `
           transform ${current.duration}ms ease-out,
-          opacity 1500ms ease-out
+          opacity 800ms ease-out
         `,
 
         pointerEvents: "none",

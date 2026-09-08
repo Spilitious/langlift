@@ -10,7 +10,7 @@ import {
 
 type Props = {
   selectedPjId: number | null;
-  selectedPj: PjView | null;
+  selectedPjView: PjView | undefined;
 
 
    onEquipmentDropOnPj: (
@@ -21,7 +21,7 @@ type Props = {
 
 export function useEquipmentDrag({
   selectedPjId,
-  selectedPj,
+  selectedPjView,
   onEquipmentDropOnPj,
 }: Props) {
 
@@ -44,7 +44,7 @@ export function useEquipmentDrag({
     });
 
   const draggedEquipment =
-    selectedPj?.equipment.find(
+    selectedPjView?.equipment.find(
       (equipment) =>
         equipment.id === draggedEquipmentId
     ) ?? null;
@@ -157,7 +157,7 @@ if (newDraggedId !== 0) {
     return;
   }
 
-  const equipment = selectedPj?.equipment.find(
+  const equipment = selectedPjView?.equipment.find(
     (item) => item.id === draggedEquipmentId
   );
 

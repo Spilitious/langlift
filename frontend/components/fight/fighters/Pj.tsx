@@ -31,6 +31,7 @@ import { useState } from "react";
 type PjProps = {
    pj_data:PjSprite;
    selected:boolean;
+   previewApCost:number;
     onClick: () => void;
     onAuthorImpact?: () => void;
     onReactionImpact?: () => void;
@@ -44,6 +45,7 @@ export default function Pj({
   onClick,
   onAuthorImpact,
   onReactionImpact,
+  previewApCost,
   
   onReactionEnd,
   onEquipmentDrop,
@@ -236,7 +238,7 @@ switch (animationType) {
     }}
   >
     <HealthBar
-      hp={pj_data.base_att.currhp}
+      hp={pj_data.stats.currhp}
       maxHp={pj_data.stats.maxhp}
     />
     </div>
@@ -249,6 +251,7 @@ switch (animationType) {
   >
     <Bm
     bms={pj_data.bms}
+    armor={pj_data.stats.armor}
     size={28}/>
   </div>
 
@@ -259,6 +262,7 @@ switch (animationType) {
   }}
 >
   <ActionPoints
+    previousApCost={previewApCost}
     ap={pj_data.ap}
     size={32}
   />

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useGame } from "@/context/GameContext";
 import { getImageEquipment } from "@/utils/spritePaths";
 import type { EquipmentView } from "@shared/types/equipmentView";
-import NextButton from "../history/NextButton";
+import MainButton from "../button/MainButton";
 import { equipEquipment } from "@/utils/api/equipmentApi";
 
 type AlchemyProps = {
@@ -161,9 +161,10 @@ export default function ShopInventory({
           top: "200px",
         }}
 >
-      <NextButton
+      <MainButton
           onClick={onCreatePotion}
-        ></NextButton></div>
+          name="next"
+        /></div>
     </div>
   </main>
 );

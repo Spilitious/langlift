@@ -1,13 +1,10 @@
-// utils/api/room.ts
 
-import { GameStateView } from "@shared/types/gameStateView";
-import type { RoomView } from "../../../shared/types/roomView";
 
-import type { VictoryResult, XpResult } from "@shared/types/actionResult";
+import type { buildRoomResult, VictoryResponse, XpResult } from "@shared/types/actionResult";
 
 export const loadRoom = async (
   roomId: number
-): Promise<GameStateView> => {
+): Promise<buildRoomResult> => {
   const response = await fetch(
     `http://localhost:3001/api/room/${roomId}`
   );
@@ -30,7 +27,7 @@ export const loadRoom = async (
 
 
 
-export async function victoryRoom(): Promise<VictoryResult> {
+export async function victoryRoom(): Promise<VictoryResponse> {
   const response = await fetch(
     "http://localhost:3001/api/room/victory",
     {

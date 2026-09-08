@@ -1,6 +1,7 @@
 "use client";
 
-import FightButton from "@/components/history/FightButton";
+import MainButton from "@/components/button/MainButton";
+import FightButton from "@/components/button/MainButton";
 import {historyTransitions } from   "@shared/utils/historyTransitions";
 
 
@@ -75,8 +76,9 @@ export default function FightTransitionDialog({
             justifyContent: "center",
           }}
         >
-          <FightButton
+          <MainButton
             onClick={onContinue}
+            name="fight"
           />
         </div>
       </div>

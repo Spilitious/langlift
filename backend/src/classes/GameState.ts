@@ -4,21 +4,24 @@ import type { ActionResult, VictoryResult } from "../../../shared/types/actionRe
 import type { GameStateView } from "../../../shared/types/gameStateView.js";
 import type { HistoryDestination } from "../../../shared/types/history.js";
 import { mockNpcIntent1 } from "../utils/mocks/npcIntentChange.js";
-import { pj1 } from "../utils/mocks/pj.js";
+import { pj1, pj2} from "../utils/mocks/pj.js";
 import { Shop } from "./Shop.js";
 import { createShops } from "../game/initialization.js";
 import { Equipment } from "./Equipment.js";
 import { Team } from "./Team.js";
 import { Room } from "./Room.js";
 import { Const_Equipment } from "../types/basicEquipment.js";
-
+import {BM_ID, ABILITY_ID} from "../utils/constants.js"
 
 import  {Pj} from "./Pj.js"
 import type { Relation } from "../types/relation.js"
-import { Const_Bm } from "../types/basicBm.js";
+import { Fight } from "./Fight.js";
+import { convertProcessSignalToExitCode } from "node:util";
+
 export class GameState {
  
   team:Team;
+  fight:Fight;
   currentRoomId: number | null;
   currentPageId: number | null;
   currentShopId: number | null;
@@ -33,13 +36,14 @@ export class GameState {
     
     this.currentRoomId = null;
     this.currentShopId = null;
-     this.currentProfessionId = null;
+    this.currentProfessionId = null;
     this.currentPageId = 1;
     this.consequenceIds = new Set();
     this.shops = createShops();
     this.team = new Team();
     this.roomPrologueTable = new Map([]);
     this.room = new Room(1);
+    this.fight = new Fight(this.team, this.room);
     this.gladysRelation = {
       love:0,
       trust:0,
@@ -71,8 +75,19 @@ export class GameState {
     this.team.addPj(pj);
   }
 
-  buildRoom(basicRoomId:number) {
+  buildRoom(basicRoomId:number):ActionResult[] {
+    let result:ActionResult[] = [];
+
+    if(this.room.loaded && this.room.basicRoomId === basicRoomId)
+      return result;
+
+    
     this.room = new Room(basicRoomId);
+    this.room.loaded = true;
+    this.setPositionPj();
+    this.team.initNewFight();
+    this.fight = new Fight(this.team, this.room);
+    result = this.fight.playIntentNpcIa();
 
     //Crapaud + retard
     if(basicRoomId === 3 && this.consequenceIds.has(4))
@@ -87,7 +102,7 @@ export class GameState {
     {
         this.room.prologueId = 2;
         if(this.team.pjs[0])
-          this.team.pjs[0].heal(-3);
+          this.team.pjs[0].getHit(3);
     }
 
     // Loup + pas reposé 
@@ -95,8 +110,11 @@ export class GameState {
     {
         this.room.prologueId = 3;
         if(this.team.pjs[0])
-          this.team.pjs[0].addBm(Const_Bm.FATIGUE)
+          this.team.pjs[0].updateBm(BM_ID.FATIGUE,"strength", 1)
     }
+
+    return result;
+
   }
 
 
@@ -190,7 +208,7 @@ export class GameState {
     switch(id)
     {
       //Choix avant de combattre le rat
-      case 1 : this.team.pjs[0].addBaseAtt("constitution", 1); break;
+      case 1 : this.team.pjs[0].addBaseAtt("constitution", 1);this.team.pjs[0].addBaseAtt("strength", 50); break;
       case 2 : this.team.pjs[0].addBaseAtt("strength", 1); break;
       case 3 : this.team.pjs[0].addBaseAtt("magicSkill", 1); break;
 
@@ -205,8 +223,18 @@ export class GameState {
       
       
       //Dire la vérité à Gladys sur les égoûts
-      case 13 : this.gladysRelation.trust += 2; break;
-      case 14 : this.gladysRelation.trust += 1; break;
+      case 12 : 
+      case 13 : this.gladysRelation.trust += 1; 
+      case 14 : this.gladysRelation.trust += 1;
+                const pj2 = new Pj({
+                    id: 2,
+                    image: 13,
+                    avatar:2,
+                    name: "Gladys",
+                    level: 1,
+                    position: 3});
+                this.team.addPj(pj2)
+                 break;
      
       
       // Choix de l'équipement à Irostat
@@ -250,62 +278,84 @@ export class GameState {
 
 
 reset() {
-  const newPj = new Pj(pj1);
+
+    
+    this.currentRoomId = null;
+    this.currentShopId = null;
+    this.currentProfessionId = null;
+    this.currentPageId = 2;
+    this.consequenceIds = new Set();
+    this.shops = createShops();
+    this.team = new Team();
+    this.roomPrologueTable = new Map([]);
+    this.room = new Room(1);
+    
+    this.fight = new Fight(this.team, this.room);
+    this.gladysRelation = {
+      love:0,
+      trust:0,
+      gratitude:0,
+      admiration:0,
+      ressentment:0,
+      jealousy:0,
+    }
+  
+  const newPj = new Pj({
+  id: 1,
+  image: 14,
+  avatar:1,
+  name: "Troylan",
+  level: 1,
+  position: 1,
+});
+
+this.addPj(newPj);
+  newPj.learAbility(ABILITY_ID.LIFE_TEARS);
+   newPj.learAbility(ABILITY_ID.TWIRL);
+  newPj.addXp(20);
+/*
+  const Pj2 = new Pj({
+  id: 2,
+  image: 13,
+  avatar:2,
+  name: "Gladys",
+  level: 1,
+  position: 3,
+});
+
+
+this.addPj(Pj2);*/
  
-   newPj.base_att.currhp = 30;
-  this.team = new Team();
-  this.team.addPj(pj1);
-  createShops();
-  this.team.pjs = [newPj];
-   let p1 = new Equipment(Const_Equipment.HP_POTION);   
-        this.team.pjs[0]?.addObjectAuto(p1);
+  /*
+  let p1 = new Equipment(Const_Equipment.HP_POTION);   
+  this.team.pjs[0]?.addObjectAuto(p1);
+  p1 = new Equipment(Const_Equipment.HP_POTION);   
+  this.team.pjs[0]?.addObjectAuto(p1);
+  let tongue = new Equipment(Const_Equipment.TOAD_TONGUE);
+  this.team.pjs[0]?.addObjectFirstAvailableSlot(tongue);
+  tongue = new Equipment(Const_Equipment.TOAD_TONGUE);
+  this.team.pjs[0]?.addObjectFirstAvailableSlot(tongue); */
 
-        p1 = new Equipment(Const_Equipment.HP_POTION);   
-        this.team.pjs[0]?.addObjectAuto(p1);
- let tongue = new Equipment(Const_Equipment.TOAD_TONGUE);
-       this.team.pjs[0]?.addObjectFirstAvailableSlot(tongue);
-      
-       tongue = new Equipment(Const_Equipment.TOAD_TONGUE);
-       this.team.pjs[0]?.addObjectFirstAvailableSlot(tongue);
-  this.currentPageId = null;
-  this.currentRoomId = null;
-  this.currentShopId = null;
-  this.currentProfessionId = 1;
+}
+setPositionPj() {
+  const positions = {
+    1: [2],
+    2: [1, 3],
+    3: [1, 3, 8],
+  } as const;
 
-  this.consequenceIds.clear();
+  const config = positions[this.team.pjs.length as keyof typeof positions];
+
+  if (!config) return;
+
+  this.team.pjs.forEach((pj, index) => {
+    pj.position = config[index]!;
+  });
 }
 
 playAction(action:ActionRequest):ActionResult
 {
-  let result:ActionResult = {
-        author_type: "pj", 
-        id_author: action.id_pj,
-        animationName: "attack",
-        fightStatus: "ongoing",
-  
-        steps: [
-          [
-            {
-              target_type: "npc",
-              id_target: action.id_target,
-  
-              animationName: "hurt",
-              new_intent: mockNpcIntent1,
-              hp_start: 10,
-              hp_end: 5,
-              shield_start: 3,
-              shield_end: 0,
-              bm_end: [],
-              popup: {
-                text: "-5 HP",
-                type: "damage",
-              },
-            },
-          ],
-        ],
-      }
-
-      return result; 
+  return this.fight.executeAction(action.id_action, action.id_pj, action.id_target)
 }
 
 }

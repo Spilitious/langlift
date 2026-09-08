@@ -2,6 +2,8 @@ export type AnimationName =
   | "attack"
   | "dodged"
   | "heal"
+  | "athlan"
+  | "fire_barrier"
   | "shield"
   | "blocked"
   | "death"
@@ -31,6 +33,8 @@ const animationTypes: Record<
   dodged: "frame",
   blocked: "blocked",
   heal: "overlay",
+  athlan: "overlay",
+  fire_barrier:"overlay",
   death: "death",
   idle: "idle",
   shield: "blocked",

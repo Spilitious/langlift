@@ -29,13 +29,13 @@ export const BasicRooms:BasicRoom[] = [
         {
             basicRaceId: 1,
             level_min:1,
-            level_max:1,
+            level_max:2,
             position:4,
         },
          {
             basicRaceId: 1,
             level_min:1,
-            level_max:1,
+            level_max:2,
             position:6,
         }
         ],
@@ -48,7 +48,7 @@ export const BasicRooms:BasicRoom[] = [
         },
         transitionId:-1,
         prologueId:0,
-        xp:20,
+        xp:15,
     },
      {
         id:3, //Crapaud Géant première salle 
@@ -104,19 +104,19 @@ export const BasicRooms:BasicRoom[] = [
         {
             basicRaceId: 3,
             level_min:1,
-            level_max:1,
+            level_max:3,
             position:2,
         },
          {
             basicRaceId: 3,
             level_min:1,
-            level_max:1,
+            level_max:3,
             position:7,
         },
         {
             basicRaceId: 3,
             level_min:1,
-            level_max:1,
+            level_max:3,
             position:9,
         }
         ],

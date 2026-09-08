@@ -1,12 +1,13 @@
 import type { ActionResult, ActionResponse} from "@shared/types/actionResult";
 import type { ActionRequest } from "@shared/types/action";
 import type { PotionRequest} from "@shared/types/action";
+import { IAResponse } from "@shared/types/ia";
 
 
 
 export async function sendAction(
   action: ActionRequest
-): Promise<ActionResult> {
+): Promise<ActionResponse> {
 
   const response = await fetch(
     "http://localhost:3001/api/action",
@@ -56,3 +57,26 @@ export async function usePotion(
   return response.json();
 }
 
+
+export async function executeIA(
+ ): Promise<IAResponse> {
+
+  const response = await fetch(
+    "http://localhost:3001/api/executeIA",
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Erreur lors du tour d'IA"
+    );
+  }
+
+  return response.json();
+}

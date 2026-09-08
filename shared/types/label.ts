@@ -3,8 +3,18 @@ export type BaseAttributes = {
   strength: number;
   magicSkill: number;
   currhp:number;
+  shield:number;
 };
 
+export type NpcBaseAttributes = {
+  maxHp: number;
+  damage: number;
+  magicSkill: number;
+  currhp:number;
+  shield:number;
+  armor:number;
+  power:number;
+};
   
 
 export const STAT_NAMES = [
@@ -16,12 +26,16 @@ export const STAT_NAMES = [
   "maxhp",
   "damage",
   "MM",
-  "power1",
-  "power2",
-  "power3",
+  "power",
+  "currhp",
   "regen",
   "evasion",
   "spike",
+  "ap",
+  "reflex",
+  "ward",
+  "bleed",
+  "burn",
 ] as const;
 
 export type StatName =

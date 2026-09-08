@@ -7,20 +7,24 @@ import { getBmImagePath } from "@/utils/spritePaths";
 type BmItemProps = {
   bm: BmView;
   size: number;
+   
    onDisappear?: () => void;
 };
 
 function BmItem({ bm, size, onDisappear }: BmItemProps) {
-  const previousValue = useRef(bm.value);
 
-  const [displayValue, setDisplayValue] = useState(bm.value);
+  const value = getBmDisplayValue(bm);
+  const previousValue = useRef(value);
+
+  const [displayValue, setDisplayValue] = useState(value);
   const [impact, setImpact] = useState(false);
   const [fading, setFading] = useState(false);
-  const [visible, setVisible] = useState(bm.value > 0);
+  
+  const [visible, setVisible] = useState(value !== 0);
 
   useEffect(() => {
   const oldValue = previousValue.current;
-  const newValue = bm.value;
+  const newValue = value;
 
   if (newValue === oldValue) return;
 
@@ -29,7 +33,7 @@ function BmItem({ bm, size, onDisappear }: BmItemProps) {
   setFading(false);
 
   let currentValue = oldValue;
-
+  
   const direction = newValue > oldValue ? 1 : -1;
 
   const interval = setInterval(() => {
@@ -62,7 +66,20 @@ function BmItem({ bm, size, onDisappear }: BmItemProps) {
   return () => {
     clearInterval(interval);
   };
-}, [bm.value]);
+}, [value]);
+useEffect(() => {
+  if (value === 0) return;
+
+  const start = requestAnimationFrame(() => {
+    setImpact(true);
+
+    setTimeout(() => {
+      setImpact(false);
+    }, 200);
+  });
+
+  return () => cancelAnimationFrame(start);
+}, []);
 
   if (!visible) {
     return null;
@@ -127,46 +144,62 @@ function BmItem({ bm, size, onDisappear }: BmItemProps) {
 
 type BmProps = {
   bms: BmView[];
+  armor?: number;
   size?: number;
  
 };
 export default function Bm({
   bms,
   size = 32,
+  armor,
  
 }: BmProps) {
-  const [displayedBms, setDisplayedBms] =
+
   
-    useState<BmView[]>(bms);
+  const armorBm: BmView = {
+  id: -1,
+  image: 1,
+  name: "Armure",
+  life: -1,
+  display: "armor",
+  bonus: {armor}, };
+
+  const visualBms: BmView[] = [
+  ...bms,
+  ...(armor !== 0 ? [armorBm] : []),
+  ];
+
+
+  const [displayedBms, setDisplayedBms] =   useState<BmView[]>(visualBms);
+
+    
 
   useEffect(() => {
     setDisplayedBms((current) => {
       const result: BmView[] = [];
 
       // BM présents dans le nouvel état
-      for (const newBm of bms) {
+      for (const newBm of visualBms) {
         result.push(newBm);
       }
 
       // BM qui viennent de disparaître :
       // on les conserve temporairement avec value = 0
-      for (const oldBm of current) {
-        const stillExists = bms.some(
-          (bm) => bm.id === oldBm.id
-        );
+     for (const oldBm of current) {
+  const stillExists = visualBms.some(
+    (bm) => bm.id === oldBm.id
+  );
 
-        if (!stillExists) {
-          result.push({
-            ...oldBm,
-            value: 0,
-          });
-        }
-      }
+  if (!stillExists) {
+    result.push(zeroBmDisplayValue(oldBm));
+  }
+}
 
       return result;
     });
-  }, [bms]);
+  }, [bms, armor]);
 
+ 
   const removeBm = (id: number) => {
     setDisplayedBms((current) =>
       current.filter((bm) => bm.id !== id)
@@ -181,7 +214,8 @@ export default function Bm({
         gap: "4px",
       }}
     >
-      {displayedBms.map((bm) => (
+      {displayedBms.filter((bm) => bm.display !== "none")
+                    .map((bm) => (
         <BmItem
           key={bm.id}
           bm={bm}
@@ -191,4 +225,37 @@ export default function Bm({
       ))}
     </div>
   );
+}
+
+function getBmDisplayValue(bm: BmView): number {
+  if (bm.display === "none") {
+    return 0;
+  }
+
+  if (bm.display === "life") {
+    return bm.life;
+  }
+
+  return bm.bonus[bm.display] ?? 0;
+}
+
+function zeroBmDisplayValue(bm: BmView): BmView {
+  if (bm.display === "none") {
+    return bm;
+  }
+
+  if (bm.display === "life") {
+    return {
+      ...bm,
+      life: 0,
+    };
+  }
+
+  return {
+    ...bm,
+    bonus: {
+      ...bm.bonus,
+      [bm.display]: 0,
+    },
+  };
 }

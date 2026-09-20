@@ -11,7 +11,8 @@ export type EquipmentLocation =
   | "inventory"
   | "equipped"
   | "belt"
-  | "dragged";
+  | "dragged"
+  | "alchemy";
 
 export type EquipmentView = {
   id: number;
@@ -32,10 +33,38 @@ export type EquipmentView = {
 
   slot?: EquipmentSlot;
   beltSlot?: number;
+  alchemySlot?:number;
 
   text:string;
   bonus:Partial<Record<StatName, number>>;
 };
+
+
+export type EquipmentSave = {
+  id: number;
+  basicEquipmentId:number;
+  name: string;
+  type: EquipmentType;
+  image: number;
+
+  width: number;
+  height: number;
+
+  price:number;
+
+  location: EquipmentLocation;
+
+  x: number | null;
+  y: number | null;
+
+  slot?: EquipmentSlot;
+  beltSlot?: number;
+  alchemySlot?:number;
+
+  text:string;
+  bonus:Partial<Record<StatName, number>>;
+};
+
 
 export type EquipmentType = "sword" | "helm" | "armor" | "shield" | "potion" | "ingredient" | "item"
 

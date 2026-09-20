@@ -8,7 +8,7 @@ export type BasicPj = {
   avatar:number;
   name: string;
   level: number;
-  position: number;
+  
 };
 
 

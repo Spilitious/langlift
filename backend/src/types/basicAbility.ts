@@ -12,5 +12,6 @@ export type  BasicAbility = {
     target: TargetType;
     ap : number;
     duration : number;
+    ignoreProvocation:boolean;
     
 }

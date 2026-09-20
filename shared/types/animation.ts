@@ -4,6 +4,7 @@ export type AnimationName =
   | "heal"
   | "athlan"
   | "fire_barrier"
+  | "wings"
   | "shield"
   | "blocked"
   | "death"
@@ -13,6 +14,7 @@ export type AnimationName =
   | "potion_standard"
   | "change_intent"
   | "shake"
+  | "power"
 
 export type AnimationType =
   | "frame"
@@ -22,6 +24,7 @@ export type AnimationType =
   | "blocked"
   | "change_intent"
   | "shake"
+  | "power"
 
 
 const animationTypes: Record<
@@ -35,13 +38,15 @@ const animationTypes: Record<
   heal: "overlay",
   athlan: "overlay",
   fire_barrier:"overlay",
+  wings:"overlay",
   death: "death",
   idle: "idle",
   shield: "blocked",
   potion_hp: "overlay",
   potion_standard: "overlay",
   change_intent: "change_intent",
-  shake: "shake"
+  shake: "shake",
+  power: "frame"
 };
 
 export function getAnimationType(

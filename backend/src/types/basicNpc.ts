@@ -19,6 +19,7 @@ export type BasicNpc= {
   id: number;
   image: number;
   name: string;
+  size: number;
   favoriteTarget:TargetSelectMode;
   level_start: number;
   armor_start:number;

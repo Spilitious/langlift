@@ -1,21 +1,23 @@
-
 import { useRef, useState } from "react";
-import { getNpcPosition, getPjPosition } from "@/utils/fighterPosition";
+import {
+  getNpcPosition,
+  getPjPosition,
+} from "@/utils/fighterPosition";
 
 import type {
   ActionResult,
-  TargetResult,
 } from "../../../../shared/types/actionResult";
 
-import type {  PjSprite, NpcSprite, } from "@/types/fighterSprite";
+import type {
+  PjSprite,
+  NpcSprite,
+} from "@/types/fighterSprite";
 
 import type {
   FightPopup,
   FightPopupData,
 } from "../../../../shared/types/fightPopUp";
 
-
-type FighterType = "pj" | "npc";
 
 type UseFightEngineProps = {
   pjs: PjSprite[];
@@ -30,8 +32,6 @@ type UseFightEngineProps = {
   >;
 };
 
-/* **************************************************** Début du composant ********************************** */
-/* ********************************************************************************************************** */
 
 export function useFightEngine({
   pjs,
@@ -39,29 +39,40 @@ export function useFightEngine({
   setPjs,
   setNpcs,
 }: UseFightEngineProps) {
-  
-const actionResolver = useRef<(() => void) | null>(null);
 
-const pendingResult = useRef<ActionResult | null>(null);
-
-const currentStep = useRef(0);
-
-const pendingReactions = useRef(0);
-
-const [fightPopups, setFightPopups] = useState<FightPopup[]>([]);
+  const [fightPopups, setFightPopups] =
+    useState<FightPopup[]>([]);
 
 
-/* *************************************************** Gestion POPUP *********************************************** */
+  const popupIdRef = useRef(0);
+  const animationIdRef = useRef(0);
 
-const removeFightPopup = (popupId: number) => {
-  setFightPopups((current) =>
-    current.filter(
-      (popup) => popup.id !== popupId
-    )
-  );
-};
+  /* Un resolver par fighter pour gerer les animations simultanés */
+  const animationResolvers = useRef<
+  Map<
+    string,
+    {
+      result: ActionResult;
+      resolve: () => void;
+    }
+  >
+>(new Map());
+  // =========================================================
+  // POPUPS
+  // =========================================================
 
-const showFightPopup = (
+  const removeFightPopup = (
+    popupId: number
+  ) => {
+    setFightPopups((current) =>
+      current.filter(
+        (popup) => popup.id !== popupId
+      )
+    );
+  };
+
+
+  const showFightPopup = (
     details: FightPopupData,
     x: number,
     y: number
@@ -69,7 +80,7 @@ const showFightPopup = (
     setFightPopups((current) => [
       ...current,
       {
-        id: Date.now(),
+        id: ++popupIdRef.current,
         details,
         x,
         y,
@@ -79,376 +90,270 @@ const showFightPopup = (
 
 
   // =========================================================
-  // RESET ANIMATIONS
+  // RESET
   // =========================================================
 
   const resetAnimations = () => {
-  const id = Date.now();
 
-  setPjs((current) =>
-    current.map((pj) =>
-      pj.base_att.currhp <= 0
-        ? pj
-        : {
-            ...pj,
-            animation: {
-              id,
-              name: "idle",
-            },
-          }
-    )
-  );
+    const id = Date.now();
 
-  setNpcs((current) =>
-    current.map((npc) =>
-      npc.stats.currhp <= 0
-        ? npc
-        : {
-            ...npc,
-            animation: {
-              id,
-              name: "idle",
-            },
-          }
-    )
-  );
-};
+    setPjs((current) =>
+      current.map((pj) =>
+        pj.stats.currhp <= 0
+          ? pj
+          : {
+              ...pj,
+              animation: {
+                id,
+                name: "idle",
+              },
+            }
+      )
+    );
 
-/* *************************************************************************************************** */
-/* *****************************************  LANCEMENT ACTION *************************************** */
-  
-const playActionResult = (
-  result: ActionResult
-): Promise<void> => {
+    setNpcs((current) =>
+      current.map((npc) =>
+        npc.stats.currhp <= 0
+          ? npc
+          : {
+              ...npc,
+              animation: {
+                id,
+                name: "idle",
+              },
+            }
+      )
+    );
+  };
 
-  return new Promise((resolve) => {
 
-    // On mémorise comment signaler
-    // que cette action est terminée
-    actionResolver.current = resolve;
-    pendingResult.current = result;
-    currentStep.current = 0;
+  // =========================================================
+  // JOUE UN ACTION RESULT
+  // =========================================================
 
-    const animation = {
-      id: Date.now(),
-      name: result.animationName,
-    };
+  const playActionResult = (
+    result: ActionResult
+  ): Promise<void> => {
 
-    if (
-  result.author_type === undefined ||
-  result.id_author === undefined ||
-  result.animationName === "idle"
-) {
-  playCurrentStep();
-  return;
-}
+    return new Promise((resolve) => {
 
-    // Auteur PJ
-    if (result.author_type === "pj") {
-      setPjs((current) =>
-        current.map((pj) =>
-          pj.id === result.id_author
-            ? {
-                ...pj,
-                animation,
-              }
-            : pj
-        )
-      );
-    }
+      const animation = {
+        id: ++animationIdRef.current,
+        name: result.animationName,
+      };
 
-    // Auteur NPC
-    if (result.author_type === "npc") {
-      setNpcs((current) =>
-        current.map((npc) =>
-          npc.id === result.id_author
-            ? {
-                ...npc,
-                animation,
-              }
-            : npc
-        )
-      );
-    }
-  });
-};
+      const key =
+        `${result.fighter_type}-${result.fighter_id}`;
 
-// JOUE UNE ETAPE
-const playCurrentStep = () => {
-    const result =
-      pendingResult.current;
+      animationResolvers.current.set(key, {
+  result,
+  resolve,
+});
 
-    
 
-    if (!result) return;
+      // =====================
+      // PJ
+      // =====================
 
-    const step =
-      result.steps[currentStep.current];
+      if (result.fighter_type === "pj") {
 
-    if (!step) {
-      pendingResult.current = null;
-      return;
-    }
+        const fighter = pjs.find(
+          (pj) =>
+            pj.id === result.fighter_id
+        );
 
-    pendingReactions.current =
-      step.length;
+        if (!fighter) {
+          animationResolvers.current.delete(key);
+          resolve();
+          return;
+        }
 
-    step.forEach((targetResult) => {
-      applyTargetResult(targetResult);
+        if (result.popup) {
+
+          const [x, y] =
+            getPjPosition(
+              fighter.position
+            );
+
+          showFightPopup(
+            result.popup,
+            x,
+            y
+          );
+        }
+
+        setPjs((current) =>
+          current.map((pj) =>
+            pj.id === result.fighter_id
+              ? {
+                  ...pj,
+
+                  stats: {
+                    ...pj.stats,
+                    currhp: result.hp_end,
+                    shield:
+                      result.shield_end,
+                    armor:
+                      result.armor_end,
+                  },
+
+                  bms: result.bm_end,
+
+                  animation,
+                }
+              : pj
+          )
+        );
+      }
+
+
+      // =====================
+      // NPC
+      // =====================
+
+      if (result.fighter_type === "npc") {
+
+        const fighter = npcs.find(
+          (npc) =>
+            npc.id === result.fighter_id
+        );
+
+        if (!fighter) {
+          animationResolvers.current.delete(key);
+          resolve();
+          return;
+        }
+
+        if (result.popup) {
+
+          const [x, y] =
+            getNpcPosition(
+              fighter.position, fighter.size
+            );
+
+          showFightPopup(
+            result.popup,
+            x,
+            y
+          );
+        }
+
+        setNpcs((current) =>
+          current.map((npc) => {
+
+            if (
+              npc.id !==
+              result.fighter_id
+            ) {
+              return npc;
+            }
+
+            return {
+              ...npc,
+
+              stats: {
+                ...npc.stats,
+                currhp: result.hp_end,
+                shield:
+                  result.shield_end,
+                armor:
+                  result.armor_end,
+              },
+
+              bms: result.bm_end,
+
+              old_intent:
+                result.new_intent
+                  ? npc.intent
+                  : npc.old_intent,
+
+              pending_intent:
+                result.new_intent,
+
+              animation,
+            };
+          })
+        );
+      }
     });
   };
 
-// Lance l'animation pour l'étape en cours 
-const applyTargetResult = (
-    target: TargetResult
-  ) => {
-
-    
-    const animation = {
-      id: Date.now(),
-      name: target.animationName
-    };
-
-
-    if (target.target_type === "pj") {
-      setPjs((current) =>
-        current.map((pj) =>
-          pj.id === target.id_target
-            ? {
-                ...pj,
-                stats: {
-                ...pj.stats,
-                currhp: target.hp_end,
-                shield: target.shield_end,
-                armor: target.armor_end,
-                },
-                bms: target.bm_end,
-
-                animation,
-              }
-            : pj
-        )
-      );
-    }
-
-    if (target.target_type === "npc") {
-     console.log(
-  "APPLY TARGET",
-  target.id_target,
-  "BM_END",
-  JSON.stringify(target.bm_end, null, 2)
-);
-    setNpcs((current) =>
-    current.map((npc) => {
-      if (npc.id !== target.id_target) {
-        return npc;
-      }
-
-      return {
-        ...npc,
-       old_intent: npc.intent,
-       pending_intent: target.new_intent,
-       
-        stats: {
-          ...npc.stats,
-          currhp: target.hp_end,
-          shield: target.shield_end,
-          armor : target.armor_end,
-        },
-        bms: target.bm_end,
-
-        animation,
-      };
-    })
-  );
-}
-  }
-
-// 
-const handleAuthorImpact = (
-    authorType: FighterType,
-    authorId: number
-  ) => {
-
-   
-    const result =
-      pendingResult.current;
-
-    if (!result) return;
-
-    if (
-      result.author_type !== authorType ||
-      result.id_author !== authorId
-    ) {
-      return;
-    }
-    
-
-    playCurrentStep();
-  };
 
   // =========================================================
-  // IMPACT REACTION
+  // FIN D'UNE ANIMATION
   // =========================================================
 
-  const handleReactionImpact = (
-    fighterType: FighterType,
-    fighterId: number
-  ) => {
-    const result =
-      pendingResult.current;
-
-    if (!result) return;
-
-    const step =
-      result.steps[currentStep.current];
-
-    if (!step) return;
-
-    const targetResult =
-      step.find(
-        (target) =>
-          target.target_type ===
-            fighterType &&
-          target.id_target ===
-            fighterId
-      );
-
-    if (!targetResult) return;
-
-    const fighter =
-      fighterType === "pj"
-        ? pjs.find(
-            (pj) =>
-              pj.id === fighterId
-          )
-        : npcs.find(
-            (npc) =>
-              npc.id === fighterId
-          );
-
-    if (!fighter) return;
-    const [x, y] =
-  fighterType === "npc"
-    ? getNpcPosition(fighter.position)
-    : getPjPosition(fighter.position);
-
-showFightPopup(
-  targetResult.popup,
-  x,
-  y
-);
-  };
-
-  // =========================================================
-  // FIN REACTION
-  // =========================================================
-
-  const handleReactionEnd = () => {
- 
-    pendingReactions.current -= 1;
-    console.log(
-    "pendingReactions:",
-    pendingReactions.current
-  );
-    if (
-      pendingReactions.current > 0
-    ) {
-      return;
-    }
-
-    const result =
-      pendingResult.current;
-
-    if (!result) return;
-
-    const step =
-    result.steps[currentStep.current];
-    // Valide les changements d'intent
-    step.forEach((target) => {
-    if (
-      target.target_type === "npc" &&
-      target.animationName === "change_intent"
-    ) {
-      setNpcs((current) =>
-        current.map((npc) =>
-          npc.id === target.id_target
-            ? {
-                ...npc,
-                intent:
-                  npc.pending_intent ??
-                  npc.intent,
-
-                pending_intent: undefined,
-                old_intent: undefined,
-              }
-            : npc
-        )
-      );
-    }
-  });
-
-    currentStep.current += 1;
-
-    resetAnimations();
-    if (
-      currentStep.current <
-      result.steps.length
-    ) {
-       
-      playCurrentStep();
-      return;
-    }
-
-    pendingResult.current = null;
-
-    
-
-   
-    // Signale que l'ActionResult
-    // est complètement terminé
-    actionResolver.current?.();
-    actionResolver.current = null;
-  };
-
-
-  /* ********************************************* Lance les animations du result de l'IA après EndTurn ********************* */
- const playEndTurn = async (
-  result: ActionResult[]
+  const handleAnimationEnd = (
+  fighterType: "pj" | "npc",
+  fighterId: number
 ) => {
+  const key = `${fighterType}-${fighterId}`;
 
-  for (const r of result) {
-    if (r.animationName === "idle" && r.steps.length === 0)
-       continue;
- 
-    await playActionResult(r); 
+  const pending =
+    animationResolvers.current.get(key);
+
+  if (!pending) return;
+
+  // Si c'était un changement d'intent,
+  // on valide immédiatement le nouvel intent
+  if (
+    fighterType === "npc" &&
+    pending.result.animationName === "change_intent"
+  ) {
+    setNpcs((prev) =>
+      prev.map((npc) =>
+        npc.id === fighterId
+          ? {
+              ...npc,
+              intent:
+                npc.pending_intent ?? npc.intent,
+              pending_intent: undefined,
+              old_intent: undefined,
+            }
+          : npc
+      )
+    );
   }
 
-
-}
-  
-const playEntryInRoom = async(result:ActionResult[]) => {
-  for (const r of result) {
-      await playActionResult(r); 
-  }
-
-}
-  
+  animationResolvers.current.delete(key);
+  pending.resolve();
+};
 
 
   // =========================================================
-  // API DU HOOK
+  // JOUE ActionResult[][]
+  // =========================================================
+
+  const playResults = async (
+    results: ActionResult[][]
+  ) => {
+
+    for (const group of results) {
+
+      await Promise.all(
+        group.map(
+          (result) =>
+            playActionResult(result)
+        )
+      );
+
+      resetAnimations();
+    }
+  };
+
+
+  // =========================================================
+  // API
   // =========================================================
 
   return {
     fightPopups,
-    playEndTurn,
+
+    playResults,
     playActionResult,
+
     removeFightPopup,
-    handleAuthorImpact,
-    handleReactionImpact,
-    handleReactionEnd,
-    playEntryInRoom,
-    
+
+    handleAnimationEnd,
   };
 }

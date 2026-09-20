@@ -1,22 +1,30 @@
 "use client";
 
 import Image from "next/image";
-
+import { useState } from "react";
 import { useGame } from "@/context/GameContext";
 import { getPjAvatarPath } from "@/utils/spritePaths";
 
 type InventoryTeamDisplayProps = {
   onSelectPlayer: (id: number) => void;
   pjId:number;
+   onDropEquipmentOnPlayer: (pjId: number) => void;
+  draggedEquipmentId: number | null;
   
 };
 
 export default function InventoryTeamDisplay({
   onSelectPlayer,
   pjId,
+  onDropEquipmentOnPlayer,
+  draggedEquipmentId,
+
 }: InventoryTeamDisplayProps) {
 
   const { gameState } = useGame();
+
+  const [hoveredPjId, setHoveredPjId] =
+  useState<number | null>(null);
 
   return (
     <div
@@ -32,40 +40,90 @@ export default function InventoryTeamDisplay({
       }}
     >
      {gameState?.team.pjs
-  .filter((player) => player.id !== pjId)
-  .map((player) => (
+          .filter((player) => player.id !== pjId)
+          .map((player) => {
 
-        /* Conteneur du portrait */
-        <div
-          key={player.id}
-          onClick={() => onSelectPlayer(player.id)}
-          style={{
-            position: "relative",
+    const isDropTarget =
+      draggedEquipmentId !== null &&
+      hoveredPjId === player.id;
 
-            width: 130,
-            height: 130,
-            flexShrink: 0,
+    return (
+      <div
+        key={player.id}
 
-            cursor: "pointer",
-          }}
-        >
+        onPointerEnter={() => {
+          if (draggedEquipmentId !== null) {
+            setHoveredPjId(player.id);
+          }
+        }}
+
+        onPointerLeave={() => {
+          setHoveredPjId(null);
+        }}
+
+        onClick={() => {
+          if (draggedEquipmentId !== null) return;
+
+          onSelectPlayer(player.id);
+        }}
+
+        onPointerUp={() => {
+          if (draggedEquipmentId === null) return;
+
+          setHoveredPjId(null);
+          onDropEquipmentOnPlayer(player.id);
+        }}
+
+        style={{
+          position: "relative",
+
+          width: 130,
+          height: 130,
+          flexShrink: 0,
+
+          cursor:
+            'url("/ui/cursor/cursor6.png") 0 0, pointer',
+
+          transform: isDropTarget
+            ? "scale(1.08)"
+            : "scale(1)",
+
+          filter: isDropTarget
+            ? "brightness(1.15)"
+            : "brightness(1)",
+
+          transition:
+            "transform 150ms ease-out, filter 150ms ease-out",
+        }}
+      >
 
           {/* Portrait */}
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
+         <div
+  style={{
+    width: "100%",
+    height: "100%",
 
-              border: "3px solid #b98a3d",
-              borderRadius: 8,
+    border: isDropTarget
+      ? "3px solid #ffe08a"
+      : "3px solid #b98a3d",
 
-              boxShadow:
-                "0 3px 8px rgba(0, 0, 0, 0.45)",
+    borderRadius: 8,
 
-              boxSizing: "border-box",
-              overflow: "hidden",
-            }}
-          >
+    boxShadow: isDropTarget
+      ? `
+          0 0 8px #ffd65a,
+          0 0 18px rgba(255, 190, 40, 0.8),
+          0 3px 8px rgba(0, 0, 0, 0.45)
+        `
+      : "0 3px 8px rgba(0, 0, 0, 0.45)",
+
+    boxSizing: "border-box",
+    overflow: "hidden",
+
+    transition:
+      "border-color 150ms ease-out, box-shadow 150ms ease-out",
+  }}
+>
             <Image
               src={getPjAvatarPath(player.avatar)}
               alt={player.name}
@@ -117,6 +175,7 @@ export default function InventoryTeamDisplay({
 
                   zIndex: 2,
                   pointerEvents: "none",
+                   cursor: 'url("/ui/cursor/cursor6.png") 0 0, pointer',
                 }}
               >
                 +
@@ -124,8 +183,9 @@ export default function InventoryTeamDisplay({
             </>
           )}
 
-        </div>
-      ))}
+              </div>
+      );
+    })}
     </div>
   );
 }

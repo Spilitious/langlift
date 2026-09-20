@@ -4,7 +4,7 @@ import type { BmView } from "../../../shared/types/bmView.js";
 import type { StatName } from "../../../shared/types/label.js";
 
 import { BM_ID } from "../utils/constants.js";
-import { getBasicBm } from "../utils/basicBm.js";
+import { getBasicBm } from "../utils/basicBm_data.js";
 
 export abstract class Fighter {
 
@@ -59,17 +59,21 @@ export abstract class Fighter {
       {
         case "life_cumulative" : bm.life += basicBm.life; break;
         case "value_cumulative" : 
-         console.log("stat", bm.getBonus(stat))
+        
           if(bm.getBonus(stat) > 0) 
               bm.incBonus(stat, value); 
           else 
           {
-            console.log("value", value)
+           
               bm.incBonus(stat, -value); 
                     }          break;
-        case "replaced" : bm = new Bm(basicBmId, 1); break;
+        case "replaced" : bm = Bm.fromBasicBmId(basicBmId, 1); break;
         case "both_cumulative" : bm.life += basicBm.life; bm.incBonus(stat, value); break;
       }
+      
+      console.log("name", bm.name);
+      console.log("life", bm.life);
+      console.log("stat value", bm.getBonus(stat));
       
       if (bm.getBonus(stat) === 0) {
         this.deleteBm(basicBmId);
@@ -80,7 +84,7 @@ export abstract class Fighter {
 
     if (value > 0) {
       this.bms.push(
-        new Bm(basicBmId, value)
+        Bm.fromBasicBmId(basicBmId, value)
       );
     }
   }
@@ -98,7 +102,7 @@ export abstract class Fighter {
 
     if (value > 0) {
       this.bms.push(
-        new Bm(basicBmId, value)
+        Bm.fromBasicBmId(basicBmId, value)
       );
     }
   }
@@ -120,8 +124,9 @@ export abstract class Fighter {
       switch (bm.basicBmId) {
 
           case BM_ID.BLEED:
-            console.log("ici")
             bm.incBonus("regen", 1);
+            if(bm.getBonus("regen") == 0)
+               this.deleteBm(bm.basicBmId);
             break;
       }
       if (bm.life !== -1) {
@@ -130,7 +135,8 @@ export abstract class Fighter {
 
        
       }
-
+  
+    
       if (bm.life === 0) {
         this.deleteBm(bm.basicBmId);
       }

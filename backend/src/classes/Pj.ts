@@ -1,4 +1,4 @@
-import type { PjView } from "../../../shared/types/fighterView.js";
+import type { PjSave, PjView } from "../../../shared/types/fighterView.js";
 import type { BasicPj, makePotionResult } from "../types/basicPj.js";
 import type {  EquipmentSlot, MoveObjectResult} from "../../../shared/types/equipmentView.js";
 import { Equipment } from "./Equipment.js";
@@ -6,66 +6,164 @@ import type {BaseAttributes, StatName } from "../../../shared/types/label.js";
 import {STAT_NAMES} from "../../../shared/types/label.js";
 import type { ActionResult } from "../../../shared/types/actionResult.js";
 import {Bm} from "./Bm.js";
-import { Const_Equipment } from "../types/basicEquipment.js";
+import {BASIC_EQUIPMENT_ID } from "../utils/constants.js";
 import {getAlchemyResult} from "../utils/receipe.js"
 import { Ability } from "./Abitlity.js";
 import { BM_ID, FIGHT_VALUE } from "../utils/constants.js";
-import type { AbilityView } from "../../../shared/types/abilityView.js";
-import { basicAbilities} from "../utils/basicAbility.js";
+import type { AbilityView, SchoolType } from "../../../shared/types/abilityView.js";
+import { basicAbilities, getBasicAbility} from "../utils/basicAbility_data.js";
 
 import { Fighter } from "./Fighter.js";
+import { getLearnAbilityCondition } from "../utils/learnAbilityCondition_data.js";
+import { getBasicBm } from "../utils/basicBm_data.js";
+import { SCHOOL_INDEX } from "../types/learnAbilityCondition.js";
+
 
 export class Pj extends Fighter {
   id: number;
   image: number;
-  avatar:number;
-  name:string;
-  level:number;
+  avatar: number;
+  name: string;
+  level: number;
   ap: number;
   position: number;
   xp: number;
-  base_att:BaseAttributes;
-  
-  
+  base_att: BaseAttributes;
+
   inventory: number[][];
   equipment: Equipment[];
-  ability:Ability[];
+  ability: Ability[];
 
-
-   constructor(data: BasicPj) {
+  private constructor() {
     super();
-    this.id = data.id;
-    this.image = data.image;
-    this.name = data.name;
-    this.level = data.level;
-    this.position = data.position;
-    this.avatar = data.avatar;
-   
+
+    
+    this.id = 0;
+    this.image = 0;
+    this.avatar = 0;
+    this.name = "";
+    this.level = 0;
+    this.ap = 0;
+    this.position = 0;
+    this.xp = 0;
+
     this.base_att = {
       constitution: 0,
       strength: 0,
       magicSkill: 0,
-      currhp:0,
-      shield:0,
+      currhp: 0,
+      shield: 0,
     };
 
-    this.equipment = [];
-    this.base_att.currhp=this.getStat("maxhp"),
-
-    this.ap = 3;
-    this.xp = 0;
-
-   
-    
-    
     this.inventory = [];
+    this.equipment = [];
     this.ability = [];
-
-    
-
-    
-    this.createEmptyInventory();
   }
+
+
+  static fromBasicPj(data: BasicPj): Pj {
+    const pj = new Pj();
+
+    pj.id = data.id;
+    pj.image = data.image;
+    pj.name = data.name;
+    pj.level = data.level;
+    pj.avatar = data.avatar;
+
+    pj.position = 0;
+
+    pj.base_att = {
+      constitution: 0,
+      strength: 0,
+      magicSkill: 0,
+      currhp: 0,
+      shield: 0,
+    };
+
+    pj.equipment = [];
+
+    pj.base_att.currhp =
+      pj.getStat("maxhp");
+
+    pj.ap = 3;
+    pj.xp = 0;
+
+    pj.inventory = [];
+    pj.ability = [];
+
+    pj.createEmptyInventory();
+
+    return pj;
+  }
+
+
+  static fromSave(save: PjSave): Pj {
+    const pj = new Pj();
+
+    pj.id = save.id;
+    pj.image = save.image;
+    pj.avatar = save.avatar;
+    pj.name = save.name;
+    pj.level = save.level;
+    pj.xp = save.xp;
+
+    pj.base_att = {
+      ...save.base_att,
+    };
+
+    pj.equipment = save.equipment.map(
+      equipmentSave =>
+        Equipment.fromSave(equipmentSave)
+    );
+
+    pj.ability = save.ability.map(
+      abilitySave =>
+        Ability.fromSave(abilitySave)
+    );
+
+    pj.bms = save.bms.map(
+      bmSave =>
+        Bm.fromSave(bmSave)
+    );
+
+    pj.createEmptyInventory();
+  
+
+  pj.equipment
+  .filter(equipment => equipment.location === "inventory")
+  .forEach(equipment => {
+
+    if (
+      equipment.x == null ||
+      equipment.y == null
+    ) {
+      return;
+    }
+     for (
+    let currentY = equipment.y;
+    currentY < equipment.y + equipment.height;
+    currentY++
+  ) {
+    const row =
+      pj.inventory[currentY];
+
+    if (!row) continue;
+
+    for (
+      let currentX = equipment.x;
+      currentX <  equipment.x + equipment.width;
+      currentX++
+    ) {
+      row[currentX] = equipment.id;
+    }
+  }
+
+    
+  });
+    return pj;
+   
+  }
+
 
   toView(): PjView {
     return {
@@ -93,98 +191,30 @@ export class Pj extends Fighter {
     };
   }
 
-  isUnconscious(): boolean {
-  return this.base_att.currhp <= 0;
-}
-
-canLevelUp():boolean {
-  if(this.xp >= this.getNextLevelXP())
-      return true;
-   return false;
-
-}
-
-createEmptyInventory() {
-    this.inventory = [
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  ]
-}
-
-initNewFight() {
-  this.ap = this.getNewTurnAp();
-  this.base_att.currhp = this.getStat("maxhp");
-  this.base_att.shield = 0;
-  this.bms = [];
-}
-
-getFirstPotionId():number {
-    const p = this.equipment.find((equip) => equip.location === "belt")
-    if(!p)
-       throw new Error("Pas de potion trouvé");
-    
-    return p.id;
-
-}
-
-
-getLearnableAbilities():AbilityView[] {
   
-  let learnableAbilities:AbilityView[] = [];
-  for( const ability of basicAbilities)
-    if(!this.hasAbility(ability.id))
-      learnableAbilities.push(new Ability(ability.id).toView());
-
-  return learnableAbilities;
-}
-
-getAbility(basicAbilityId:number):Ability {
-  
-    const ability = this.ability.find((ability) => ability.basicAbilityId === basicAbilityId);
-    
-    if(!ability) {
-       throw new Error(`Ability introuvable : ${basicAbilityId}`);
+  toSave(): PjSave {
+    return {
+      id: this.id,
+      image: this.image,
+      avatar:this.avatar,
+      name: this.name,
+      level: this.level,
+      xp:this.xp,
+      base_att:this.base_att,
+      bms: this.bms.map(bm => bm.toSave()),
+      equipment: this.equipment.map(equip => equip.toSave()),
+      ability:this.ability.map(ab => ab.toSave()),
+      
     }
-    console.log(ability.name);
-    return ability;
-}
-
-hasAbility(basicAbilityId:number):boolean {
-  for(const ability of this.ability) {
-    if(ability.basicAbilityId === basicAbilityId)
-        return true;
   }
-  return false;
-}
-learAbility(basicAbilityId: number) {
-  this.ability.push(new Ability(basicAbilityId));
-}
-
-  /* **************************************** Methode autour des XP ******************************* */
-getNextLevelXP():number {
-		return  this.level * 20;      
-}
-
-
-addXp(xp:number) {
-    this.xp +=  xp; 
-  
-}
 
   
-levelUp():number {
-		  this.xp -= this.getNextLevelXP();
-      const maxHpStart = this.getStat("maxhp");
-		  this.level+= 1;
-      const maxHpEnd = this.getStat("maxhp"); 
-		  this.base_att.currhp = this.getStat("maxhp");
-      return maxHpEnd-maxHpStart;
-}
+  
 
- /***********************************************************************************************  */   
-  getStat(stat:StatName):number {
+
+
+/*********************************************Les accesseurs **************************************************  */   
+getStat(stat:StatName):number {
     let value = 0;
 
     switch (stat) {
@@ -209,13 +239,195 @@ levelUp():number {
       break;
 
     case "maxhp": 
-      value =28 + 2*this.level + 6*this.getStat("constitution")*this.level + 2*this.getStat("strength")*this.level;
+      value =18 + 2*this.level 
+                + 4*(this.base_att.constitution+this.getEquipmentBonus("constitution"))
+                + 2*(this.base_att.strength+this.getEquipmentBonus("strength")*this.level);
       break;
     }
     value += this.getEquipmentBonus(stat);
     value += this.getBmBonus(stat);
     return value;
   }
+
+isUnconscious(): boolean {
+  return this.base_att.currhp <= 0;
+}
+
+
+
+createEmptyInventory() {
+    this.inventory = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ]
+}
+
+initNewFight() {
+  this.ap = this.getNewTurnAp();
+ 
+  this.base_att.shield = 0;
+  
+  for(const bm of this.bms) {
+    if(getBasicBm(bm.basicBmId).removable)
+      this.deleteBm(bm.id)
+  }
+
+   this.base_att.currhp = this.getStat("maxhp");
+}
+
+getFirstPotionId():number {
+    const p = this.equipment.find((equip) => equip.location === "belt")
+    if(!p)
+       throw new Error("Pas de potion trouvé");
+    
+    return p.id;
+
+}
+
+initAfterFight() {
+  this.base_att.currhp = this.getStat("maxhp");
+  // remove les bm qui sont pas fight
+}
+
+
+/* **************************************** Methode autour des Ability ******************************* */
+
+getNbAbilityOfScholl(school:SchoolType):number {
+  let nb = 0;
+  for(const ab of this.ability)
+    if(ab.school === school)
+        nb++;
+  return nb;  
+}
+
+getNbAbilitiesOfSchool(school: SchoolType): number {
+  return basicAbilities.filter(
+    ability =>
+      ability.school === school &&
+      this.hasAbility(ability.id)
+  ).length;
+}
+
+getLearnableAbilities(): AbilityView[] {
+
+  const learnableAbilities: AbilityView[] = [];
+
+  for (const ability of basicAbilities) {
+
+    // Déjà apprise
+    if (this.hasAbility(ability.id)) {
+      continue;
+    }
+
+    const condition = getLearnAbilityCondition(ability.id);
+
+    if (condition !== undefined) {
+
+      // Conditions de statistiques
+      if (
+        condition.strength_min > this.base_att.strength ||
+        condition.constitution_min > this.base_att.constitution ||
+        condition.magicSkill_min > this.base_att.magicSkill ||
+        condition.level_min > this.level
+      ) {
+        continue;
+      }
+
+      // Doit posséder au moins une des abilities
+      if (
+        condition.hasOneOf.length > 0 &&
+        !condition.hasOneOf.some(ab => this.hasAbility(ab))
+      ) {
+        continue;
+      }
+
+      // Doit posséder toutes les abilities
+      if (
+        !condition.hasAtLeast.every(ab => this.hasAbility(ab))
+      ) {
+        continue;
+      }
+
+      const schoolRequirementsAreMet = Object.entries(
+            condition.schoolRequirements).every(([school, required]) => {
+              return (this.getNbAbilitiesOfSchool(school as SchoolType) >= required);
+      });
+
+      if (!schoolRequirementsAreMet) {
+          continue;
+      } 
+    }
+
+      
+
+     learnableAbilities.push(
+      Ability
+        .fromBasicAbility(ability.id)
+        .toView()
+    );
+      
+    
+  }
+
+  return learnableAbilities;
+}
+
+getAbility(basicAbilityId:number):Ability {
+  
+    const ability = this.ability.find((ability) => ability.basicAbilityId === basicAbilityId);
+    
+    if(!ability) {
+       throw new Error(`Ability introuvable : ${basicAbilityId}`);
+    }
+    console.log(ability.name);
+    return ability;
+}
+
+hasAbility(basicAbilityId:number):boolean {
+  for(const ability of this.ability) {
+    if(ability.basicAbilityId === basicAbilityId)
+        return true;
+  }
+  return false;
+}
+
+learAbility(basicAbilityId: number):string {
+  this.ability.push( Ability.fromBasicAbility(basicAbilityId));
+  return  getBasicAbility(basicAbilityId).name;
+}
+
+
+
+/* **************************************** Methode autour des XP ******************************* */
+
+canLevelUp():boolean {
+  if(this.xp >= this.getNextLevelXP())
+      return true;
+   return false;
+
+}
+
+getNextLevelXP():number {
+		return  10 + this.level * 20;      
+}
+
+addXp(xp:number) {
+    this.xp +=  xp; 
+  
+}
+  
+levelUp():number {
+		  this.xp -= this.getNextLevelXP();
+      const maxHpStart = this.getStat("maxhp");
+		  this.level+= 1;
+      const maxHpEnd = this.getStat("maxhp"); 
+		  this.base_att.currhp = this.getStat("maxhp");
+      return maxHpEnd-maxHpStart;
+}
+
+
 
 getEquipmentBonus(stat:StatName):number {
       let value = 0;
@@ -251,39 +463,28 @@ getHealed(hp: number): number {
 
 drinkPotion(
   idPj: number,
-  potionId: number
-): ActionResult {
+  potion: Equipment
+): ActionResult[][] {
 
-  const potion = this.equipment.find(equip => (equip.id === potionId));
+ 
 
-  if (!potion) {
-    throw new Error(
-      "La potion n'a pas été trouvé"
-    );
-  }
-
-  if(potion.basicEquipmentId === Const_Equipment.HP_POTION) {
+  if(potion.basicEquipmentId ===BASIC_EQUIPMENT_ID.HP_POTION) {
       const currHp = this.base_att.currhp;
-      const hp = Math.floor(Math.random() * 5) + 3;
+      const hp = Math.floor(Math.random() * 4) + 5;
       const realHp = this.getHealed(hp);
-      const shield = this.getStat("shield");
+      
       const result: ActionResult = {
-          author_type: "pj",
-          id_author: idPj,
-          animationName: "idle",
+          fighter_type: "pj",
+          fighter_id: idPj,
+          animationName: "potion_hp",
           fightStatus: "ongoing",
-          steps: [
-        [
-          {
-            target_type: "pj",
-            id_target: this.id,
-            animationName: "potion_hp",
+        
 
             hp_start: currHp,
             hp_end: this.base_att.currhp,
 
-            shield_start: shield,
-            shield_end: shield,
+            shield_start: this.getStat("shield"),
+            shield_end: this.getStat("shield"),
 
             armor_start:this.getStat("armor"),
             armor_end: this.getStat("armor"),
@@ -293,14 +494,61 @@ drinkPotion(
               text: `+${realHp} hp`,
               type: "heal",
            },
-        },
-      ],
-    ],
-  };
+   
+      };
 
-  this.removeEquipment(potionId);
-  return result;
-} else { 
+  return [[result]];
+} 
+if(potion.basicEquipmentId === BASIC_EQUIPMENT_ID.MM_POTION)
+{
+  this.updateBm(BM_ID.MM_POTION, "magicSkill", 1);
+   const result: ActionResult = {
+      fighter_type: "pj",
+      fighter_id: idPj,
+      animationName: "potion_standard",
+      fightStatus: "ongoing",
+      hp_start: this.base_att.currhp,
+      hp_end: this.base_att.currhp,
+      shield_start: this.getStat("shield"),
+      shield_end: this.getStat("shield"),
+      armor_start:this.getStat("armor"),
+      armor_end: this.getStat("armor"),
+      bm_end: this.bms.map((bm) => bm.toView()), 
+          popup: {
+          text: `+1 MM`,
+          type: "heal",
+      },
+   
+  }
+  
+  return [[result]];
+}
+
+if(potion.basicEquipmentId === BASIC_EQUIPMENT_ID.STR_POTION)
+{
+  this.updateBm(BM_ID.STR_POTION, "strength", 1);
+   const result: ActionResult = {
+      fighter_type: "pj",
+      fighter_id: idPj,
+      animationName: "potion_standard",
+      fightStatus: "ongoing",
+      hp_start: this.base_att.currhp,
+      hp_end: this.base_att.currhp,
+      shield_start: this.getStat("shield"),
+      shield_end: this.getStat("shield"),
+      armor_start:this.getStat("armor"),
+      armor_end: this.getStat("armor"),
+      bm_end: this.bms.map((bm) => bm.toView()), 
+          popup: {
+          text: `+1 Force`,
+          type: "heal",
+      },
+   
+  }
+ 
+  return [[result]];
+}
+else { 
      throw new Error(
       "Type de potion non encore géré"
     );
@@ -786,6 +1034,8 @@ addPotion(
   };
 }
 
+
+
 /* ********************************************** les fonctions de transfert internes ***************************** */
 moveEquipmentToInventory(
   equipmentId: number,
@@ -990,7 +1240,9 @@ equip(
   equipment.x = null;
   equipment.y = null;
   delete equipment.beltSlot;
-
+  console.log("bonusAll", equipment.bonus);
+  equipment.getBonus("magicSkill");
+  console.log(this.getEquipmentBonus("magicSkill"));
   return {
     result: true,
 
@@ -999,57 +1251,126 @@ equip(
   };
 }
 
+moveEquipmentToAlchemy(equipmentId: number,
+  slot: number
+): MoveObjectResult {
+  
+  
+  const equipment =
+    this.equipment.find(
+      (item) => item.id === equipmentId
+    );
+
+  if (!equipment) {
+    return {
+      result: false,
+      newEquipmentDragged: 0,
+    };
+  }
+
+   // test si c'est un ingredient
+  if (equipment.type !== "ingredient") {
+    return {
+      result: false,
+      newEquipmentDragged: equipmentId,
+    };
+  }
+
+  const previousEquipment =
+    this.equipment.find(
+      (item) =>
+        item.location === "alchemy" &&
+        item.alchemySlot === slot &&
+        item.id !== equipmentId
+    );
+
+    if (previousEquipment) {
+      previousEquipment.location = "dragged";
+      previousEquipment.x = null;
+      previousEquipment.y = null;
+
+    delete previousEquipment.slot;
+    delete previousEquipment.beltSlot;
+    delete previousEquipment.alchemySlot;
+}
+
+  this.clearEquipmentFromInventory(
+    equipmentId
+  );
+
+  equipment.location = "alchemy";
+  equipment.alchemySlot = slot;
+
+  equipment.x = null;
+  equipment.y = null;
+  delete equipment.slot;
+  delete equipment.beltSlot;
+ 
+  return {
+    result: true,
+
+    newEquipmentDragged:
+      previousEquipment?.id ?? 0,
+  };
+}
 /* ************************************************ Gestion des BMs ************************************************ */
 
-makePotion(
-  ingredientIds: (number | null)[],
-  power: number
-): makePotionResult {
+
+makePotion(): makePotionResult {
+
+  
 
   let result:makePotionResult = {
     potion: null,
     ingredientUsed: false,
   }
-  const basicIngredientIds = ingredientIds.map((id) => {
-    if (id === null) return null;
+  
+  if(this.equipment.filter(equip => (equip.location === "alchemy" && equip.alchemySlot === 4)).length > 0)
+  {
+   throw(new Error(`Emplacement pour création non vide`));
+    
+  } 
 
-    const equipment = this.equipment.find(
-      equip => equip.id === id
-    );
 
-    if (!equipment) {
-      throw new Error(
-        `Ingrédient introuvable : ${id}`
-      );
-    }
+   const basicIngredientIds = this.equipment
+  .filter(equip => equip.location === "alchemy")
+  .map(equip => equip.basicEquipmentId);
 
-    return equipment.basicEquipmentId;
-  });
+  
 
  const resultId = getAlchemyResult(basicIngredientIds);
 
+ console.log("id potion crée",resultId)
+
 if (resultId === null) {
   if (Math.random() < 0.5) {
-    this.consumeIngredients(ingredientIds);
+    this.consumeIngredients();
     result.ingredientUsed = true;
   }
-
+  return result;
+}
+else {
+  this.consumeIngredients();
+  result.ingredientUsed = true;
+  const potion = Equipment.fromBasicEquipmentId(resultId);
+  potion.location = "alchemy";
+  potion.alchemySlot=4;
+  delete potion.slot;
+  delete potion.beltSlot;
+  potion.x = null;
+  potion.y = null;
+  result.potion = potion;
+  this.equipment.push(potion);
+  
   return result;
 }
 
-this.consumeIngredients(ingredientIds);
-result.ingredientUsed = true;
-
-return result;
 }
-
-private consumeIngredients(
-  ingredientIds: (number | null)[]
-) {
-  for (const id of ingredientIds) {
-    if (id !== null) {
-      this.removeEquipment(id);
+private consumeIngredients() {
+  for (const equip of this.equipment.filter(equip => (equip.location == "alchemy")))
+    {
+      this.removeEquipment(equip.id);
     }
   }
-}
+
 }

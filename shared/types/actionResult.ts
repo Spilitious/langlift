@@ -4,24 +4,26 @@ import type { FightPopupData } from "./fightPopUp";
 import type { NpcIntentView } from "./npcIntentView";
 import type { GameStateView } from "./gameStateView";
 import type {EquipmentView} from "./equipmentView";
+import type label = require("./label");
 
 
 export type buildRoomResult = {
-  animation:ActionResult[];
+  animation:ActionResult[][];
   gameState:GameStateView;
 }
+
+
 
 export type FightStatus =
   | "ongoing"
   | "victory"
   | "defeat";
 
-
-export type TargetResult = {
-  target_type: "pj" | "npc";
-  id_target: number;
-  
+export type ActionResult = {
+  fighter_type: "pj" | "npc";
+  fighter_id: number;
   animationName: AnimationName;
+  fightStatus:FightStatus;
 
   hp_start: number;
   hp_end: number;
@@ -29,28 +31,17 @@ export type TargetResult = {
   shield_start: number;
   shield_end: number;
 
-  armor_start: number,
-  armor_end: number,
+  armor_start: number;
+  armor_end: number;
 
   bm_end: BmView[];
 
+  popup?: FightPopupData;
   new_intent?: NpcIntentView;
-
-  popup: FightPopupData;
-};
-
-
-export type ActionResult = {
-  author_type?: "pj" | "npc";
-  id_author?: number;
-  animationName: AnimationName;
-
-  steps: TargetResult[][];
-  fightStatus: FightStatus;
 };
 
 export type ActionResponse = {
-  result: ActionResult;
+  result: ActionResult[][];
   gameState: GameStateView;
 };
 
@@ -69,6 +60,8 @@ export type VictoryResponse= {
 
 export type LevelUpResponse = {
   hpDelta:number;
+  attribute?: keyof label.BaseAttributes;
+  basicAbilityName?:string;
   gameState:GameStateView;
 }
 

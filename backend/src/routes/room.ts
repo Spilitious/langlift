@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 const router = Router();
-import { gameState } from "../game/gameStateInstance.js";
+import { getGameState } from "../game/gameStateInstance.js";
 import type { VictoryResult, VictoryResponse } from "../../../shared/types/actionResult.js";
 
 router.get(
@@ -10,6 +10,13 @@ router.get(
 
   try {
   
+    const gameState = getGameState();
+
+    if (!gameState) {
+    return res.status(404).json({
+      error: "Aucune partie en cours",
+    });
+  }
     const id =Number(req.params.id);
     const anim = gameState.buildRoom(id);
   
@@ -33,7 +40,13 @@ router.post(
   "/room/victory",
   (req, res) => {
    
-    
+    const gameState = getGameState();
+
+    if (!gameState) {
+    return res.status(404).json({
+      error: "Aucune partie en cours",
+    });
+  }
     const victoryResult = gameState.executeVictory();    
     const response:VictoryResponse = {
       results:victoryResult,

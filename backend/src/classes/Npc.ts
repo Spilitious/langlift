@@ -6,7 +6,7 @@ import type { NpcBaseAttributes } from "../../../shared/types/label.js";
 import type { BmView } from "../../../shared/types/bmView.js";
 import {STAT_NAMES} from "../../../shared/types/label.js";
 
-import { basicNpcs } from "../utils/basicNpc.js";
+import { basicNpcs } from "../utils/basicNpc_data.js";
 
 import   {Bm } from "./Bm.js"
 import { Fighter } from "./Fighter.js";
@@ -23,6 +23,7 @@ export class Npc extends Fighter{
   base_att:NpcBaseAttributes;
   position: number;
   intent: NpcIntentView;
+  size:number;
   
 
 constructor(basicRaceId: number, level:number) {
@@ -37,6 +38,7 @@ constructor(basicRaceId: number, level:number) {
 
     this.name = basicNpc.name;
     this.image = basicNpc.image;
+    this.size = basicNpc.size;
     this.level = level;
     this.base_att = {
       maxHp: basicNpc.hp_start+Math.floor(Math.random()*basicNpc.hp_start/7),
@@ -49,7 +51,7 @@ constructor(basicRaceId: number, level:number) {
     };
     this.bms = [];
     for(const basicBmId of basicNpc.bms) {
-        this.bms.push(new Bm(basicBmId, 1))
+        this.bms.push(Bm.fromBasicBmId(basicBmId, 1))
     }
 
     const levelsToGenerate = level - basicNpc.level_start;
@@ -64,6 +66,7 @@ constructor(basicRaceId: number, level:number) {
       target:1,
       target_image:1,
       value:this.getStat("damage"),
+      value2:0
     }
 
   }
@@ -79,6 +82,7 @@ constructor(basicRaceId: number, level:number) {
       level:this.level,
       position: this.position,
       intent: this.intent,
+      size:this.size,
       bms: this.bms.map( (bm) => bm.toView()),
        stats: Object.fromEntries(
       STAT_NAMES.map((stat) => [
@@ -100,7 +104,7 @@ getStat(stat:StatName):number {
   
       switch (stat) {
         case "armor":
-        value = 0;
+        value = this.base_att.armor;
         break;
   
       case "maxhp": 
@@ -179,7 +183,14 @@ private upgrade(basicNpc: BasicNpc) {
 
   limit += basicNpc.upgradeRate.bm_start;
   if(dice < limit) {
-    //add one effect on the bm présent
+    for(const bm of this.bms)
+    { 
+      bm.bonus = Object.fromEntries(
+    Object.entries(bm.bonus).map(
+      ([stat, value]) => [stat, value +1]
+    )
+  ) as Partial<Record<StatName, number>>;
+    }
     return;
   }
   
@@ -189,12 +200,13 @@ private upgrade(basicNpc: BasicNpc) {
 }
 
 
-setIntent(basicActionId: number, value:number, targetId?: number,  target_image?: number): void {
+setIntent(basicActionId: number, value:number, value2?:number, targetId?: number,  target_image?: number): void {
   this.intent = {
     action: basicActionId,
     target: targetId ?? 0,
     target_image: target_image ?? 0,
     value: value,
+    value2: value2 ?? 0,
   };
 }
 

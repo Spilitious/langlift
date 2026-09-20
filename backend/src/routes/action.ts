@@ -4,20 +4,24 @@ import type { ActionRequest } from "../../../shared/types/action.js";
 import type { ActionResult } from "../../../shared/types/actionResult.js";
 import type { PotionRequest } from "../../../shared/types/action.js";
 
-import { gameState } from "../game/gameStateInstance.js";
+import { getGameState, setGameState } from "../game/gameStateInstance.js";
 
 const router = Router();
 
 router.post("/action", (req, res) => {
   try {
     const action = req.body as ActionRequest;
+    const gameState = getGameState();
 
-    
-
-    const result: ActionResult =
+    if (!gameState) {
+    return res.status(404).json({
+      error: "Aucune partie en cours",
+    });
+  }
+    const result: ActionResult[][] =
       gameState.playAction(action);
-
     
+   
     return res.json({
       result,
       gameState: gameState.toView(),
@@ -35,7 +39,13 @@ router.post("/action", (req, res) => {
 router.post("/usePotion", (req, res) => {
   try {
     const p = req.body as PotionRequest;
+    const gameState = getGameState();
 
+    if (!gameState) {
+    return res.status(404).json({
+      error: "Aucune partie en cours",
+    });
+  }
     const result =
       gameState.team.usePotion(
         p.id_pj,
@@ -43,9 +53,6 @@ router.post("/usePotion", (req, res) => {
         p.id_potion
       );
     
-   
-   
-   
     return res.json({
       result,
       gameState: gameState.toView(),

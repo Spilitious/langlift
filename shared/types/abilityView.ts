@@ -14,5 +14,23 @@ export type  AbilityView = {
     target: TargetType;
     ap : number;
     duration : number;
+    ignoreProvocation:boolean;
+    
+}
+
+
+export type  AbilitySave = {
+    id:number;
+    basicAbilityId:number;
+    image: number;
+    name: string;
+    type:AbilityType;
+    school: SchoolType;
+    detail: string;
+    formula: string;
+    target: TargetType;
+    ap : number;
+    duration : number;
+    ignoreProvocation:boolean;
     
 }

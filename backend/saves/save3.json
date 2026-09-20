@@ -1,0 +1,45 @@
+{
+  "date": "2026-09-19T20:05:00.995Z",
+  "currentRoomId": null,
+  "currentPageId": 2,
+  "currentShopId": null,
+  "consequenceIds": [],
+  "alchemyAccess": false,
+  "gladysRelation": {
+    "love": 0,
+    "trust": 0,
+    "gratitude": 0,
+    "admiration": 0,
+    "ressentment": 0,
+    "jealousy": 0
+  },
+  "roomPrologueTable": [],
+  "team": {
+    "pjs": [
+      {
+        "id": 1,
+        "image": 14,
+        "avatar": 1,
+        "name": "Troylan",
+        "level": 1,
+        "xp": 0,
+        "base_att": {
+          "constitution": 0,
+          "strength": 0,
+          "magicSkill": 0,
+          "currhp": 20,
+          "shield": 0
+        },
+        "bms": [],
+        "equipment": [],
+        "ability": []
+      }
+    ],
+    "gold": 40,
+    "profession": {
+      "alchemy": 0,
+      "blacksmith": 0,
+      "armorsmith": 0
+    }
+  }
+}

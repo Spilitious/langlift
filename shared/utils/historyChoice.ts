@@ -229,7 +229,7 @@ export const Choice12: HistoryChoice = {
 };
 
 
-// Arrivé dans la forêt
+// Dialogue avec Gladys
 export const Choice13: HistoryChoice = {
   choices: [
     {
@@ -244,7 +244,7 @@ export const Choice13: HistoryChoice = {
 };
 
 
-// Arrivé dans la forêt
+// Quittons la grotte
 export const Choice14: HistoryChoice = {
   choices: [
     {
@@ -253,6 +253,7 @@ export const Choice14: HistoryChoice = {
       destination: {
         type: "text",
         id: 17,
+        consequenceId:22,
       },
     },
   ],
@@ -302,22 +303,22 @@ export const Choice17: HistoryChoice = {
       },
     },
     {
-       id:23,
+      id:23,
       text: "Il est temps de regarder si vous pouvez tirer quelque chose de ces ingrédients que vous avez récupérés sur les différents monstres.",
       destination: {
         type: "text",
-        id: 20,
+        id: 27,
          consequenceId:11, 
           
       },
-      condition: (gameState) => gameState.team.profession.alchimie > 0,
+      condition: (gameState) => gameState.team.profession.alchemy > 0,
     },
     {
        id:24,
       text: "Prendre soin de votre épée. Jusqu'ici, cette lame est peut-être la seule chose qui vous ait maintenu en vie.",
       destination: {
         type: "text",
-        id: 20,
+        id: 27,
          consequenceId:12, 
       },
     },
@@ -480,6 +481,36 @@ export const Choice24: HistoryChoice = {
         type: "text",
         id: 4,
          consequenceId:21, 
+      },
+    },
+  ],
+};
+
+
+// Gladys entraine troylan au shop
+export const Choice25: HistoryChoice = {
+  choices: [
+    {
+       id:35,
+      text: "Next",
+      destination: {
+        type: "text",
+        id: 20,
+      },
+    },
+  ],
+};
+
+
+// Gladys entraine troylan au shop
+export const Choice26: HistoryChoice = {
+  choices: [
+    {
+       id:36,
+      text: "Next",
+      destination: {
+        type: "fight",
+        id: 7,
       },
     },
   ],

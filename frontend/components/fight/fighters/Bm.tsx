@@ -6,79 +6,187 @@ import { getBmImagePath } from "@/utils/spritePaths";
 
 type BmItemProps = {
   bm: BmView;
-  size: number;
+  
    
    onDisappear?: () => void;
 };
+function BmItem({
+  bm,
+ 
+  onDisappear,
+}: BmItemProps) {
 
-function BmItem({ bm, size, onDisappear }: BmItemProps) {
+  const mainValue = getBmMainValue(bm);
+  const lifeValue = bm.life;
 
-  const value = getBmDisplayValue(bm);
-  const previousValue = useRef(value);
+  const previousMainValue = useRef(mainValue);
+  const previousLifeValue = useRef(lifeValue);
 
-  const [displayValue, setDisplayValue] = useState(value);
+  const [displayMainValue, setDisplayMainValue] =
+    useState(mainValue);
+
+  const [displayLifeValue, setDisplayLifeValue] =
+    useState(lifeValue);
+
   const [impact, setImpact] = useState(false);
   const [fading, setFading] = useState(false);
+  const [visible, setVisible] = useState(true);
+
+   const size = 36;
+
+    const impactTimeoutRef =
+  useRef<ReturnType<typeof setTimeout> | null>(null);
+
+const triggerImpact = () => {
+  if (impactTimeoutRef.current) {
+    clearTimeout(impactTimeoutRef.current);
+  }
+
+  setImpact(false);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      setImpact(true);
+
+      impactTimeoutRef.current = setTimeout(() => {
+        setImpact(false);
+        impactTimeoutRef.current = null;
+      }, 200);
+    });
+  });
+};
+
+useEffect(() => {
+  return () => {
+    if (impactTimeoutRef.current) {
+      clearTimeout(impactTimeoutRef.current);
+    }
+  };
+}, []);
+
+  // =========================
+  // CHANGEMENT DU BM
+  // =========================
+useEffect(() => {
+  const oldMainValue =
+    previousMainValue.current;
+
+  const oldLifeValue =
+    previousLifeValue.current;
+
+  const mainChanged =
+    mainValue !== oldMainValue;
+
+  const lifeChanged =
+    lifeValue !== oldLifeValue;
+
+  if (!mainChanged && !lifeChanged) {
+    return;
+  }
+ 
+  setVisible(true);
+
+setFading(false);
+triggerImpact();
+
+
+  // =========================
+  // ANIMATION MAIN STAT
+  // =========================
+
+  if (mainChanged) {
+    let currentValue = oldMainValue;
+
+    const direction =
+      mainValue > oldMainValue ? 1 : -1;
+
+    const interval = setInterval(() => {
+      currentValue += direction;
+
+      setDisplayMainValue(currentValue);
+
+      if (currentValue === mainValue) {
+        clearInterval(interval);
+      }
+    }, 100);
+  }
+
+  // =========================
+  // ANIMATION LIFE
+  // =========================
+
+  if (lifeChanged) {
+    let currentLife = oldLifeValue;
+
+    const direction =
+      lifeValue > oldLifeValue ? 1 : -1;
+
+    const interval = setInterval(() => {
+      currentLife += direction;
+
+      setDisplayLifeValue(currentLife);
+
+      if (currentLife === lifeValue) {
+        clearInterval(interval);
+      }
+    }, 100);
+  }
+
+  previousMainValue.current = mainValue;
+  previousLifeValue.current = lifeValue;
+
+  // =========================
+  // DISPARITION
+  // =========================
+
+ const shouldDisappear =
+  (bm.display === "normal" && mainValue === 0) ||
+  (bm.display === "life" && lifeValue === 0) ||
+  (bm.display === "both" &&
+    (mainValue === 0 || lifeValue === 0));
+    
+
+  if (shouldDisappear) {
+    const maxDistance = Math.max(
+      Math.abs(mainValue - oldMainValue),
+      Math.abs(lifeValue - oldLifeValue)
+    );
+
+    // Attend la fin du décompte
+    const animationDuration =
+      maxDistance * 100;
+
+    const fadeTimeout = setTimeout(() => {
+      setFading(true);
+    }, animationDuration + 150);
+
+    const removeTimeout = setTimeout(() => {
+      setVisible(false);
+      onDisappear?.();
+    }, animationDuration + 500);
+
+    return () => {
+      clearTimeout(fadeTimeout);
+      clearTimeout(removeTimeout);
+    };
+  }
+
   
-  const [visible, setVisible] = useState(value !== 0);
+
+
+}, [
+  mainValue,
+  lifeValue,
+  bm.display,
+  onDisappear,
+]);
+
+  // =========================
+  // APPARITION
+  // =========================
 
   useEffect(() => {
-  const oldValue = previousValue.current;
-  const newValue = value;
-
-  if (newValue === oldValue) return;
-
-  setVisible(true);
-  setImpact(true);
-  setFading(false);
-
-  let currentValue = oldValue;
-  
-  const direction = newValue > oldValue ? 1 : -1;
-
-  const interval = setInterval(() => {
-    currentValue += direction;
-
-    setDisplayValue(currentValue);
-
-    if (currentValue === newValue) {
-      clearInterval(interval);
-
-      if (newValue === 0) {
-        setTimeout(() => {
-          setFading(true);
-        }, 150);
-
-        setTimeout(() => {
-          setVisible(false);
-           onDisappear?.();
-        }, 500);
-      } else {
-        setTimeout(() => {
-          setImpact(false);
-        }, 150);
-      }
-    }
-  }, 100);
-
-  previousValue.current = newValue;
-
-  return () => {
-    clearInterval(interval);
-  };
-}, [value]);
-useEffect(() => {
-  if (value === 0) return;
-
-  const start = requestAnimationFrame(() => {
-    setImpact(true);
-
-    setTimeout(() => {
-      setImpact(false);
-    }, 200);
-  });
-
-  return () => cancelAnimationFrame(start);
+  triggerImpact();
 }, []);
 
   if (!visible) {
@@ -89,6 +197,7 @@ useEffect(() => {
     <div
       style={{
         position: "relative",
+
         width: `${size}px`,
         height: `${size}px`,
 
@@ -104,6 +213,7 @@ useEffect(() => {
         `,
       }}
     >
+
       <img
         src={getBmImagePath(bm.image)}
         alt={bm.name}
@@ -114,30 +224,72 @@ useEffect(() => {
         }}
       />
 
-      <span
-        style={{
-          position: "absolute",
-          left: "-4px",
-          bottom: "-2px",
+      {/* =========================
+          MAIN STAT - GAUCHE
+         ========================= */}
 
-          width: "17px",
-          height: "17px",
-          borderRadius: "50%",
+      {(bm.display === "normal" ||
+        bm.display === "both") && (
 
-          background: "black",
-          border: "1px solid white",
+        <span
+          style={{
+            position: "absolute",
+            left: "-4px",
+            bottom: "-2px",
 
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+            width: "17px",
+            height: "17px",
+            borderRadius: "50%",
 
-          color: "red",
-          fontSize: "11px",
-          fontWeight: "bold",
-        }}
-      >
-        {displayValue}
-      </span>
+            background: "black",
+            border: "1px solid white",
+
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+
+            color: "red",
+            fontSize: "11px",
+            fontWeight: "bold",
+          }}
+        >
+          {displayMainValue}
+        </span>
+      )}
+
+      {/* =========================
+          LIFE - DROITE
+         ========================= */}
+
+      {(bm.display === "life" ||
+        bm.display === "both") && (
+
+        <span
+          style={{
+            position: "absolute",
+            right: "-4px",
+            bottom: "-2px",
+
+            width: "17px",
+            height: "17px",
+            borderRadius: "50%",
+
+            background: "black",
+            border: "1px solid white",
+
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+
+            color: "white",
+            fontSize: "11px",
+            fontWeight: "bold",
+          }}
+        >
+          {displayLifeValue}
+        </span>
+      )}
+
     </div>
   );
 }
@@ -145,12 +297,12 @@ useEffect(() => {
 type BmProps = {
   bms: BmView[];
   armor?: number;
-  size?: number;
+  
  
 };
 export default function Bm({
   bms,
-  size = 32,
+ 
   armor,
  
 }: BmProps) {
@@ -158,18 +310,21 @@ export default function Bm({
   
   const armorBm: BmView = {
   id: -1,
+  basicBmId:-1,
   image: 1,
   name: "Armure",
   life: -1,
-  display: "armor",
+  display: "normal",
+  mainStat:"armor",
   bonus: {armor}, };
 
   const visualBms: BmView[] = [
-  ...bms,
+ 
   ...(armor !== 0 ? [armorBm] : []),
+   ...bms,
   ];
 
-
+  const size=36;
   const [displayedBms, setDisplayedBms] =   useState<BmView[]>(visualBms);
 
     
@@ -211,7 +366,7 @@ export default function Bm({
       style={{
         display: "grid",
         gridTemplateColumns: `repeat(5, ${size}px)`,
-        gap: "4px",
+        gap: "6px",
       }}
     >
       {displayedBms.filter((bm) => bm.display !== "none")
@@ -219,7 +374,7 @@ export default function Bm({
         <BmItem
           key={bm.id}
           bm={bm}
-          size={size}
+         
           onDisappear={() => removeBm(bm.id)}
         />
       ))}
@@ -227,35 +382,44 @@ export default function Bm({
   );
 }
 
-function getBmDisplayValue(bm: BmView): number {
-  if (bm.display === "none") {
-    return 0;
-  }
-
-  if (bm.display === "life") {
-    return bm.life;
-  }
-
-  return bm.bonus[bm.display] ?? 0;
+function getBmMainValue(bm: BmView): number {
+  return bm.bonus[bm.mainStat] ?? 0;
 }
+function zeroBmDisplayValue(
+  bm: BmView
+): BmView {
 
-function zeroBmDisplayValue(bm: BmView): BmView {
-  if (bm.display === "none") {
-    return bm;
+  switch (bm.display) {
+
+    case "normal":
+      return {
+        ...bm,
+        bonus: {
+          ...bm.bonus,
+          [bm.mainStat]: 0,
+        },
+      };
+
+    case "life":
+      return {
+        ...bm,
+        life: 0,
+      };
+
+    case "both":
+      return {
+        ...bm,
+        life: 0,
+        bonus: {
+          ...bm.bonus,
+          [bm.mainStat]: 0,
+        },
+      };
+
+    case "empty":
+      return bm;
+
+    case "none":
+      return bm;
   }
-
-  if (bm.display === "life") {
-    return {
-      ...bm,
-      life: 0,
-    };
-  }
-
-  return {
-    ...bm,
-    bonus: {
-      ...bm.bonus,
-      [bm.display]: 0,
-    },
-  };
 }

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { gameState } from "../game/gameStateInstance.js";
+import { getGameState } from "../game/gameStateInstance.js";
 
 const router = Router();
 
@@ -11,7 +11,13 @@ router.post("/consequence/add", (req, res) => {
       error: "consequenceId invalide",
     });
   }
+  const gameState = getGameState();
 
+    if (!gameState) {
+    return res.status(404).json({
+      error: "Aucune partie en cours",
+    });
+  }
   gameState.addConsequence(consequenceId);
 
   return res.json({

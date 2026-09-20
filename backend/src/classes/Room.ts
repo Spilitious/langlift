@@ -1,8 +1,9 @@
 import type { RoomView } from "../../../shared/types/roomView.js";
 import type { HistoryDestination } from "../../../shared/types/history.js";
 import type { VictoryResult } from "../../../shared/types/actionResult.js";
-import { getBasicRoom } from "../utils/basicRoom.js";
+import { getBasicRoom } from "../utils/basicRoom_data.js";
 import { Npc } from "./Npc.js";
+import type { BasicRoom } from "../types/basicRoom.js";
 
 export class Room {
   id: number;
@@ -48,6 +49,15 @@ export class Room {
     this.npcs.push(npc);
   }
 }
+
+  load(basicRoomId:BasicRoom) {
+
+
+
+
+
+    
+  }
 
   toView(): RoomView {
     return {

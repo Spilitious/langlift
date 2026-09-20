@@ -11,9 +11,9 @@ import PjProfil from "./PjProfil";
 type ActionMenuProps = {
   pj: PjView;
   selectedAction: AbilityView | null;
-  inventoryOpen : boolean;
+  
   onSelectAction: (action: AbilityView) => void;
-  onToggleInventory : () => void;
+  
   onEndTurn : () => void;
 
   dragEquipmentId : number | null;
@@ -29,8 +29,7 @@ export default function ActionMenu({
   pj,
   selectedAction,
   onSelectAction,
-  onToggleInventory,
-  inventoryOpen,
+  
   dragEquipmentId,
   onDropBeltSlot,
   onEquipmentPointerDown,
@@ -60,7 +59,8 @@ const beltEquipment =
       detail: "",
       target: "npc",
       ap: 1,
-      duration:0
+      duration:0,
+      ignoreProvocation:false,
 
     },
     {
@@ -74,7 +74,8 @@ const beltEquipment =
       detail: "",
       target: "self",
       ap: 1,
-      duration:0
+      duration:0,
+      ignoreProvocation:false,
     },
   ];
 

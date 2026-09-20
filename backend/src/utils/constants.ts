@@ -33,8 +33,8 @@ export enum FIGHT_VALUE {
   FIREBALL_BURN_MULT = 2,
 
   WINGS_BASE = 1,
-  WINGS_MULT = 2,
-  WINGS_LIFE = 2,
+  WINGS_MULT = 1,
+  WINGS_LIFE = 3,
 
   GUARD_BASE = 7,
   GUARD_MULT = 3, 
@@ -44,6 +44,9 @@ export enum FIGHT_VALUE {
 
   TWIRL_BASE = 6,
   TWIRL_MULT= 3,
+
+  BLAZING_FIRE_BASE = 6,
+  BLAZING_FIRE_MULT= 3,
 
   DEEP_THRUST_BASE = 6,
   DEEP_THRUST_MULT = 2,
@@ -56,14 +59,25 @@ export enum FIGHT_VALUE {
   REGENERATION_BASE = 1,
   REGENERATION_MULT = 2,
 
-  ATHLAN_SHIELD_BASE = 2,
-  ATHLAN_SHIELD_MULT = 1,
+  ATHLAN_SHIELD_BASE = 1,
+  ATHLAN_SHIELD_MULT = 2,
 
   ATHLAN_ARMOR_BASE = 1,
   ATHLAN_ARMOR_MULT = 3,
 
-  ARCXOS__BASE = 1,
-  ARCXOS_MULT = 3,
+  ARCXOS_BASE = 1,
+  ARCXOS_MULT = 2,
+
+  MULTIPLE_ATTACK_DAMAGE = 2,
+  MULTIPLE_ATTACK_ITERATION = 2,
+
+  TREACHEROUS_ATTACK_BASE = 3,
+  TREACHEROUS_ATTACK_WOUND_BASE =1,
+  TREACHEROUS_ATTACK_WOUND_MULT =1,
+
+  CHARGE_BASE = 14,
+  CHARGE_MULT = 5,
+  
   
 }
 
@@ -82,7 +96,8 @@ export enum BM_NAME {
   SHIELD_EXPERT = "Shield Expert",
   PROVOCATION = "Provocation",
   REGENERATION ="Beaume de soin",
-  ARCXOS = "Malédiciton d'Arcxos"
+  ARCXOS = "Malédiciton d'Arcxos",
+  DEEP_WOUND ="Blessure profonde",
 }
 
 
@@ -104,53 +119,112 @@ export enum BM_ID {
   FIRE_BARRIER = 15,
   REGENERATION = 16,
   ARCXOS = 17,
+  MM_POTION=18,
+  STR_POTION=19,
+  FATIGUE_MM=20,
+  FATIGUE_STR=21,
+  TROLL_STR=22,
+  TROLL_REGEN=23,
+  DEEP_WOUND=24,
+
+  
+  
+
+ 
   
 } 
 
 export enum ABILITY_NAME {
+
+  //WARRIOR
   BRUTAL_BLOW = "Dégâts accrus",
-  ATHLAN_SHIELD = "Bouclier d'Athlan",
+  DEEP_THRUST ="Coup tranchant",
+  TWIRL ="Tourbillon",
+  SHATTERING_ATTACK="Attaque dévastatrice",
+
+  
+  //GUARDIAN
   ROCK_SKIN = "Peau de roc",
   AUTOREGENERATION = "Autorégénération",
   GUARD_REFLEX = "Bouclier reflexe",
-  PARRY = "Botte d'estoc",
-  DEEP_THRUST ="Coup tranchant",
-  TWIRL ="Tourbillon",
-  FIREBALL ="Boule de feu",
-  LIFE_TEARS = "Larme de vie",
-  WINGS="Ailes de colère",
-  ATHLAN_ARMOR = "Armure d'Athlan",
-  VOID_RAY = "Rayon du vide",
-  FIRE_BARRIER = "Barrière de feu",
-  REGENERATION = "Baume de soin",
+  CHARGE = "Charge",
   GUARD = "Posture défensive",
-  ARCXOS = "Malédiction d'Arcxos"
 
+  //ASSASSIN
+  MULTIPLE_ATTACK = "Rafale",
+  PARRY = "Botte d'estoc",
+  TREACHEROUS_ATTACK="coup traitre",
+
+  //GUERISION
+  LIFE_TEARS = "Larme de vie",
+  REGENERATION = "Charme de vitalité",
+  HOLY_RAIN ="Pluie guérissante",
+  HEALING_SUN = "Soleil de guérison",
+  CURE = "Souffle d'Athlan",
+  
+  //PROTECTION
+  ATHLAN_SHIELD = "Bouclier d'Athlan",
+  ATHLAN_ARMOR = "Armure d'Athlan",
+  WARD = "Protection divine",
+  // procure shield_expert 
+
+
+  //ALTERATION
+  WINGS="Ailes de colère",
+  ARCXOS = "Malédiction d'Arcxos",
+  BLEAK = "Sang de Lave",
+
+  
+  //DESTRUCTION
+  FIRE_BARRIER = "Barrière de feu",
+  FIREBALL ="Boule de feu",
+  VOID_RAY="Rayon du vide",
+  BLAZING_FIRE="Brasier"
 }
 
 
 export enum ABILITY_ID {
   ATTACK = 1,
   SHIELD = 2,
+
+  //GUARDIAN
   ROCK_SKIN = 3,
   AUTOREGENERATION = 4,
-  PARRY = 5,
+  GUARD_REFLEX = 12,
+  GUARD = 18,
+  CHARGE =21,
+
+  //WARRIOR
+  BRUTAL_BLOW = 10,
   DEEP_THRUST =6,
   TWIRL =7,
-  FIREBALL =8,
+  SHATTERING_ATTACK=24,
+
+
+  //ASSASSIN
+  PARRY = 5,
+  MULTIPLE_ATTACK = 20,
+  TREACHEROUS_ATTACK=22,
+  
+  //GUERISON
   LIFE_TEARS =9,
-  BRUTAL_BLOW = 10,
+  REGENERATION = 17,
+
+
+  //PROTECTION
   ATHLAN_SHIELD = 11,
-  GUARD_REFLEX = 12,
-  WINGS = 13,
   ATHLAN_ARMOR = 14,
+  WARD = 23,
+
+  //ALTERATION
+  WINGS = 13,
+  ARCXOS = 19,
+  
+  //DESTRUCTION
   VOID_RAY = 15,
   FIRE_BARRIER = 16,
-  REGENERATION = 17,
-  GUARD = 18,
-  ARCXOS = 19,
-
-
+  FIREBALL =8,
+  BLAZING_FIRE = 25,
 }
 
 
@@ -159,6 +233,10 @@ export enum NPC_ID {
   GIANT_TOAD = 2,
   GIANT_BAT = 3,
   WOLF = 4,
+  KOBOLD = 5,
+  TROLL = 6,
+  OGRE = 7,
+  BRIGAND = 8,
   
 }
 
@@ -180,7 +258,47 @@ export enum NPC_ACTION_ID {
   SHIELD = 2,
   EVASION = 3,
   WOLF_CRY = 4,
-
-  
+  MULTIPLE_ATTACK = 5,
+  TWIRL =6,
+  TROLL_FURY = 7,
+  BURN_ATTACK = 8,
+  AUTOREGENERATION = 9,
+  PIERCING_ATTACK = 10,
+  INVOKE_ANT = 11,
+ 
 }
 
+export const NPC_ACTION_ID_NEED_INTENT_CHANGE = [
+  NPC_ACTION_ID.ATTACK, 
+  NPC_ACTION_ID.BURN_ATTACK,
+  NPC_ACTION_ID.TWIRL,
+  NPC_ACTION_ID.PIERCING_ATTACK,
+  NPC_ACTION_ID.MULTIPLE_ATTACK
+]
+
+
+
+
+export enum BASIC_EQUIPMENT_ID {
+  HP_POTION= 1,
+  STR_POTION= 2,
+  MM_POTION= 3,
+  RAT_TAIL= 4,
+  TOAD_TONGUE= 5,
+  BAT_FANG=6,
+  BASE_SWORD=7,
+  BASE_STAFF=9,
+  BASE_ARMOR=10,
+  BASE_HELM=14,
+  BASE_SHIELD=15,
+  BASE_TOGE=16, 
+  
+  MEDIUM_SWORD=11,
+  MEDIUM_STAFF=12,
+  MEDIUM_ARMOR=13,
+  MEDIUM_HELM=17,
+  MEDIUM_SHIELD=18,
+  MEDIUM_TOGE=19,
+  
+  
+} 

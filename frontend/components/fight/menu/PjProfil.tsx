@@ -199,13 +199,13 @@ const PjProfil = ({ player }: PjProfilProps) => {
           <div style={statColumnStyle}>
             
             <div>
-              Armure : {player.stats.damage}
+              Armure : {player.stats.armor}
             </div>
               <div>
               Dégâts bonus : {player.stats.damage}
             </div>
             <div>
-              Bouclier bonus : {player.stats.shield}
+              Bouclier bonus : {player.stats.shield_bonus}
             </div>
             <div>
               Bouclier reflex : {player.stats.reflex}

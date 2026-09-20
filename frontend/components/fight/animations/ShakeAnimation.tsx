@@ -24,8 +24,8 @@ export default function ShakeAnimation({
     let cancelled = false;
 
     const play = async () => {
-      await new Promise(resolve =>
-        setTimeout(resolve, 800)
+      await new Promise((resolve) =>
+        setTimeout(resolve, 1000)
       );
 
       if (cancelled) return;

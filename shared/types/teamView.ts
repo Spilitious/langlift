@@ -1,4 +1,4 @@
-import type { PjView } from "./fighterView";
+import type { PjView, PjSave} from "./fighterView";
 
 export type TeamView = {
   pjs: PjView[];
@@ -8,7 +8,15 @@ export type TeamView = {
 
   
 export type Profession = {
-  alchimie: number,
+  alchemy: number,
   blacksmith:number,
   armorsmith:number,
 }
+
+
+
+export type TeamSave = {
+  pjs: PjSave[];
+  gold:number;
+  profession:Profession;
+  };

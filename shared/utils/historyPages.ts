@@ -160,5 +160,18 @@ export const historyPages: HistoryPage[] = [
     imageId: 3,
     choices: HistoryChoices.Choice24,
   },
+  
+   {
+    id: 27,  // Accéder à l'inventaire
+    textId: 27,
+    imageId: 10,
+    choices: HistoryChoices.Choice25,
+  },
+  {
+    id: 28,  // La proposition pour les fleurs
+    textId: 28,
+    imageId: 17,
+    choices: HistoryChoices.Choice26,
+  },
 
 ];

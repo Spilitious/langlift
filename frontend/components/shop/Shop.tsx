@@ -5,15 +5,20 @@ import ShopInventory from "./ShopInventory";
 import type { EquipmentSlot } from "@shared/types/equipmentView";
 import { useGame } from "@/context/GameContext";
 import PjShopInventory from "./PjShopInventory";
+
+import { createPortal } from "react-dom";
 import {
   moveEquipmentToInventory,
   moveEquipmentToBelt,
   equipEquipment,
   buyEquipment,
   sellEquipment,
+  moveEquipmentToPlayer,
 } from "@/utils/api/equipmentApi";
 import { getImageEquipment } from "@/utils/spritePaths"
 import type { HistoryDestination } from "@shared/types/history";
+import {loadShop} from "../../utils/api/shopApi";
+
 
 type ShopProps = {
     shopId:number;
@@ -33,8 +38,9 @@ export default function Shop({
     useState<number | null>(null);
 
   const [selectedPjId, setSelectedPjId] =
-    useState<number | null>(null);
+  useState<number | null>(null);
 
+ 
   const [dragOffset, setDragOffset] =
     useState({
       x: 0,
@@ -48,20 +54,37 @@ export default function Shop({
     });
 
    
+useEffect(() => {
+  const fetchShop = async () => {
+    try {
+      const result = await loadShop(shopId);
 
-  useEffect(() => {
-    if (!gameState) return;
+      setGameState(result);
+    } catch (error) {
+      console.error(
+        "Erreur chargement shop",
+        error
+      );
+    }
+  };
 
-      setSelectedPjId((current) =>
-      current ?? gameState.team.pjs[0]?.id ?? null
-    );
-  }, [gameState?.team.pjs]);
+  fetchShop();
+}, [shopId, setGameState]);
 
+useEffect(() => {
+  if (!gameState) return;
 
- const selectedPj =
-  gameState?.team.pjs.find(
-    (pj) => pj.id === selectedPjId
+  setSelectedPjId(current =>
+    current ?? gameState.team.pjs[0]?.id ?? null
   );
+}, [gameState]);
+ 
+
+  const selectedPj =
+  gameState?.team.pjs.find(
+    pj => pj.id === selectedPjId
+  );
+
 
 
   if (!selectedPj) {
@@ -74,18 +97,31 @@ export default function Shop({
   }
 
   
-  const draggedEquipment =
+  if (!gameState.shop) {
+    return null;
+  }
+
+  
+const draggedEquipment =
   selectedPj.equipment.find(
     (equipment) =>
       equipment.id === draggedEquipmentId
   )
   ??
-  gameState.shops[0]?.equipments.find(
+  gameState.shop.equipments.find(
     (equipment) =>
       equipment.id === draggedEquipmentId
   )
   ??
   null;
+
+
+
+const handleDestination = () => {
+    if(!gameState.shop)
+      return
+    onDestination(gameState.shop.destination);
+  };
 
 
 /* ************************************** SELECTION D'un objet ******************************* */
@@ -221,9 +257,10 @@ const handleDropOnShop = async (
 
   if (selectedPjId === null) return;
   if (draggedEquipment === null) return;
- 
+  if (!gameState.shop) return ;
+
   const isFromShop =
-    gameState.shops[0]?.equipments.some(
+    gameState.shop.equipments.some(
       (equipment) =>
         equipment.id === equipmentId
     );
@@ -293,6 +330,31 @@ if (newDraggedId !== 0) {
 };
 
 
+const handleDropEquipmentOnPlayer = async (
+  targetPjId: number
+) => {
+  if (
+    draggedEquipmentId === null ||
+    selectedPjId === null
+  ) {
+    return;
+  }
+
+  const response =
+    await moveEquipmentToPlayer(
+      selectedPjId,
+      targetPjId,
+      draggedEquipmentId
+    );
+
+  setGameState(response.gameState);
+
+  // Si transfert réussi, fin du drag.
+  // Sinon l'équipement reste dans la main.
+  if (response.result) {
+    setDraggedEquipmentId(null);
+  }
+};
   
   /* *********************************************** DEBUT DU JSX ********************************** */
 
@@ -301,29 +363,37 @@ if (newDraggedId !== 0) {
    
     onPointerMove={handlePointerMove}
       style={{
-        
-        position: "relative",
-        width: "100vw",
-        height: "100vh",
-        overflow: "hidden",
-      }}
-    >
+      position: "absolute",
+      width: "101%",
+      height: "102%",
+      left: "50%",
+      top: "50%",
+      transform: "translate(-50%, -50%)",
+      display: "flex",
+      backgroundImage: 'url("/ui/newBackground.png")',
+      backgroundSize: "100% 100%",
+      backgroundRepeat: "no-repeat",
+      backgroundPosition: "center",
+    }}
+  >
       {/* Partie haute : marchand */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "60%",
-        }}
-      >
-        <ShopInventory 
-          draggedEquipmentId={draggedEquipmentId}
-          onEquipmentPointerDown={handleEquipmentPointerDown}
-           onDropOnShop={handleDropOnShop}
-        />
-      </div>
+   <div
+  style={{
+    position: "absolute",
+    top: 50,
+    left: "50%",
+    transform: "translateX(-50%)",
+
+    width: "100%",
+    height: "51%",
+  }}
+>
+  <ShopInventory
+    draggedEquipmentId={draggedEquipmentId}
+    onEquipmentPointerDown={handleEquipmentPointerDown}
+    onDropOnShop={handleDropOnShop}
+  />
+</div>
 
       {/* Partie basse : inventaire PJ */}
       <div
@@ -332,11 +402,14 @@ if (newDraggedId !== 0) {
           bottom: 0,
           left: 0,
           width: "100%",
-          height: "40%",
+          height: "45%",
+          alignContent:"center",
         }}
       >
         <PjShopInventory
+          onContinue={handleDestination}
           pj={selectedPj}
+          onSelectPlayer={setSelectedPjId}
           draggedEquipmentId={draggedEquipmentId}
           draggedEquipment={draggedEquipment}
           dragOffset={dragOffset}
@@ -344,42 +417,45 @@ if (newDraggedId !== 0) {
           onDropOnEquipment={handleDropOnEquipmentSlot}
           onEquipmentPointerDown={handleEquipmentPointerDown}
           onDropOnBelt={handleDropOnBeltSlot}
+          onDropEquipmentOnPlayer={handleDropEquipmentOnPlayer}
          
         
         
         />
       </div>
-       {draggedEquipment && (
-    <img
-      src={getImageEquipment(
-        draggedEquipment.type,
-        draggedEquipment.image
-      )}
-      alt={draggedEquipment.name}
-      draggable={false}
-      style={{
-        position: "fixed",
-
-        left: mousePosition.x,
-        top: mousePosition.y,
-
-       width: `${draggedEquipment.width * 50}px`,
-          height: `${draggedEquipment.height * 50}px`,
-          
-
-        objectFit: "contain",
-
-        transform: `translate(
-          ${-dragOffset.x}px,
-          ${-dragOffset.y}px
-        )`,
-
-        pointerEvents: "none",
-
-        zIndex: 10000,
-      }}
-    />
-  )}
+      
+           {draggedEquipment &&
+        createPortal(
+          <img
+            src={getImageEquipment(
+              draggedEquipment.type,
+              draggedEquipment.image
+            )}
+            alt={draggedEquipment.name}
+            draggable={false}
+            style={{
+              position: "fixed",
+      
+              left: mousePosition.x,
+              top: mousePosition.y,
+      
+              width: `${draggedEquipment.width * 50}px`,
+              height: `${draggedEquipment.height * 50}px`,
+      
+              objectFit: "contain",
+      
+              transform: `translate(
+                ${-dragOffset.x}px,
+                ${-dragOffset.y}px
+              )`,
+      
+              pointerEvents: "none",
+              zIndex: 100000,
+            }}
+          />,
+          document.body
+        )
+      }
     </div>
   );
 }

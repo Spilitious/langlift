@@ -10,13 +10,12 @@ import type {
   FrameAnimationName,
 } from "@/utils/animationFrame";
 
+import {getNpcAnimationSound} from "../../../utils/animationSound"
 
 type NpcFrameAnimationProps = {
   image: number;
   animationName: FrameAnimationName;
   trigger: number;
-
-  onImpact?: () => void;
   onEnd?: () => void;
 };
 
@@ -25,7 +24,6 @@ export default function NpcFrameAnimation({
   image,
   animationName,
   trigger,
-  onImpact,
   onEnd,
 }: NpcFrameAnimationProps) {
 
@@ -35,7 +33,10 @@ export default function NpcFrameAnimation({
     npcFrameAnimations[animationName](image);
 
   const current = frames[step];
-
+/*
+  const audio = new Audio(getNpcAnimationSound(animationName, image));
+  audio.play();
+  console.log(animationName); */
 
   useEffect(() => {
     if (trigger === 0) return;
@@ -46,23 +47,17 @@ export default function NpcFrameAnimation({
 
       setStep(0);
 
-      // Petite attente initiale
-      await new Promise((resolve) =>
-        setTimeout(resolve, 300)
-      );
-
-      if (cancelled) return;
-
-
       for (
-        let i = 1;
+        let i = 0;
         i < frames.length;
         i++
       ) {
-        setStep(i);
+        if (cancelled) return;
 
-        if (i === 1) {
-          onImpact?.();
+        setStep(i);
+         if (frames[i].sound) {
+            const audio = new Audio(frames[i].sound);
+            audio.play();
         }
 
         await new Promise((resolve) =>
@@ -71,10 +66,9 @@ export default function NpcFrameAnimation({
             frames[i].duration
           )
         );
-
-        if (cancelled) return;
       }
 
+      if (cancelled) return;
 
       setStep(0);
 

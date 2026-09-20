@@ -13,17 +13,12 @@ export default function BasicAbilityDisplay({
       style={{
         width: "100%",
         boxSizing: "border-box",
-
         padding: "14px 18px",
-
         border: "2px solid #b98a3d",
         borderRadius: "8px",
-
         color: "#d6b56c",
         fontFamily: "'Uncial Antiqua', serif",
-
         backgroundColor: "rgba(0, 0, 0, 0.20)",
-
         userSelect: "none",
       }}
     >
@@ -48,12 +43,9 @@ export default function BasicAbilityDisplay({
           style={{
             width: "72px",
             height: "72px",
-
             objectFit: "cover",
-
             border: "2px solid #b98a3d",
             borderRadius: "8px",
-
             boxShadow: "0 3px 8px rgba(0,0,0,.45)",
           }}
         />

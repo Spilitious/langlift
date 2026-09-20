@@ -1,0 +1,220 @@
+{
+  "date": "2026-09-19T19:45:56.803Z",
+  "currentRoomId": null,
+  "currentPageId": 23,
+  "currentShopId": null,
+  "consequenceIds": [
+    3,
+    19,
+    4,
+    7,
+    13,
+    22,
+    11,
+    17
+  ],
+  "alchemyAccess": true,
+  "gladysRelation": {
+    "love": 0,
+    "trust": 2,
+    "gratitude": 2,
+    "admiration": 0,
+    "ressentment": 0,
+    "jealousy": 0
+  },
+  "roomPrologueTable": [],
+  "team": {
+    "pjs": [
+      {
+        "id": 1,
+        "image": 14,
+        "avatar": 1,
+        "name": "Troylan",
+        "level": 3,
+        "xp": 90,
+        "base_att": {
+          "constitution": 0,
+          "strength": 0,
+          "magicSkill": 1,
+          "currhp": 24,
+          "shield": 0
+        },
+        "bms": [],
+        "equipment": [
+          {
+            "id": 1,
+            "basicEquipmentId": 1,
+            "name": "Potion de vie",
+            "type": "potion",
+            "image": 1,
+            "width": 1,
+            "height": 1,
+            "price": 12,
+            "location": "belt",
+            "text": "Restaure 5 à 8 pv",
+            "x": null,
+            "y": null,
+            "bonus": {},
+            "beltSlot": 0
+          },
+          {
+            "id": 3,
+            "basicEquipmentId": 4,
+            "name": "Queue de rat",
+            "type": "ingredient",
+            "image": 1,
+            "width": 1,
+            "height": 1,
+            "price": 5,
+            "location": "inventory",
+            "text": "",
+            "x": 0,
+            "y": 0,
+            "bonus": {}
+          },
+          {
+            "id": 12,
+            "basicEquipmentId": 9,
+            "name": "Bâton de mage",
+            "type": "sword",
+            "image": 3,
+            "width": 2,
+            "height": 3,
+            "price": 240,
+            "location": "equipped",
+            "text": "MM +1",
+            "x": null,
+            "y": null,
+            "bonus": {
+              "magicSkill": 1
+            },
+            "slot": "sword"
+          },
+          {
+            "id": 13,
+            "basicEquipmentId": 3,
+            "name": "Potion de mana",
+            "type": "potion",
+            "image": 3,
+            "width": 1,
+            "height": 1,
+            "price": 18,
+            "location": "belt",
+            "text": "+1 point de MM",
+            "x": null,
+            "y": null,
+            "bonus": {},
+            "beltSlot": 1,
+            "alchemySlot": 4
+          },
+          {
+            "id": 14,
+            "basicEquipmentId": 3,
+            "name": "Potion de mana",
+            "type": "potion",
+            "image": 3,
+            "width": 1,
+            "height": 1,
+            "price": 18,
+            "location": "belt",
+            "text": "+1 point de MM",
+            "x": null,
+            "y": null,
+            "bonus": {},
+            "beltSlot": 2,
+            "alchemySlot": 4
+          }
+        ],
+        "ability": [
+          {
+            "id": 33,
+            "basicAbilityId": 9,
+            "image": 18,
+            "name": "Larme de vie",
+            "school": "Guérison",
+            "type": "spell",
+            "detail": "Soigne la cible",
+            "target": "pj",
+            "formula": "Pv restauré = 11+3×MM",
+            "ap": 2,
+            "duration": 0,
+            "ignoreProvocation": false
+          },
+          {
+            "id": 64,
+            "basicAbilityId": 11,
+            "image": 25,
+            "name": "Bouclier d'Athlan",
+            "school": "Protection",
+            "type": "spell",
+            "detail": "Octroie un puissant bouclier",
+            "target": "pj",
+            "formula": "Bouclier = 3 + 1 × MM ",
+            "ap": 1,
+            "duration": 0,
+            "ignoreProvocation": false
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "image": 13,
+        "avatar": 2,
+        "name": "Gladys",
+        "level": 1,
+        "xp": 40,
+        "base_att": {
+          "constitution": 0,
+          "strength": 1,
+          "magicSkill": 0,
+          "currhp": 22,
+          "shield": 0
+        },
+        "bms": [],
+        "equipment": [
+          {
+            "id": 15,
+            "basicEquipmentId": 1,
+            "name": "Potion de vie",
+            "type": "potion",
+            "image": 1,
+            "width": 1,
+            "height": 1,
+            "price": 12,
+            "location": "belt",
+            "text": "Restaure 5 à 8 pv",
+            "x": null,
+            "y": null,
+            "bonus": {},
+            "beltSlot": 0,
+            "alchemySlot": 4
+          },
+          {
+            "id": 16,
+            "basicEquipmentId": 2,
+            "name": "Potion de force",
+            "type": "potion",
+            "image": 2,
+            "width": 1,
+            "height": 1,
+            "price": 18,
+            "location": "belt",
+            "text": "+1 point de force",
+            "x": null,
+            "y": null,
+            "bonus": {},
+            "beltSlot": 1,
+            "alchemySlot": 4
+          }
+        ],
+        "ability": []
+      }
+    ],
+    "gold": 40,
+    "profession": {
+      "alchemy": 2,
+      "blacksmith": 0,
+      "armorsmith": 1
+    }
+  }
+}

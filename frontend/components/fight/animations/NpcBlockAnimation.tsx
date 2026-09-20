@@ -4,14 +4,12 @@ import { useEffect, useState } from "react";
 
 type NpcBlockAnimationProps = {
   trigger: number;
-  onImpact?: () => void;
   onEnd?: () => void;
   size?: number;
 };
 
 export default function NpcBlockAnimation({
   trigger,
-  onImpact,
   onEnd,
   size = 150,
 }: NpcBlockAnimationProps) {
@@ -24,12 +22,9 @@ export default function NpcBlockAnimation({
     setVisible(true);
     setAnimate(false);
 
-    
-
     // laisse une frame au navigateur avant de lancer la transition
     const start = setTimeout(() => {
       setAnimate(true);
-      onImpact?.();
     }, 20);
 
     const hide = setTimeout(() => {

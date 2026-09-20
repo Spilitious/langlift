@@ -5,7 +5,6 @@ import Battlefield from "./Battlefield";
 import ActionMenu from "./menu/ActionMenu";
 import type { ActionRequest} from "../../../shared/types/action";
 import { usePotion, sendAction, executeIA } from "@/utils/api/fightApi";
-import Inventory from "../inventory/Inventory";
 import { getImageEquipment } from "@/utils/spritePaths";
 import { useEquipmentDrag } from "./hooks/useEquipmentDrag";
 import { useFightEngine } from "./hooks/useFightEngine";
@@ -17,15 +16,12 @@ import type { HistoryDestination } from  "../../../shared/types/history";
 import FightTransitionDialog from "./dialogue/FightTransition";
 import FightVictoryDialog from "./dialogue/FightVictory";
 import FightPrologueDialog from "./dialogue/FightPrologue";
-
+import GameOver from "./dialogue/GameOver";
 import { getHistoryImage } from "@/utils/spritePaths";
 import { loadRoom} from  "@/utils/api/roomApi";
 import { useGame } from "@/context/GameContext";
-import TeamDisplay from "@/app/TeamDisplay";
-import { Ability } from "../../../backend/src/classes/Abitlity";
 import { AbilityView } from "@shared/types/abilityView";
 import type { GameStateView } from "@shared/types/gameStateView";
-import LearnAbility from "../levelup/LearnAbility";
 
 
 type FightView = "battlefield" | "inventory";
@@ -62,7 +58,7 @@ export default function Fight({
   const [showPrologue, setShowPrologue] = useState(false);
   
   //Pour savoir si l'IA tourne
-  const [isEndTurnRunning, setIsEndTurnRunning] = useState(false);
+  const [isAnimationRunning, setIsAnimationRunning] = useState(false);
 
   //PjSprite selectionné 
   const [selectedPjId, setSelectedPjId] =  useState<number | null>(null);
@@ -74,13 +70,41 @@ export default function Fight({
   const [selectedNpcId, setSelectedNpcId] = useState<number>();
 
   //Pour la gestion de la première intent du npc lors de l'entrée dans la room 
-  const pendingEntryAnimation = useRef<ActionResult[] | null>(null);
+  const pendingEntryAnimation = useRef<ActionResult[][] | null>(null);
 
   //Message Ui 
   const [battleMessage, setBattleMessage] = useState<string | null>(null);
 
   //Pour la pré visualiser le coût en ap 
   const [previewApCost, setPreviewApCost] = useState(0);
+
+ // const provokingNpc = npcs.find((npc) => npc.bms.some((bm) => bm.basicBmId ===  12));
+ const canTargetNpc = (npcId: number): boolean => {
+
+  if (!selectedAbility) return false;
+
+  if (selectedAbility.target !== "npc") {
+    return false;
+  }
+
+  if (selectedAbility.ignoreProvocation) {
+    return true;
+  }
+
+  const provokingNpcIds = npcs.filter((npc) =>
+      npc.bms.some(
+        (bm) => bm.basicBmId === 12
+      )
+    )
+    .map((npc) => npc.id);
+
+   
+  if (provokingNpcIds.length === 0) {
+    return true;
+  }
+
+  return provokingNpcIds.includes(npcId);
+};
 
 /* **************************************************** Gestion message UI ********************************* */
 const showBattleMessage = (message: string, time:number) => {
@@ -110,9 +134,8 @@ const handleUsePotion = async (
   }
   }
      
-  
   const request = {
-    id_pj: selectedPjId,
+    id_pj: selectedPjView.id,
     id_potion: potionId,
     id_target: targetId,
   };
@@ -120,9 +143,7 @@ const handleUsePotion = async (
   try {
     const response = await usePotion(request);
 
-    playActionResult(response.result);
-
-    await playActionResult(response.result);
+    await playResults(response.result);
     setGameState(response.gameState);
     
   } catch (error) {
@@ -141,12 +162,10 @@ const handleUsePotion = async (
 const {
   fightPopups,
   playActionResult,
-  handleAuthorImpact,
-  handleReactionImpact,
-  handleReactionEnd,
   removeFightPopup,
-  playEndTurn,
-  playEntryInRoom,
+  playResults,
+  handleAnimationEnd,
+  
  
 } = useFightEngine({
   pjs,
@@ -205,16 +224,16 @@ useEffect(() => {
       // On ferme immédiatement l'éventuel prologue précédent
       setShowPrologue(false);
 
-      console.log("NOUVEAU ROOM ID :", roomId);
-
       const result = await loadRoom(roomId);
 
 
       pendingEntryAnimation.current = result.animation;
-      console.log("chargement room", result.gameState.room.npcs);
+      
       setGameState(result.gameState);
 
-      // On décide à partir de LA NOUVELLE room
+      if(!result.gameState.room)
+          return;
+
       if (result.gameState.room.prologueId > 0) {
         setShowPrologue(true);
       }
@@ -255,15 +274,19 @@ useEffect(() => {
   setNpcs(newNpcs);
 }, [gameState?.room]);
 
+
 /* ******************************************** Lancement des animation de début de room ********************** */
 useEffect(() => {
   if (npcs.length === 0) return;
   if (!pendingEntryAnimation.current) return;
 
-  const animations = pendingEntryAnimation.current;
+  const animations =
+    pendingEntryAnimation.current;
+
   pendingEntryAnimation.current = null;
 
-  playEntryInRoom(animations);
+  playResults(animations);
+
 }, [npcs]);
 
 /* ************************************************** Gestion du PJ selectionné ************************************ */
@@ -273,7 +296,32 @@ function getSelectedPj(pjs: PjSprite[], selectedPjId: number): PjSprite | undefi
    return pj;
 }
 
+useEffect(() => {
+  if (pjs.length === 0) return;
 
+  const selectedPj = pjs.find(
+    pj => pj.id === selectedPjId
+  );
+
+  // La sélection actuelle est encore valide
+  if (
+    selectedPj &&
+    selectedPj.stats.currhp > 0
+  ) {
+    return;
+  }
+
+  // Cherche le prochain PJ conscient
+  const nextPj = pjs.find(
+    pj => pj.stats.currhp > 0
+  );
+
+  if (nextPj) {
+    setSelectedPjId(nextPj.id);
+    setSelectedAbility(null);
+    setPreviewApCost(0);
+  }
+}, [pjs, selectedPjId]);
 
 
 /* *************************************** Ecran de chargement avant les fonctions pour se passer du ? ***************** */
@@ -282,55 +330,52 @@ if (!gameState?.room || !selectedPjSprite || !gameState.room || selectedPjId == 
 }
 
 
-/* **********************************************  Gestion de la fenêtre ********************************* */
+const room = gameState.room;
 
-const handleToggleInventory = () => {
-  setFightView((current) =>
-    current === "inventory"
-      ? "battlefield"
-      : "inventory"
-  );
-};
 
 
 /* **********************************************  Gestion du End Turn ********************************* */
 
 const handleEndTurn = async () => {
-  if (isEndTurnRunning) return;
+  if (isAnimationRunning) return;
 
-  //Disable le button et le cursor pour eviter des actions pendant les animations
-  setIsEndTurnRunning(true);
+  // Désactive bouton et curseur pendant les animations
+  setIsAnimationRunning(true);
 
-  
   try {
+    const response = await executeIA();
 
-     const response = await executeIA(); 
-    
-     await playEndTurn(response.results);
-     
-     // Si le combat est fini : transition ou retour au text
-     setGameState(response.gameState);   
-     const lastEvent = response.results.at(-1);
+    // Toutes les animations passent par le même moteur
+    await playResults(response.results);
+
+    // Synchronisation avec l'état final backend
+    setGameState(response.gameState);
+
+    const lastGroup = response.results.at(-1);
+    const lastEvent = lastGroup?.at(-1);
 
     if (!lastEvent) return;
+
     if (lastEvent.fightStatus === "victory") {
-        handleFightFinished(response.gameState);
-        return;
+      handleFightFinished(response.gameState);
+      return;
+    }
+   
+    if (lastEvent.fightStatus === "defeat") {
+      handleGameOver();
+      return;
     }
 
-    if (lastEvent.fightStatus === "defeat") {
-        handleGameOver();
-        return;
-    }
-  
-    // Enable a nouveau curseur et bouton
   } finally {
-    setIsEndTurnRunning(false);
+    setIsAnimationRunning(false);
   }
 };
   
 
 const handleFightFinished = (newGameState: GameStateView) => {
+  if(!newGameState.room)
+      return;
+
   if (newGameState.room.transitionId > 0) {
     setShowTransition(true);
     return;
@@ -340,7 +385,6 @@ const handleFightFinished = (newGameState: GameStateView) => {
     setShowVictory(true);
   }
 };
-
 
 const handleGameOver = () => {
   setShowGameOver(true);
@@ -401,7 +445,7 @@ const handlePjClick = async (pjId: number) => {
 
   // Action ciblant un PJ
   if (selectedAbility.target === "pj") {
-
+    
     const request: ActionRequest = {
       id_action: selectedAbility.basicAbilityId,
       id_pj: selectedPjId,
@@ -410,9 +454,8 @@ const handlePjClick = async (pjId: number) => {
 
     const response = await sendAction(request);
 
-    
     setSelectedAbility(null);
-    await playActionResult(response.result);
+    await playResults(response.result);
    
     setPreviewApCost(0);
     setGameState(response.gameState);
@@ -435,15 +478,8 @@ const handlePjClick = async (pjId: number) => {
     const response = await sendAction(request);
 
     setSelectedAbility(null);
-   console.log(
-  "AP AVANT :", selectedPjView?.ap,
-  "AP APRÈS :",
-  response.gameState.team.pjs.find(
-    pj => pj.id === selectedPjId
-  )?.ap
-);
-
-    await playActionResult(response.result);
+   
+    await playResults(response.result);
      setPreviewApCost(0);
     setGameState(response.gameState);
 
@@ -472,6 +508,9 @@ const handleNpcClick = async (npcId: number) => {
   // L'action attend un NPC 
   if (selectedAbility.target === "npc") {
    
+  // Désactive bouton et curseur pendant les animations
+  setIsAnimationRunning(true);
+
    const response= await sendAction({
     id_action: selectedAbility.basicAbilityId,
     id_pj: selectedPjId,
@@ -480,26 +519,32 @@ const handleNpcClick = async (npcId: number) => {
    
  
     setSelectedAbility(null);
-    await playActionResult(response.result);
+    await playResults(response.result);
     setGameState(response.gameState);
     setPreviewApCost(0);
-  
-  if (response.result.fightStatus === "victory") {
-    handleFightFinished(response.gameState);
-  return;
-}
+     // Réaactive bouton et curseur à la fin des animations
+    setIsAnimationRunning(false);
+   const lastGroup = response.result.at(-1);
+    const lastEvent = lastGroup?.at(-1);
 
-  if (response.result.fightStatus === "defeat") {
-    handleGameOver();
-    return;
-  }
+    if (!lastEvent) return;
 
+    if (lastEvent.fightStatus === "victory") {
+      handleFightFinished(response.gameState);
+      return;
+    }
+
+    if (lastEvent.fightStatus === "defeat") {
+      handleGameOver();
+      return;
+    }
  
+   
+
 }
  
 
 }
-
 
 
 /* *********************************************************************************************************************** */
@@ -567,19 +612,19 @@ return (
       >
         {showTransition && (
          <FightTransitionDialog
-  transitionId={gameState.room.transitionId}
-  onContinue={() => {
-    
-
-    onFightEnd(gameState.room.destination);
+            transitionId={gameState.room.transitionId}
+            onContinue={() => {
+          onFightEnd(room.destination);
   }}
 />
         )}
-
+          {showGameOver && (
+          <GameOver/>
+        )}
          {showVictory && (
           <FightVictoryDialog
             roomId={gameState.room.id}
-            onContinue={() => onFightEnd(gameState.room.destination)}
+            onContinue={() => onFightEnd(room.destination)}
           />
         )}
 
@@ -590,11 +635,10 @@ return (
          />
         )}
 
-        {fightView === "battlefield" ? (
-          <Battlefield
+           <Battlefield
             pjs={pjs}
             npcs={npcs}
-
+            canTargetNpc={canTargetNpc}
             selectedPjId={selectedPjId}
             selectedNpcId={selectedNpcId}
 
@@ -602,9 +646,7 @@ return (
             onNpcClick={handleNpcClick}
             previewApCost={previewApCost}
 
-            onAuthorImpact={handleAuthorImpact}
-            onReactionImpact={handleReactionImpact}
-            onReactionEnd={handleReactionEnd}
+            onAnimationEnd={handleAnimationEnd}
 
             fightPopups={fightPopups}
             onRemoveFightPopup={removeFightPopup}
@@ -612,13 +654,7 @@ return (
             onDropEquipmentOnPj={handleDropOnPj}
             
           />
-        ) : (
-          selectedPjSprite && (
-            <LearnAbility
-              pjId={selectedPjSprite.id}
-                           />
-          )
-        )}
+      
       </div>
 
 
@@ -639,13 +675,13 @@ return (
           pj={selectedPjSprite}
           selectedAction={selectedAbility}
           onSelectAction={handleSelectAction}
-          onToggleInventory={handleToggleInventory}
-          inventoryOpen={fightView === "inventory"}
+         
+         
           onEndTurn={handleEndTurn}
           dragEquipmentId={draggedEquipmentId}
           onEquipmentPointerDown={handleEquipmentPointerDown}
           onDropBeltSlot={handleDropOnBeltSlot}
-          disabled={isEndTurnRunning}
+          disabled={isAnimationRunning}
         />
       </div></div>
    
@@ -675,13 +711,13 @@ return (
       />
     )}
   
-  {isEndTurnRunning && (
+  {isAnimationRunning && (
   <div
     style={{
       position: "absolute",
       inset: 0,
       zIndex: 99999,
-      cursor: "none",
+      //cursor: "none",
     }}
   />
 )}

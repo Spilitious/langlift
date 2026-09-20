@@ -7,7 +7,7 @@ export const historyPrologues = [
 
 
  //2
- `Votre course rapide vous a projeté trop rapidement à découvert et le temps que vous sortiez votre arme, la chauve-souris font déjà sur vous et vous blesse à l'épaule.
+ `Votre course rapide vous a projeté trop rapidement à découvert et le temps que vous sortiez votre arme, la chauve-souris fond déjà sur vous et vous blesse à l'épaule.
   Vous perdez 3 points de vie.
 `,
 

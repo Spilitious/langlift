@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { gameState } from "../game/gameStateInstance.js";
+import { getGameState } from "../game/gameStateInstance.js";
 
 import type {
   EquipmentSlot,
@@ -18,6 +18,14 @@ router.post("/inventory", (req, res) => {
     x,
     y,
   } = req.body;
+
+  const gameState = getGameState();
+
+    if (!gameState) {
+    return res.status(404).json({
+      error: "Aucune partie en cours",
+    });
+  }
 
   const pj = gameState.team.pjs.find(
     (pj) => pj.id === pjId
@@ -56,6 +64,14 @@ router.post("/belt", (req, res) => {
       slot,
     } = req.body;
 
+    const gameState = getGameState();
+
+    if (!gameState) {
+    return res.status(404).json({
+      error: "Aucune partie en cours",
+    });
+  }
+
     const pj = gameState.team.pjs.find(
       (pj) => pj.id === pjId
     );
@@ -92,6 +108,60 @@ router.post("/belt", (req, res) => {
 
 
 /* =========================================================
+   MOVE EQUIPMENT TO ALCHEMY
+   ========================================================= */
+
+router.post("/alchemy", (req, res) => {
+  try {
+    const {
+      pjId,
+      equipmentId,
+      slot,
+    } = req.body;
+
+    const gameState = getGameState();
+
+    if (!gameState) {
+    return res.status(404).json({
+      error: "Aucune partie en cours",
+    });
+  }
+
+    const pj = gameState.team.pjs.find(
+      (pj) => pj.id === pjId
+    );
+
+    if (!pj) {
+      return res.status(404).json({
+        error: "PJ introuvable",
+      });
+    }
+
+    const moveResult: MoveObjectResult =
+      pj.moveEquipmentToAlchemy(
+        equipmentId,
+        slot
+      );
+
+      
+    
+    return res.json({
+    moveResult,
+    gameState: gameState.toView(),
+    });
+  } catch (error) {
+    console.error(
+      "Erreur move equipment belt :",
+      error
+    );
+
+    return res.status(500).json({
+      error: "Erreur déplacement ceinture",
+    });
+  }
+});
+
+/* =========================================================
    EQUIP
    ========================================================= */
 router.post("/equip", (req, res) => {
@@ -101,6 +171,13 @@ router.post("/equip", (req, res) => {
     slot,
   } = req.body;
 
+  const gameState = getGameState();
+
+    if (!gameState) {
+    return res.status(404).json({
+      error: "Aucune partie en cours",
+    });
+  }
   const pj = gameState.team.pjs.find(
     (pj) => pj.id === pjId
   );
@@ -134,21 +211,23 @@ router.post("/buy", (req, res) => {
       price,
     } = req.body;
 
-    const shop = gameState.shops.find(
-      (shop) => shop.id === shopId
-    );
+    const gameState = getGameState();
 
-    if (!shop) {
+    if (!gameState) {
+    return res.status(404).json({
+      error: "Aucune partie en cours",
+    });
+  }
+
+    const shop = gameState.shop;
+
+    if (!shop || shop.id !== shopId) {
       return res.status(404).json({
-        error: "Shop introuvable",
+        error: "Shop invalide",
       });
     }
 
-    const equipment =
-      shop.equipments.find(
-        (equipment) =>
-          equipment.id === equipmentId
-      );
+    const equipment = shop.equipments.find((equipment) => equipment.id === equipmentId);
 
     if (!equipment) {
       return res.status(404).json({
@@ -193,6 +272,14 @@ router.post("/sell", (req, res) => {
       price,
     } = req.body;
 
+    const gameState = getGameState();
+
+    if (!gameState) {
+    return res.status(404).json({
+      error: "Aucune partie en cours",
+    });
+  }
+  
     const sellResult =
       gameState.team.sell(
         pjId,
@@ -215,5 +302,41 @@ router.post("/sell", (req, res) => {
     });
   }
 });
+router.post("/moveToPlayer", (req, res) => {
+  try {
+    const {
+      sourcePjId,
+      targetPjId,
+      equipmentId,
+    } = req.body;
 
+    const gameState = getGameState();
+
+    if (!gameState) {
+      return res.status(400).json({
+        error: "Aucune partie en cours",
+      });
+    }
+
+    const result =
+      gameState.team.moveEquipmentToPlayer(
+        sourcePjId,
+        targetPjId,
+        equipmentId
+      );
+
+    return res.json({
+      result,
+      gameState: gameState.toView(),
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      error:
+        "Erreur lors du transfert de l'équipement",
+    });
+  }
+});
 export default router;

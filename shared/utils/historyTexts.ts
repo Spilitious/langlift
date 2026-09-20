@@ -363,4 +363,31 @@ Vous vous apprêtez à repartir lorsque votre regard se pose sur les cadavres de
 Presque inconsciemment, comme guidé par un vieux souvenir, vous vous accroupissez près de l'une des créatures...
 `,
 
+
+//27
+
+`
+L'alchimie est maintenant débloquée.
+
+Cliquez sur le portrait de votre personnage pour y accéder.
+
+Confectionnez vos potions puis une fois terminé, appuyez sur le bouton Suite pour reprendre l'histoire.
+`,
+
+
+//28
+`
+Alors que vous quittez l'échoppe, les yeux encore rêveurs des équipements du marchand, un vieil homme étrange s'approche de vous.
+Il est revêtu d'une large capuche et semble manifestement vouloir rester discret.
+
+— Vous m'avez l'air d'être de bien jeunes gens, forts et vigoureux... mais quelque peu en manque d'argent. Je peux peut-être arranger cela.
+Voyez-vous, j'ai besoin de fleurs de Grisal. Elles ne poussent qu'au sommet de la montagne du même nom, et le trajet n'est plus vraiment de mon âge.
+Mais pour vous ? Ce ne serait qu'une belle randonnée.
+Cueillez-m'en quelques-unes, et je vous donnerai de quoi vous offrir l'une de ces belles pièces que vous venez d'admirer.
+
+L'homme s'éloigne aussitôt, sans même vous expliquer comment le retrouver. Vous l'interpellez.
+Il se retourne alors lentement et vous lance :
+— Ramenez les fleurs. C'est moi qui vous retrouverai.
+`,
+
 ];

@@ -33,7 +33,7 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts",
     "../shared/**/*.ts"
-, "../backend/src/utils/mocks/pj.ts", "../backend/src/utils/mocks/actionResult.ts", "../backend/src/utils/mocks/npcIntentChange.ts"],
+, "../backend/src/utils/basicPj_data.ts", "../backend/src/utils/mocks/actionResult.ts", "../backend/src/utils/mocks/npcIntentChange.ts"],
 "exclude": [
   "node_modules"
 ]

@@ -7,21 +7,18 @@ type NpcDeathProps = {
   image: number;
   trigger: number;
   onHideUi?: () => void;
-  onImpact?: () => void;
-  onEnd?:() => void;
+  onEnd?: () => void;
 };
 
 export default function NpcDeathAnimation({
   image,
   trigger,
-  onImpact,
   onHideUi,
   onEnd,
 }: NpcDeathProps) {
   const [step, setStep] = useState(0);
   const [opacity, setOpacity] = useState(1);
 
- 
   const frames = getNpcDeathFrames(image);
   const current = frames[step];
 
@@ -34,20 +31,12 @@ export default function NpcDeathAnimation({
       setStep(0);
       setOpacity(1);
 
+      // Joue toutes les frames avec leurs durées propres
       for (let i = 0; i < frames.length; i++) {
         if (cancelled) return;
 
         setStep(i);
 
-        // Première frame de réaction à l'impact
-        if (i === 1) {
-          onImpact?.();
-        }
-
-        setTimeout(() => {
-    onHideUi?.();
-  }, 350);
-  
         await new Promise((resolve) =>
           setTimeout(resolve, frames[i].duration)
         );
@@ -55,15 +44,19 @@ export default function NpcDeathAnimation({
 
       if (cancelled) return;
 
-      // On garde la dernière frame et on lance le fade
+      // Fin des frames : disparition de l'UI
+      onHideUi?.();
+
+      // Fade pendant 1 seconde
       setOpacity(0);
+
       await new Promise((resolve) =>
-  setTimeout(resolve, 800)
-);
+        setTimeout(resolve, 1000)
+      );
 
-if (cancelled) return;
+      if (cancelled) return;
 
-onEnd?.();
+      onEnd?.();
     };
 
     death();
@@ -92,7 +85,7 @@ onEnd?.();
 
         transition: `
           transform ${current.duration}ms ease-out,
-          opacity 800ms ease-out
+          opacity 1000ms ease-out
         `,
 
         pointerEvents: "none",

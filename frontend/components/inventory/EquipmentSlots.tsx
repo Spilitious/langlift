@@ -104,10 +104,8 @@ export default function EquipmentSlots({
             }
             style={{
               position: "absolute",
-
               left: 0,
               top: 0,
-
               width: "100%",
               height: "100%",
 
@@ -115,8 +113,8 @@ export default function EquipmentSlots({
 
               userSelect: "none",
               WebkitUserSelect: "none",
-
-              cursor: "grab",
+              cursor: 'url("/ui/cursor/cursor6.png") 0 0, pointer',
+             
             }}
           />
         )}
@@ -141,28 +139,28 @@ return (
   >
     {renderSlot(
       "helm",
-      "/sprites/equipment/helm-empty.png",
+      "/equipment/helm-empty.png",
       2,
       1
     )}
 
     {renderSlot(
       "sword",
-      "/sprites/equipment/sword-empty.png",
+      "/equipment/sword-empty.png",
       1,
       2
     )}
 
     {renderSlot(
       "armor",
-      "/sprites/equipment/armor-empty.png",
+      "/equipment/armor-empty.png",
       2,
       2
     )}
 
     {renderSlot(
       "shield",
-      "/sprites/equipment/shield-empty.png",
+      "/equipment/shield-empty.png",
       3,
       2
     )}

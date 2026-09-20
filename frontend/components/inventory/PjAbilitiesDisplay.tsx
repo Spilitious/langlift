@@ -106,17 +106,9 @@ export default function PjAbilitiesDisplay({
               textAlign: "center",
             }}
           >
-            <div
+             <div
               style={{
-                fontSize: "14px",
-              }}
-            >
-              {ab.formula}
-            </div>
-
-            <div
-              style={{
-                fontSize: "13px",
+                fontSize: "18px",
                 fontWeight: "bold",
               }}
             >

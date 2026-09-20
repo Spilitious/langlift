@@ -8,7 +8,7 @@ import NpcDeathAnimation from "../animations/NpcDeathAnimation";
 import OverlayAnimation from "../animations/OverlayAnimation";
 import ShakeAnimation from "../animations/ShakeAnimation";
 import NpcIntentChangeAnimation from "../animations/NpcIntentChangeAnimation";
-import { getNpcPosition } from "@/utils/fighterPosition";
+import { getNpcPosition, getSizeNpc } from "@/utils/fighterPosition";
 
 import HealthBar from "./HealthBar";
 import BlockShield from "./BlockShield";
@@ -28,40 +28,55 @@ type NpcProps = {
   npc_data: NpcSprite;
   selected: boolean;
   onClick: () => void;
-  onAuthorImpact?: () => void;
-  onReactionImpact?: () => void;
-  onReactionEnd: () => void;
+ onAnimationEnd: (
+  fighterType: "pj" | "npc",
+  fighterId: number
+) => void;
   
-  
+  canTargetNpc : (npcId:number) => boolean,
 
 };
 
 export default function Npc({
   npc_data,
   selected,
+  canTargetNpc,
   onClick,
-  onAuthorImpact,
-  onReactionImpact,
-  onReactionEnd,
+  onAnimationEnd,
  
 }: NpcProps) {
+
   const [showUi, setShowUi] = useState(true);
+  const [x, y] = getNpcPosition(npc_data.position, npc_data.size);
+  const animationType = getAnimationType(npc_data.animation.name);
+  const handleAnimationEnd = () => {onAnimationEnd("npc", npc_data.id);};
+  const npcScale = getSizeNpc(npc_data.size);
+  const intentTop = -90 - 160 * (npcScale - 1);
 
-  const [x, y] = getNpcPosition(npc_data.position);
-  const animationType =
-    getAnimationType(npc_data.animation.name);
 
-   console.log(
-  "NPC RENDER",
-  npc_data.id,
-  JSON.stringify(npc_data.bms, null, 2)
-);
+  const canTarget = canTargetNpc(npc_data.id);
+
   const idleSprite = (
     <div
-      onClick={onClick}
+     onClick={() => {
+       if (!canTargetNpc(npc_data.id)) return;
+
+       onClick();
+      }}
       style={{
         position: "relative",
         zIndex: 1,
+       
+        cursor: canTarget
+          ? 'url("/ui/cursor/cursor6.png") 0 0, pointer'
+          : 'url("/ui/cursor/cursor8.png") 0 0, pointer',
+
+        //  filter: canTarget
+        //  ? "none"
+        //  : "brightness(0.55)",
+
+        transition: "filter 150ms ease",
+
       }}
     >
       <img
@@ -86,16 +101,7 @@ export default function Npc({
             npc_data.animation.name as FrameAnimationName
           }
           trigger={npc_data.animation.id}
-          onImpact={
-            npc_data.animation.name === "attack"
-              ? onAuthorImpact
-              : onReactionImpact
-          }
-          onEnd={
-            npc_data.animation.name === "attack"
-              ? undefined
-              : onReactionEnd
-          }
+          onEnd={handleAnimationEnd}
         />
       );
       break;
@@ -110,8 +116,7 @@ export default function Npc({
               npc_data.animation.name as OverlayAnimationName
             }
             trigger={npc_data.animation.id}
-            onImpact={onReactionImpact}
-            onEnd={onReactionEnd}
+            onEnd={handleAnimationEnd}
           />
         </>
       );
@@ -124,8 +129,7 @@ export default function Npc({
 
           <NpcBlockAnimation
             trigger={npc_data.animation.id}
-            onImpact={onReactionImpact}
-            onEnd={onReactionEnd}
+            onEnd={handleAnimationEnd}
           />
         </>
       );
@@ -136,9 +140,8 @@ export default function Npc({
         <NpcDeathAnimation
           image={npc_data.image}
           trigger={npc_data.animation.id}
-          onImpact={onReactionImpact}
           onHideUi={() => setShowUi(false)}
-          onEnd={onReactionEnd}
+          onEnd={handleAnimationEnd}
         />
       );
       break;
@@ -169,39 +172,27 @@ export default function Npc({
       <ShakeAnimation
         trigger={npc_data.animation.id}
        
-        onEnd={onReactionEnd}
+        onEnd={handleAnimationEnd}
       />
     </>
   );
   break;
 
 
-  case "change_intent":
+  
    
+ case "change_intent":
   animationContent = (
-    <>
-      <img
-        src={
-          getNpcImagePath(npc_data.image) +
-          "-idle.png"
-        }
-        draggable={false}
-        style={{
-          width: "240px",
-          height: "160px",
-          objectFit: "contain",
-        }}
-      />
-      
-      <NpcIntentChangeAnimation
-        key={npc_data.animation.id}
-        oldIntent={npc_data.old_intent}
-        newIntent={npc_data.pending_intent!}
-        trigger={npc_data.animation.id}
-        onEnd={onReactionEnd}
-      />
-    </>
+    <img
+      src={
+        getNpcImagePath(npc_data.image) +
+        "-idle.png"
+      }
+      draggable={false}
+      className="fighter-sprite"
+    />
   );
+  
   break;
   }
 
@@ -216,7 +207,16 @@ export default function Npc({
         overflow: "visible",
       }}
     >
+        <div
+    style={{
+      width: "240px",
+      height: "160px",
+      transform: `scale(${npcScale})`,
+      transformOrigin: "center bottom",
+    }}
+  >
       {animationContent}
+</div>
 
       {showUi && (
         <>
@@ -255,27 +255,33 @@ export default function Npc({
             <Bm
               bms={npc_data.bms}
               armor={npc_data.stats.armor}
-              size={28}
+             
             />
           </div>
-
-  {npc_data.animation.name !== "change_intent" && (
-  <div
-    style={{
-      position: "absolute",
-      top: "-55px",
-      left: "50%",
-      transform: "translateX(-50%)",
-      zIndex: 10,
-    }}
-  >
+   <div
+  style={{
+    position: "absolute",
+    top: `${intentTop}px`,
+    left: "50%",
+    transform: "translateX(-50%)",
+    zIndex: 10,
+  }}
+>
+  {npc_data.animation.name === "change_intent" ? (
+    <NpcIntentChangeAnimation
+      key={npc_data.animation.id}
+      oldIntent={npc_data.old_intent}
+      newIntent={npc_data.pending_intent!}
+      trigger={npc_data.animation.id}
+      onEnd={handleAnimationEnd}
+    />
+  ) : (
     <NpcIntent
       intent={npc_data.intent}
-      
       size={70}
     />
-  </div>
-)}
+  )}
+</div>
         </>
       )}
     </div>

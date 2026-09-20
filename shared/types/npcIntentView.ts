@@ -3,4 +3,5 @@ export type NpcIntentView = {
   target: number;
   target_image:number;
   value: number;
+  value2: number;
 };

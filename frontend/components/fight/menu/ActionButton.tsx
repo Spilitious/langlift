@@ -28,7 +28,7 @@ export default function ActionButton({
         padding: 0,
         border: "none",
         background: "transparent",
-        //cursor: ""
+        cursor: 'url("/ui/cursor/cursor6.png") 0 0, pointer',
 
         width: "86px",
         height: "86px",

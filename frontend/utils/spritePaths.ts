@@ -12,12 +12,12 @@ export function getNpcImagePath(image: number) {
 
 
 export function getBmImagePath(image: number) {
- return `/sprites/bm/bm${image}.png`;
+ return `/bm/bm${image}.png`;
 }
 
 
 export function getIntentImagePath(action:number):string {
-  return `/sprites/npc-action/action${action}.png`;
+  return `/npc-action/action${action}.png`;
 }
 
 export const getHistoryImage = (
@@ -35,5 +35,5 @@ export const getActionImagePath = (
 
 import type { EquipmentType } from "../../shared/types/equipmentView";
 export function getImageEquipment(type:EquipmentType, image:number) {
-    return `/sprites/equipment/${type}${image}.png`;
+    return `/equipment/${type}${image}.png`;
 }

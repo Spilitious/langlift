@@ -1,23 +1,20 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
-type pjBlockAnimationProps = {
+type PjBlockAnimationProps = {
   trigger: number;
-  onImpact?: () => void;
   onEnd?: () => void;
   size?: number;
 };
 
 export default function PjBlockAnimation({
   trigger,
-  onImpact,
-  onEnd, 
+  onEnd,
   size = 150,
-}: pjBlockAnimationProps) {
+}: PjBlockAnimationProps) {
   const [visible, setVisible] = useState(false);
   const [animate, setAnimate] = useState(false);
-  const lastImpactTrigger = useRef<number>(0);
 
   useEffect(() => {
     if (trigger === 0) return;
@@ -25,12 +22,7 @@ export default function PjBlockAnimation({
     setVisible(true);
     setAnimate(false);
 
-    if (lastImpactTrigger.current !== trigger) {
-      lastImpactTrigger.current = trigger;
-      onImpact?.();
-    }
-
-    // laisse une frame au navigateur avant de lancer la transition
+    // Laisse une frame au navigateur avant de lancer la transition
     const start = setTimeout(() => {
       setAnimate(true);
     }, 20);

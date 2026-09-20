@@ -1,15 +1,12 @@
 import {Pj} from "./Pj.js";
 import {Npc} from "./Npc.js"
-import { Bm } from './Bm.js';
 import { Team } from "./Team.js";
 import { Room } from "./Room.js";
-import type { ActionResult, FightStatus, TargetResult } from "../../../shared/types/actionResult.js";
-import { ABILITY_NAME, BM_ID, BM_NAME, ABILITY_ID, FIGHT_VALUE } from "../utils/constants.js";
+import type { ActionResult, FightStatus, } from "../../../shared/types/actionResult.js";
+import { BM_ID, ABILITY_ID, FIGHT_VALUE, NPC_ACTION_ID, NPC_ACTION_ID_NEED_INTENT_CHANGE } from "../utils/constants.js";
 import type { AnimationName } from "../../../shared/types/animation.js";
-import type { FightPopup, FightPopupData } from "../../../shared/types/fightPopUp.js";
-import type { StatName } from "../../../shared/types/label.js";
+import type { FightPopupData } from "../../../shared/types/fightPopUp.js";
 
-import {getTargetSelectMode} from "../utils/basicNpc.js"
 import { FightIA } from "./fightIA.js";
 
 export class Fight {
@@ -28,11 +25,11 @@ export class Fight {
         this.round = 0;
     }
 
-    executeIA():ActionResult[] {
+    executeIA():ActionResult[][] {
       return this.ia.execute();
     }
 
-    playIntentNpcIa():ActionResult[] {
+    playIntentNpcIa():ActionResult[][] {
       return this.ia.playIntentNpc();
     }
 /*
@@ -47,7 +44,28 @@ export class Fight {
 
 */
 
+private getActionResult(player:Pj, name:AnimationName):ActionResult
+{
+  return {
+    fighter_type: "pj",
+    fighter_id: player.id,
+    animationName: name,
+    fightStatus: this.getFightStatus(),
+   
+    shield_start:player.getStat("shield"),
+    shield_end:player.getStat("shield"),
+
+    hp_start:player.getStat("currhp"),
+    hp_end:player.getStat("currhp"),
     
+    armor_start:player.getStat("armor"),
+    armor_end:player.getStat("armor"),
+
+    bm_end:player.getBmViews(),
+  };
+
+
+}
               
 private getFightStatus(): FightStatus {
 
@@ -67,113 +85,158 @@ private getFightStatus(): FightStatus {
   return "ongoing";
 }
 
-executeAction(basicAbilityId: number, pjId: number, targetId?: number): ActionResult {
+private setFightStatus(
+  results: ActionResult[][]
+): ActionResult[][] {
+
+  const fightStatus = this.getFightStatus();
+
+  return results.map(group =>
+    group.map(result => ({
+      ...result,
+      fightStatus,
+    }))
+  );
+}
+
+executeAction(basicAbilityId: number, pjId: number, targetId?: number): ActionResult[][] {
 
   const player = this.team.getPj(pjId);
   
 
-  let steps: TargetResult[][];
+  let result: ActionResult[][] = [];
+
 
   switch (basicAbilityId) {
 
     case ABILITY_ID.ATTACK: 
-      steps = this.base_attack(player, targetId!);
+      result.push([this.getActionResult(player, "attack")]);
+      result.push(
+        ...this.base_attack(player, targetId!));
       break;
+      
 
-    case ABILITY_ID.SHIELD: 
-      steps = this.base_shield(player);
+    case ABILITY_ID.SHIELD:
+      
+        result = this.base_shield(player);
       break;
       
     case ABILITY_ID.BRUTAL_BLOW:
-      steps = this.brutalBlow(player, targetId!);
+      result.push([this.getActionResult(player, "attack")]);
+      result.push(
+        ...this.brutalBlow(player, targetId!));
+    
       break;
 
     case ABILITY_ID.GUARD:
-      steps = this.guard(player);
+      result= this.guard(player);
       break;
 
     case ABILITY_ID.ROCK_SKIN:
-      steps = this.skinOfRock(player);
+      result= this.skinOfRock(player);
       break;
 
     case ABILITY_ID.PARRY:
-      steps = this.parry(player, targetId!);
+      result.push([this.getActionResult(player, "attack")]);
+       result.push(
+        ...this.parry(player, targetId!));
+     
       break;
 
     case ABILITY_ID.AUTOREGENERATION:
-      steps = this.autoRegeneration(player);
+      result = this.autoRegeneration(player);
       break;
 
     case ABILITY_ID.GUARD_REFLEX:
-      steps = this.guardReflex(player);
+      result = this.guardReflex(player);
       break;
 
     case ABILITY_ID.DEEP_THRUST:
-      steps = this.deepThrust(player, targetId!);
+      result.push([this.getActionResult(player, "attack")]);
+      result.push(
+        ...this.deepThrust(player, targetId!));
       break;
 
     case ABILITY_ID.TWIRL:
-      console.log()
-      steps = this.twirl(player);
+      result.push([this.getActionResult(player, "attack")]);
+      result= this.twirl(player);
       break;
 
     case ABILITY_ID.FIREBALL:
-      steps = this.fireball(player, targetId!);
+      result.push([this.getActionResult(player, "attack")]);
+       result.push(
+        ...this.fireball(player, targetId!));
       break;
 
     case ABILITY_ID.LIFE_TEARS:
-      steps = this.tears(player, targetId!);
+      result= this.tears(player, targetId!);
       break;
 
-    case ABILITY_ID.WINGS:
-      steps = this.wings(player, targetId!);
+      case ABILITY_ID.WINGS:
+      result= this.wings(player, targetId!);
       break;  
-    case ABILITY_ID.FIRE_BARRIER:
-      steps = this.fireBarrier(player, targetId!);
+
+      case ABILITY_ID.FIRE_BARRIER:
+     
+      result= this.fireBarrier(player, targetId!);
       break;  
-    case ABILITY_ID.ATHLAN_SHIELD:
-      steps = this.shieldOfAthlan(player, targetId!);
+      case ABILITY_ID.ATHLAN_SHIELD:
+       
+      result= this.shieldOfAthlan(player, targetId!);
       break;  
-    case ABILITY_ID.ATHLAN_ARMOR:
-      steps = this.armorOfAthlan(player, targetId!);
+      case ABILITY_ID.ATHLAN_ARMOR:
+      
+      result= this.armorOfAthlan(player, targetId!);
       break;  
-    case ABILITY_ID.REGENERATION:
-      steps = this.regeneration(player, targetId!);
+      case ABILITY_ID.REGENERATION:
+      
+      result= this.regeneration(player, targetId!);
+      break; 
+
+      case ABILITY_ID.ARCXOS:
+      result= this.ArcxosCursed(player, targetId!);
       break;  
-    case ABILITY_ID.ARCXOS:
-      steps = this.tears(player, targetId!);
+
+      case ABILITY_ID.MULTIPLE_ATTACK:
+      result= this.MultipleAttack(player, targetId!);
       break;  
-    default:
+
+      case ABILITY_ID.CHARGE:
+      result.push([this.getActionResult(player, "attack")]);
+      result.push(... this.charge(player, targetId!));
+      break;  
+
+      case ABILITY_ID.TREACHEROUS_ATTACK:
+        result.push([this.getActionResult(player, "attack")]);
+      result.push(...this.treacherousAttack(player, targetId!));
+      break;  
+
+      default:
       throw new Error(`Ability ${basicAbilityId} non gérée`);
   }
 
-  // L'action est complètement résolue.
-  this.room.removeDeadNpcs();
-
- 
-
-  return {
-    author_type: "pj",
-    id_author: player.id,
-    animationName: "attack",
-    fightStatus: this.getFightStatus(),
-    steps,
-  };
+    // L'action est complètement résolue.
+    this.room.removeDeadNpcs();
+  
+   return this.setFightStatus(result);
+  
 }
 
 private applyDamage(
   target: Pj | Npc,
   targetType: "pj" | "npc",
   damage: number
-): TargetResult {
+): ActionResult {
 
   const hpStart = target.getStat("currhp");
   const shieldStart = target.getStat("shield");
+  const armorStart = target.getStat("armor");
 
   let animationName: AnimationName;
   let popupData: FightPopupData;
 
   if (shieldStart >= damage) {
+
     target.base_att.shield -= damage;
 
     animationName = "blocked";
@@ -182,17 +245,19 @@ private applyDamage(
       text: "Bloqué",
       type: "block",
     };
-  }
 
-  else {
+  } else {
+
     target.base_att.shield = 0;
 
     const hpDamage = damage - shieldStart;
-    
+
     target.getHit(hpDamage);
 
     animationName =
-      target.getStat("currhp") === 0 ? "death" : "hurt";
+      target.getStat("currhp") === 0
+        ? "death"
+        : "hurt";
 
     popupData = {
       text: `-${hpDamage} HP`,
@@ -201,8 +266,9 @@ private applyDamage(
   }
 
   return {
-    target_type: targetType,
-    id_target: target.id,
+    fighter_type: targetType,
+    fighter_id: target.id,
+    fightStatus:"ongoing",
     animationName,
 
     hp_start: hpStart,
@@ -211,10 +277,10 @@ private applyDamage(
     shield_start: shieldStart,
     shield_end: target.getStat("shield"),
 
-    armor_start: target.getStat("armor"),
+    armor_start: armorStart,
     armor_end: target.getStat("armor"),
 
-    bm_end: target.bms.map(bm => bm.toView()),
+    bm_end: target.getBmViews(),
 
     popup: popupData,
 
@@ -229,16 +295,17 @@ private attack(
   npc: Npc,
   damage: number,
   ability?: number
-): TargetResult[][] {
+): ActionResult[][] {
 
-  const steps: TargetResult[][] = [];
+  const results: ActionResult[][] = [];
 
+  // =========================
   // SPIKE
-  if (npc.getStat("spike") >0 ) {
+  // =========================
 
-    const spikeDamage =
-      npc.getBm(BM_ID.SPIKE)?.getBonus("damage") ?? 0;
+  if (npc.getStat("spike") > 0) {
 
+    const spikeDamage = npc.getStat("spike");
     if (spikeDamage > 0) {
 
       const spikeResult = this.applyDamage(
@@ -247,34 +314,33 @@ private attack(
         spikeDamage
       );
 
-      steps.push([spikeResult]);
-
-      // Le PJ est mort à cause du Spike :
-      // son attaque n'a donc jamais lieu.
+      results.push([spikeResult]);
+      // Le Spike tue le PJ :
+      // l'attaque s'arrête ici.
       if (player.getStat("currhp") === 0) {
-        return steps;
+        return results;
       }
     }
   }
 
+  // =========================
   // EVASION
-  if (npc.haveBm(BM_ID.EVASION)) {
+  // =========================
+
+  if (npc.getStat("evasion")> 0) {
 
     const hpStart = npc.getStat("currhp");
     const shieldStart = npc.getStat("shield");
+    const armorStart = npc.getStat("armor");
 
-    npc.updateBm(
-      BM_ID.EVASION,
-      "evasion",
-      -1
-    );
+    npc.updateBm(BM_ID.EVASION, "evasion", -1);
+    
 
-    steps.push([{
-      target_type: "npc",
-      id_target: npc.id,
-
+    results.push([{
+      fighter_type: "npc",
+      fighter_id: npc.id,
       animationName: "dodged",
-      new_intent: npc.intent,
+      fightStatus: "ongoing",
 
       hp_start: hpStart,
       hp_end: npc.getStat("currhp"),
@@ -282,10 +348,12 @@ private attack(
       shield_start: shieldStart,
       shield_end: npc.getStat("shield"),
 
-      armor_start: npc.getStat("armor"),
+      armor_start: armorStart,
       armor_end: npc.getStat("armor"),
 
-      bm_end: npc.bms.map(bm => bm.toView()),
+      bm_end: npc.getBmViews(),
+
+      new_intent: npc.intent,
 
       popup: {
         text: "-1 évasion",
@@ -293,57 +361,76 @@ private attack(
       },
     }]);
 
-    return steps;
+    return results;
   }
 
-  // ATTAQUE
+  // =========================
+  // DEGATS
+  // =========================
+
   const attackResult = this.applyDamage(
     npc,
     "npc",
     damage
   );
 
-  // Effets appliqués par l'ability
-  if (npc.getStat("currhp") > 0) {
-
-    if (ability === ABILITY_ID.DEEP_THRUST) {
-      npc.updateBm(BM_ID.BLEED, "regen",
-        FIGHT_VALUE.DEEP_THRUST_BLEED_BASE+ FIGHT_VALUE.DEEP_THRUST_BLEED_MULT * player.getStat("strength"));
-
-      // Important : le résultat doit contenir
-      // l'état des BM APRÈS l'application du bleed.
-      attackResult.bm_end =
-        npc.bms.map(bm => bm.toView());
-        
-    }
+ 
+  // TRAITEMENT PARTICULIER AJOUT DU BM POUR  DEEP THRUST 
+  if (
+    npc.getStat("currhp") > 0 && (attackResult.hp_start > attackResult.hp_end) &&
+    ability === ABILITY_ID.DEEP_THRUST
+  ) {
+    npc.updateBm(
+      BM_ID.BLEED,
+      "regen",
+      FIGHT_VALUE.DEEP_THRUST_BLEED_BASE
+        + FIGHT_VALUE.DEEP_THRUST_BLEED_MULT
+        * player.getStat("strength")
+    );
+    attackResult.bm_end = npc.getBmViews();
+    attackResult.armor_end = npc.getStat("armor");
   }
 
-  steps.push([attackResult]);
 
-  
-  return steps;
+  // TRAITEMENT PARTICULIER AJOUT DU BM POUR TREACHEROUS ATTACK
+   if (
+    npc.getStat("currhp") > 0 && (attackResult.hp_start > attackResult.hp_end) &&
+    ability === ABILITY_ID.TREACHEROUS_ATTACK
+  ) {
+    npc.updateBm(
+      BM_ID.DEEP_WOUND,
+      "damage",
+      (FIGHT_VALUE.TREACHEROUS_ATTACK_WOUND_BASE+player.getStat("constitution"))+
+            (FIGHT_VALUE.TREACHEROUS_ATTACK_WOUND_BASE+player.getStat("strength"))
+    );
+    attackResult.bm_end = npc.getBmViews();
+    attackResult.armor_end = npc.getStat("armor");
+  }
+  results.push([attackResult]);
+  return results;
 }
 
-private base_attack(player: Pj, targetId:number):TargetResult[][] {
+private base_attack(player: Pj, targetId:number):ActionResult[][] {
   const npc = this.room.getNpc(targetId);
   player.spendAp(FIGHT_VALUE.BASIC_ACTION_AP);
   const damage = FIGHT_VALUE.BASIC_DAMAGE+player.getStat("strength")+ player.getStat("damage");
-  const step = this.attack(player, npc, damage);
-  return step;
+  return this.attack(player, npc, damage);
+  
 }
 
-private base_shield(player:Pj):TargetResult[][] {
+private base_shield(player:Pj):ActionResult[][] {
   
   player.spendAp(FIGHT_VALUE.BASIC_ACTION_AP);
   const shieldStart = player.base_att.shield;
-  player.base_att.shield +=  FIGHT_VALUE.BASIC_SHIELD+player.getStat("constitution");
+  player.base_att.shield +=  FIGHT_VALUE.BASIC_SHIELD+player.getStat("constitution")+player.getStat("shield_bonus");
   const shieldEnd = player.base_att.shield;
 
   return [[{
-    target_type: "pj",
-    id_target: player.id,
-
+    fighter_type: "pj",
+    fighter_id: player.id,
     animationName: "shield",
+    fightStatus:"ongoing",
+
 
     hp_start: player.base_att.currhp,
     hp_end: player.base_att.currhp,
@@ -363,30 +450,29 @@ private base_shield(player:Pj):TargetResult[][] {
   }]];
 }
 
-private brutalBlow(player: Pj, targetId: number): TargetResult[][] {
+private brutalBlow(player: Pj, targetId: number): ActionResult[][] {
 
   const npc = this.room.getNpc(targetId);
   const ability = player.getAbility(ABILITY_ID.BRUTAL_BLOW);
   player.spendAp(ability.ap);
   const damage = FIGHT_VALUE.BRUTAL_BLOW_BASE + FIGHT_VALUE.BRUTAL_BLOW_MULT * player.getStat("strength")+ player.getStat("damage");
-  const step = this.attack(player, npc, damage);
-  return step;
+  return this.attack(player, npc, damage);
+  
 }
 
-private guard(player: Pj): TargetResult[][] {
+private guard(player: Pj): ActionResult[][] {
 
   const ability = player.getAbility(ABILITY_ID.GUARD);
   player.spendAp(ability.ap);
   const shieldStart = player.getStat("shield");
-  player.base_att.shield +=  FIGHT_VALUE.GUARD_BASE + FIGHT_VALUE.GUARD_MULT * player.getStat("constitution");
+  player.base_att.shield +=  FIGHT_VALUE.GUARD_BASE + FIGHT_VALUE.GUARD_MULT * player.getStat("constitution")+player.getStat("shield_bonus");
   const shieldEnd = player.base_att.shield;
 
   return [[{
-    target_type: "pj",
-    id_target: player.id,
-
+    fighter_type: "pj",
+    fighter_id: player.id,
     animationName: "shield",
-
+    fightStatus: "ongoing",
     hp_start: player.base_att.currhp,
     hp_end: player.base_att.currhp,
 
@@ -408,24 +494,31 @@ private guard(player: Pj): TargetResult[][] {
 private parry(
   player: Pj,
   targetId: number
-): TargetResult[][] {
+): ActionResult[][] {
 
   const npc = this.room.getNpc(targetId);
 
   const ability = player.getAbility(ABILITY_ID.PARRY);
   player.spendAp(ability.ap);
 
-  const shieldStart = player.getStat("shield");
+  
+  const damage =
+    FIGHT_VALUE.PARRY_DAMAGE
+    + player.getStat("strength")
+    + player.getStat("damage");
 
+  const attackSteps =
+    this.attack(player, npc, damage);
+
+const shieldStart = player.getStat("shield");
   player.base_att.shield += FIGHT_VALUE.PARRY_SHIELD + player.getStat("constitution");
-
   const shieldEnd = player.getStat("shield");
 
-  const playerStep: TargetResult = {
-    target_type: "pj",
-    id_target: player.id,
+  const playerStep: ActionResult = {
+    fighter_type: "pj",
+    fighter_id: player.id,
     animationName: "shield",
-
+    fightStatus: "ongoing",
     hp_start: player.base_att.currhp,
     hp_end: player.base_att.currhp,
 
@@ -443,21 +536,13 @@ private parry(
     },
   };
 
-  const damage =
-    FIGHT_VALUE.PARRY_DAMAGE
-    + player.getStat("strength")
-    + player.getStat("damage");
-
-  const attackSteps =
-    this.attack(player, npc, damage);
-
-  return [
-    [playerStep],
-    ...attackSteps,
-  ];
+return [
+  ...attackSteps,
+  [playerStep],
+];
 }
 
-private skinOfRock(player: Pj): TargetResult[][] {
+private skinOfRock(player: Pj): ActionResult[][] {
 
   const ability = player.getAbility(ABILITY_ID.ROCK_SKIN);
   const armor_start = player.getStat("armor");
@@ -466,10 +551,11 @@ private skinOfRock(player: Pj): TargetResult[][] {
   player.updateBm(BM_ID.ROCK_SKIN, "armor",value);
 
   
-  const playerStep: TargetResult = {
-    target_type: "pj",
-    id_target: player.id,
+  const playerStep: ActionResult = {
+    fighter_type: "pj",
+    fighter_id: player.id,
     animationName: "blocked",
+    fightStatus:"ongoing",
 
     hp_start: player.base_att.currhp,
     hp_end: player.base_att.currhp,
@@ -492,32 +578,33 @@ private skinOfRock(player: Pj): TargetResult[][] {
 }
 
 
- private wings(player: Pj, targetId:number): TargetResult[][] {
+ private wings(player: Pj, targetId:number): ActionResult[][] {
 
-  const npc = this.room.getNpc(targetId);
+  const target = this.team.getPj(targetId);
   const ability = player.getAbility(ABILITY_ID.WINGS);
   player.spendAp(ability.ap);
   const value = FIGHT_VALUE.WINGS_BASE + FIGHT_VALUE.WINGS_MULT*player.getStat("magicSkill");
-  player.updateBm(BM_ID.WINGS, "armor",value);
+  target.updateBm(BM_ID.WINGS, "strength",value);
 
-  const playerStep: TargetResult = {
-    target_type: "pj",
-    id_target: player.id,
-    animationName: "blocked",
+  const playerStep: ActionResult = {
+    fighter_type: "pj",
+    fighter_id: target.id,
+    animationName: "wings",
+    fightStatus: "ongoing",
 
-    hp_start: player.base_att.currhp,
-    hp_end: player.base_att.currhp,
+    hp_start: target.base_att.currhp,
+    hp_end: target.base_att.currhp,
 
-    shield_start: player.getStat("shield"),
-    shield_end: player.getStat("shield"),
+    shield_start: target.getStat("shield"),
+    shield_end:target.getStat("shield"),
 
-    armor_start: player.getStat("armor"),
-    armor_end: player.getStat("armor"),
+    armor_start: target.getStat("armor"),
+    armor_end: target.getStat("armor"),
 
-    bm_end: player.getBmViews(),
+    bm_end:target.getBmViews(),
 
     popup: {
-      text: "+${value} armure",
+      text: `+${value} force`,
       type: "block",
     },
   };
@@ -525,7 +612,7 @@ private skinOfRock(player: Pj): TargetResult[][] {
   return [[playerStep]];
 }
 
-private autoRegeneration(player: Pj): TargetResult[][] {
+private autoRegeneration(player: Pj): ActionResult[][] {
 
   const ability = player.getAbility(ABILITY_ID.AUTOREGENERATION);
   player.spendAp(ability.ap);
@@ -534,10 +621,11 @@ private autoRegeneration(player: Pj): TargetResult[][] {
   player.getHealed(regen);
   const hpEnd = player.base_att.currhp;
 
-  const playerStep: TargetResult = {
-    target_type: "pj",
-    id_target: player.id,
+  const playerStep: ActionResult = {
+     fighter_type: "pj",
+    fighter_id: player.id,
     animationName: "heal",
+    fightStatus: "ongoing",
 
     hp_start: hpStart,
     hp_end: hpEnd,
@@ -559,18 +647,19 @@ private autoRegeneration(player: Pj): TargetResult[][] {
   return [[playerStep]];
 }
 
-private guardReflex(player: Pj): TargetResult[][] {
+private guardReflex(player: Pj): ActionResult[][] {
 
   const ability = player.getAbility(ABILITY_ID.GUARD_REFLEX);
   player.spendAp(ability.ap);
 
   player.updateBm(BM_ID.GUARD_REFLEX, "shield", FIGHT_VALUE.GUARD_REFLEX_BASE +
-     FIGHT_VALUE.GUARD_REFLEX_MULT*player.getStat("constitution"));
+     FIGHT_VALUE.GUARD_REFLEX_MULT*player.getStat("constitution")+player.getStat("shield_bonus"));
 
-    const playerStep: TargetResult = {
-    target_type: "pj",
-    id_target: player.id,
+    const playerStep: ActionResult = {
+    fighter_type: "pj",
+    fighter_id: player.id,
     animationName: "blocked",
+    fightStatus: "ongoing",
 
     hp_start: player.base_att.currhp,
     hp_end: player.base_att.currhp,
@@ -592,7 +681,7 @@ private guardReflex(player: Pj): TargetResult[][] {
   return [[playerStep]];
 }
 
-private deepThrust(player: Pj, targetId: number): TargetResult[][] {
+private deepThrust(player: Pj, targetId: number): ActionResult[][] {
   const npc = this.room.getNpc(targetId);
   const ability = player.getAbility(ABILITY_ID.DEEP_THRUST);
   player.spendAp(ability.ap);
@@ -601,13 +690,13 @@ private deepThrust(player: Pj, targetId: number): TargetResult[][] {
   
 }
 
-private twirl(player: Pj): TargetResult[][] {
+private twirl(player: Pj): ActionResult[][] {
 
  
   const ability = player.getAbility(ABILITY_ID.TWIRL);
   player.spendAp(ability.ap);
   const damage =  FIGHT_VALUE.TWIRL_BASE + FIGHT_VALUE.TWIRL_MULT * player.getStat("strength");
-  const steps: TargetResult[][] = [];
+  const steps: ActionResult[][] = [];
 
   for (const npc of this.room.npcs) {
 
@@ -630,9 +719,9 @@ private twirl(player: Pj): TargetResult[][] {
 private fireball(
   player: Pj,
   targetId: number
-): TargetResult[][] {
+): ActionResult[][] {
 
-   const steps: TargetResult[][] = [];
+   const steps: ActionResult[][] = [];
 
   const npc = this.room.getNpc(targetId);
 
@@ -641,7 +730,7 @@ private fireball(
 
 
   // EVASION
-  if (npc.haveBm(BM_ID.EVASION)) {
+  if (npc.getStat("evasion")> 0) {
 
     const hpStart = npc.getStat("currhp");
     const shieldStart = npc.getStat("shield");
@@ -653,10 +742,12 @@ private fireball(
     );
 
     steps.push([{
-      target_type: "npc",
-      id_target: npc.id,
+      fighter_type: "npc",
+    fighter_id: npc.id,
+    animationName: "dodged",
+    fightStatus: "ongoing",
 
-      animationName: "dodged",
+     
       new_intent: npc.intent,
 
       hp_start: hpStart,
@@ -715,7 +806,7 @@ private fireball(
 private tears(
   player: Pj,
   targetId: number
-): TargetResult[][] {
+): ActionResult[][] {
 
   const target = this.team.getPj(targetId);
   const ability = player.getAbility(ABILITY_ID.LIFE_TEARS);
@@ -725,10 +816,10 @@ private tears(
   const hpEnd = target.base_att.currhp;
 
   return [[{
-    target_type: "pj",
-    id_target: target.id,
-
+     fighter_type: "pj",
+    fighter_id: target.id,
     animationName: "heal",
+    fightStatus: "ongoing",
 
     hp_start: hpStart,
     hp_end: hpEnd,
@@ -748,18 +839,19 @@ private tears(
   }]];
 }
 
-private fireBarrier(player: Pj, targetId:number): TargetResult[][] {
+private fireBarrier(player: Pj, targetId:number): ActionResult[][] {
 
   const ability = player.getAbility(ABILITY_ID.FIRE_BARRIER);
   const target = this.team.getPj(targetId);
   player.spendAp(ability.ap);
   const value = FIGHT_VALUE.FIRE_BARRIER_BASE + FIGHT_VALUE.FIRE_BARRIER_MULT*player.getStat("magicSkill");
-  target.updateBm(BM_ID.FIRE_BARRIER, "armor",value);
+  target.updateBm(BM_ID.FIRE_BARRIER, "spike",value);
 
-  const playerStep: TargetResult = {
-    target_type: "pj",
-    id_target: target.id,
+  const playerStep: ActionResult = {
+     fighter_type: "pj",
+    fighter_id: target.id,
     animationName: "fire_barrier",
+    fightStatus: "ongoing",
 
     hp_start: target.base_att.currhp,
     hp_end: target.base_att.currhp,
@@ -782,7 +874,7 @@ private fireBarrier(player: Pj, targetId:number): TargetResult[][] {
 }
 
 
-private regeneration(player: Pj, targetId:number): TargetResult[][] {
+private regeneration(player: Pj, targetId:number): ActionResult[][] {
 
   const ability = player.getAbility(ABILITY_ID.REGENERATION);
    const target = this.team.getPj(targetId);
@@ -790,10 +882,11 @@ private regeneration(player: Pj, targetId:number): TargetResult[][] {
   const value = FIGHT_VALUE.REGENERATION_BASE+ FIGHT_VALUE.REGENERATION_MULT*player.getStat("magicSkill");
   player.updateBm(BM_ID.REGENERATION, "regen",value);
 
-   const playerStep: TargetResult = {
-    target_type: "pj",
-    id_target: target.id,
-    animationName: "blocked",
+   const playerStep: ActionResult = {
+     fighter_type: "pj",
+    fighter_id: target.id,
+    animationName: "heal",
+    fightStatus: "ongoing",
 
     hp_start: target.base_att.currhp,
     hp_end: target.base_att.currhp,
@@ -815,26 +908,27 @@ private regeneration(player: Pj, targetId:number): TargetResult[][] {
 }
 
 
-private shieldOfAthlan(player: Pj, targetId:number): TargetResult[][] {
+private shieldOfAthlan(player: Pj, targetId:number): ActionResult[][] {
 
-  const ability = player.getAbility(ABILITY_ID.ATHLAN_SHIELD);
+   const ability = player.getAbility(ABILITY_ID.ATHLAN_SHIELD);
    const target = this.team.getPj(targetId);
-  player.spendAp(ability.ap);
-  const shieldStart = player.getStat("shield");
-  const value =  FIGHT_VALUE.ATHLAN_SHIELD_BASE + FIGHT_VALUE.ATHLAN_SHIELD_MULT * player.getStat("magicSkill");
-   player.base_att.shield += value;
-   const shieldEnd = player.base_att.shield;
+   player.spendAp(ability.ap);
+   const shieldStart = target.getStat("shield");
+   const value =  FIGHT_VALUE.ATHLAN_SHIELD_BASE + FIGHT_VALUE.ATHLAN_SHIELD_MULT * player.getStat("magicSkill");
+   target.base_att.shield += value;
+   const shieldEnd = target.base_att.shield;
 
-   const playerStep: TargetResult = {
-    target_type: "pj",
-    id_target: target.id,
-    animationName: "athlan",
+   const playerStep: ActionResult = {
+    fighter_type: "pj",
+    fighter_id: target.id,
+    animationName: "blocked",
+    fightStatus: "ongoing",
 
     hp_start: target.base_att.currhp,
     hp_end: target.base_att.currhp,
 
-    shield_start: target.getStat("shield"),
-    shield_end: target.getStat("shield"),
+    shield_start: shieldStart,
+    shield_end: shieldEnd,
 
     armor_start: target.getStat("armor"),
     armor_end: target.getStat("armor"),
@@ -842,7 +936,7 @@ private shieldOfAthlan(player: Pj, targetId:number): TargetResult[][] {
     bm_end: target.getBmViews(),
 
     popup: {
-      text: `+${value} armure`,
+      text: `+${value} bouclier`,
       type: "block",
     },
   };
@@ -851,7 +945,7 @@ private shieldOfAthlan(player: Pj, targetId:number): TargetResult[][] {
 }
 
 
- private armorOfAthlan(player: Pj, targetId:number): TargetResult[][] {
+ private armorOfAthlan(player: Pj, targetId:number): ActionResult[][] {
 
   const ability = player.getAbility(ABILITY_ID.ATHLAN_ARMOR);
   
@@ -859,12 +953,13 @@ private shieldOfAthlan(player: Pj, targetId:number): TargetResult[][] {
    const armor_start = target.getStat("armor");
    player.spendAp(ability.ap);
    const value = FIGHT_VALUE.ATHLAN_ARMOR_BASE + FIGHT_VALUE.ATHLAN_ARMOR_MULT*player.getStat("magicSkill");
-   player.updateBm(BM_ID.ROCK_SKIN, "armor",value);
+   target.updateBm(BM_ID.ROCK_SKIN, "armor",value);
 
-   const playerStep: TargetResult = {
-    target_type: "pj",
-    id_target: target.id,
-    animationName: "athlan",
+   const playerStep: ActionResult = {
+     fighter_type: "pj",
+     fighter_id: target.id,
+     animationName: "athlan",
+    fightStatus: "ongoing",
 
     hp_start: target.base_att.currhp,
     hp_end: target.base_att.currhp,
@@ -887,18 +982,49 @@ private shieldOfAthlan(player: Pj, targetId:number): TargetResult[][] {
 }
 
 
- private ArcxosCursed(player: Pj, targetId:number): TargetResult[][] {
+ private ArcxosCursed(player: Pj, targetId:number): ActionResult[][] {
 
-  const ability = player.getAbility(ABILITY_ID.ATHLAN_ARMOR);
+  const ability = player.getAbility(ABILITY_ID.ARCXOS);
   const target = this.room.getNpc(targetId);
   player.spendAp(ability.ap);
-  const value = FIGHT_VALUE.ARCXOS__BASE + FIGHT_VALUE.ARCXOS_MULT*player.getStat("magicSkill");
-  player.updateBm(BM_ID.ARCXOS, "damage",value);
+  const value = FIGHT_VALUE.ARCXOS_BASE + FIGHT_VALUE.ARCXOS_MULT*player.getStat("magicSkill");
+  
+  target.updateBm(BM_ID.ARCXOS, "damage",value);
 
-   const playerStep: TargetResult = {
-    target_type: "npc",
-    id_target: target.id,
+ if (NPC_ACTION_ID_NEED_INTENT_CHANGE.includes(target.intent.action)) {
+      target.intent.value = Math.max(0, target.intent.value -value);
+   
+    const playerStep: ActionResult = {
+     fighter_type: "npc",
+    fighter_id: target.id,
+    animationName : "change_intent",
+    fightStatus: "ongoing",
+
+    new_intent: target.intent,
+    hp_start: target.base_att.currhp,
+    hp_end: target.base_att.currhp,
+
+    shield_start: target.getStat("shield"),
+    shield_end: target.getStat("shield"),
+
+    armor_start: target.getStat("armor"),
+    armor_end: target.getStat("armor"),
+
+    bm_end: target.getBmViews(),
+
+    popup: {
+      text: `-${value} damage`,
+      type: "block",
+    },
+  };
+    return [[playerStep]];
+  }
+  
+   const playerStep: ActionResult = {
+     fighter_type: "npc",
+    fighter_id: target.id,
     animationName: "hurt",
+    fightStatus: "ongoing",
 
     hp_start: target.base_att.currhp,
     hp_end: target.base_att.currhp,
@@ -918,6 +1044,192 @@ private shieldOfAthlan(player: Pj, targetId:number): TargetResult[][] {
   };
 
   return [[playerStep]];
+}
+
+private MultipleAttack(
+  player: Pj,
+  targetId: number
+): ActionResult[][] {
+
+  const result: ActionResult[][] = [];
+
+  const ability =
+    player.getAbility(ABILITY_ID.MULTIPLE_ATTACK);
+
+  const target =
+    this.room.getNpc(targetId);
+
+  player.spendAp(ability.ap);
+
+  const damage =
+    FIGHT_VALUE.MULTIPLE_ATTACK_DAMAGE +
+    player.getStat("strength") +
+    player.getStat("damage");
+
+  const iteration =
+    FIGHT_VALUE.MULTIPLE_ATTACK_ITERATION +
+    player.getStat("constitution");
+
+  for (let i = 0; i < iteration; i++) {
+
+    // Animation d'attaque
+    result.push([
+      this.getActionResult(player, "attack")
+    ]);
+
+    // Résolution de l'attaque
+    result.push(
+      ...this.attack(player, target, damage)
+    );
+
+    if (target.getStat("currhp") <= 0 || player.getStat("currhp") <=0) {
+      break;
+    }
+  }
+
+  return result;
+}
+
+
+private treacherousAttack(player: Pj, targetId: number): ActionResult[][] {
+  const npc = this.room.getNpc(targetId);
+  const ability = player.getAbility(ABILITY_ID.TREACHEROUS_ATTACK);
+  player.spendAp(ability.ap);
+  const damage = FIGHT_VALUE.TREACHEROUS_ATTACK_BASE +player.getStat("strength");
+  return this.attack(player, npc, damage, ABILITY_ID.TREACHEROUS_ATTACK);
+  
+}
+
+
+private charge(
+  player: Pj,
+  targetId: number,
+): ActionResult[][] {
+
+  const results: ActionResult[][] = [];
+  const npc = this.room.getNpc(targetId);
+  player.spendAp(player.getAbility(ABILITY_ID.CHARGE).ap);
+  // =========================
+  // SPIKE
+  // =========================
+
+  if (npc.getStat("spike") > 0) {
+
+    const spikeDamage = npc.getStat("spike");
+    if (spikeDamage > 0) {
+
+      const spikeResult = this.applyDamage(
+        player,
+        "pj",
+        spikeDamage
+      );
+
+      results.push([spikeResult]);
+      // Le Spike tue le PJ :
+      // l'attaque s'arrête ici.
+      if (player.getStat("currhp") === 0) {
+        return results;
+      }
+    }
+  }
+
+  // =========================
+  // EVASION
+  // =========================
+
+  if (npc.getStat("evasion")> 0) {
+
+    const hpStart = npc.getStat("currhp");
+    const shieldStart = npc.getStat("shield");
+    const armorStart = npc.getStat("armor");
+
+    npc.updateBm(BM_ID.EVASION, "evasion", -1);
+    
+
+    results.push([{
+      fighter_type: "npc",
+      fighter_id: npc.id,
+      animationName: "dodged",
+      fightStatus: "ongoing",
+
+      hp_start: hpStart,
+      hp_end: npc.getStat("currhp"),
+
+      shield_start: shieldStart,
+      shield_end: npc.getStat("shield"),
+
+      armor_start: armorStart,
+      armor_end: npc.getStat("armor"),
+
+      bm_end: npc.getBmViews(),
+
+      new_intent: npc.intent,
+
+      popup: {
+        text: "-1 évasion",
+        type: "dodge",
+      },
+    }]);
+
+    return results;
+  }
+
+  // =========================
+  // DEGATS
+  // =========================
+  const shieldStart = npc.getStat("shield");
+  const damage = Math.min(FIGHT_VALUE.CHARGE_BASE + FIGHT_VALUE.CHARGE_MULT*5, npc.getStat("shield"))
+  npc.base_att.shield -= damage;
+
+  const popupData:FightPopupData = {
+      text: `-${damage} bouclier`,
+      type: "block",
+    };
+
+  const attackResult: ActionResult = {
+    fighter_type: "npc",
+    fighter_id: npc.id,
+    fightStatus:"ongoing",
+    animationName: "blocked",
+
+    hp_start: npc.getStat("currhp"),
+    hp_end: npc.getStat("currhp"),
+
+    shield_start: shieldStart,
+    shield_end: npc.getStat("shield"),
+
+    armor_start: npc.getStat("armor"),
+    armor_end: npc.getStat("armor"),
+
+    bm_end: npc.getBmViews(),
+
+    popup: popupData,
+
+    
+  };
+
+  results.push([attackResult]);
+  return results;
+}
+
+
+private blazingFire(player: Pj): ActionResult[][] {
+
+ 
+  const ability = player.getAbility(ABILITY_ID.BLAZING_FIRE);
+  player.spendAp(ability.ap);
+  const damage =  FIGHT_VALUE.BLAZING_FIRE_BASE + FIGHT_VALUE.BLAZING_FIRE_MULT * player.getStat("magicSkill");
+  const steps: ActionResult[][] = [];
+
+  for (const npc of this.room.npcs) {
+
+    if (npc.getStat("currhp") <= 0) continue;
+
+    const attackSteps = this.applyDamage(npc, "npc", damage);
+    steps.push([attackSteps]);
+  }
+
+  return steps;
 }
 
 }

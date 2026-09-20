@@ -50,7 +50,7 @@ const PjProfil = ({ player, onLevelUp }: PjProfilDetailProps) => {
   >
       {/* Portrait + halo */}
       <div
-        onClick={() => {if (player.canLevelUp) {onLevelUp();}}}
+        onClick={() => {console.log("checklevelup"); if (player.canLevelUp) {console.log("oui");onLevelUp();}}}
         style={{
           position: "relative",
           width: 130,
@@ -122,7 +122,7 @@ const PjProfil = ({ player, onLevelUp }: PjProfilDetailProps) => {
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
-            color: "#e8d7a5",
+            color: "#d6b56c",
             fontFamily: "Georgia, serif",
             fontWeight: "bold",
             lineHeight: "1.5",
@@ -194,9 +194,20 @@ const PjProfil = ({ player, onLevelUp }: PjProfilDetailProps) => {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: 20,
+    gap: 10
   }}
 >
+   {/* HP */}
+  <GraphicBar
+    color="#FF0000"
+    curr={player.stats.currhp}
+    max={player.stats.maxhp}
+    text="HP"
+    width={300}
+    height={12}
+    borderWidth={3}
+  />
+
   {/* XP */}
   <GraphicBar
     color="#0000FF"
@@ -220,14 +231,14 @@ const PjProfil = ({ player, onLevelUp }: PjProfilDetailProps) => {
 
       textAlign: "center",
 
-      color: "#e8d7a5",
+       color: "#d6b56c",
       fontFamily: "'Uncial Antiqua', serif",
       fontWeight: "bold",
       fontSize: 14,
     }}
   >
     <div>Damage : {player.stats.damage}</div>
-    <div>Bouclier : {player.stats.shield}</div>
+    <div>Bouclier bonus : {player.stats.shield_bonus}</div>
 
     <div>Regen : {player.stats.regen}</div>
     <div>Epine : {player.stats.spike}</div>

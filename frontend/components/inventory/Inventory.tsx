@@ -207,7 +207,7 @@ const handlePointerUp = (
     width: `${10 * CELL_WIDTH * INVENTORY_SCALE_X}px`,
     height: `${4 * CELL_HEIGHT * INVENTORY_SCALE_Y}px`,
 
-    backgroundImage: 'url("/ui/inventory.png")',
+    backgroundImage: 'url("/ui/inventory2.png")',
     backgroundSize: "100% 100%",
     backgroundRepeat: "no-repeat",
     backgroundPosition: "center",
@@ -257,7 +257,7 @@ const handlePointerUp = (
 
           objectFit: "contain",
 
-          cursor: "grab",
+          cursor: 'url("/ui/cursor/cursor6.png") 0 0, pointer',
         }}
       />
     );

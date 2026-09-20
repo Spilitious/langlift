@@ -5,6 +5,7 @@ export type AnimationFrame = {
   x: number;
   y: number;
   duration: number;
+  sound?: string;
 };
 
 
@@ -24,13 +25,15 @@ export const getNpcAttackFrames = (
           image: "/sprites/npc/npc1/npc1-idle.png",
           x: 0,
           y: 0,
-          duration: 50,
+          duration: 300,
+          sound: "/sounds/npc1/npc1-attack.mp3",
         },
         {
           image: "/sprites/npc/npc1/npc1-attack1.png",
           x: 0,
           y: 0,
           duration: 250,
+         
         },
         {
           image: "/sprites/npc/npc1/npc1-attack2.png",
@@ -89,6 +92,9 @@ export const getNpcAttackFrames = (
     case 4:
     case 5:
     case 6:
+    case 7:
+    case 8:
+   
       return [
         {
           image: `/sprites/npc/npc${image}/npc${image}-idle.png`,
@@ -99,6 +105,21 @@ export const getNpcAttackFrames = (
         {
           image: `/sprites/npc/npc${image}/npc${image}-attack1.png`,
           x: -30,
+          y: 0,
+          duration: 350,
+        },
+      ];
+    case 9:
+      return [
+        {
+          image: `/sprites/npc/npc${image}/npc${image}-idle.png`,
+          x: 0,
+          y: 0,
+          duration: 50,
+        },
+        {
+          image: `/sprites/npc/npc${image}/npc${image}-attack1.png`,
+          x: 0,
           y: 0,
           duration: 350,
         },
@@ -168,6 +189,32 @@ export const getNpcDeathFrames = (
   },
 ];
 
+
+export const getNpcPowerFrames = (
+  image: number
+): AnimationFrame[] => [
+  {
+    image: `/sprites/npc/npc${image}/npc${image}-idle.png`,
+    x: 0,
+    y: 0,
+    duration: 50,
+  },
+  {
+    image: `/sprites/npc/npc${image}/npc${image}-power.png`,
+    x: 0,
+    y: 0,
+    duration: 600,
+   // sound: `sounds/npc${image}/npc${image}-power.mp3`,
+  },
+  { 
+    image: `/sprites/npc/npc${image}/npc${image}-idle.png`,
+    x: 0,
+    y: 0,
+    duration: 50,
+  },
+];
+
+
 export const getNpcChangeIntentFrames = (
   image: number
 ): AnimationFrame[] => [
@@ -205,6 +252,7 @@ export const npcFrameAnimations: Record<
   attack: getNpcAttackFrames,
   hurt: getNpcHurtFrames,
   dodged: getNpcDodgeFrames,
+  power: getNpcPowerFrames,
  
 };
 
@@ -441,6 +489,31 @@ export const overlayAnimation: Record<
     y: 0,
     duration: 250,
   }, ],
+  "wings" : [
+  {
+    image: "/sprites/effects/wings/wings1.png",
+    x: 0,
+    y: 0,
+    duration: 180,
+  },
+  {
+    image: "/sprites/effects/wings/wings2.png",
+    x: 0,
+    y: 0,
+    duration: 180,
+  },
+  {
+    image: "/sprites/effects/wings/wings3.png",
+    x: 0,
+    y: 0,
+    duration: 180,
+  },
+  {
+    image: "/sprites/effects/wings/wings4.png",
+    x: 0,
+    y: 0,
+    duration: 250,
+  }, ],
   
 }
   
@@ -449,6 +522,8 @@ export type OverlayAnimationName =
   | "athlan"
   | "fire_barrier"
   | "potion_hp"
-  | "potion_standard";
+  | "potion_standard"
+  | "wings";
+
 
 

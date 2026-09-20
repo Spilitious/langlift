@@ -73,6 +73,39 @@ export async function moveEquipmentToBelt(
 }
 
 
+export async function moveEquipmentToAlchemy(
+  pjId: number,
+  equipmentId: number,
+  slot: number
+): Promise<MoveObjectResponse> {
+
+  const response = await fetch(
+    "http://localhost:3001/api/equipment/alchemy",
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        pjId,
+        equipmentId,
+        slot,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Erreur déplacement équipement vers alchemie"
+    );
+  }
+
+  return response.json();
+}
+
+
 export async function equipEquipment(
   pjId: number,
   equipmentId: number,
@@ -191,8 +224,6 @@ export async function sellEquipment(
 
 export async function createPotion(
   pjId: number,
-  ingredientIds: (number | null)[],
-  power: number
 ): Promise<CreatePotionResult> {
 
   const response = await fetch(
@@ -204,8 +235,7 @@ export async function createPotion(
       },
       body: JSON.stringify({
         pjId,
-        ingredientIds,
-        power,
+       
       }),
     }
   );
@@ -218,3 +248,32 @@ export async function createPotion(
 
   return response.json();
 }
+
+export const moveEquipmentToPlayer = async (
+  sourcePjId: number,
+  targetPjId: number,
+  equipmentId: number
+) => {
+  const response = await fetch(
+    "http://localhost:3001/api/equipment/moveToPlayer",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        sourcePjId,
+        targetPjId,
+        equipmentId,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Erreur lors du transfert de l'équipement"
+    );
+  }
+
+  return response.json();
+};

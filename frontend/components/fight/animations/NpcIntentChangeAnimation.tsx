@@ -30,17 +30,17 @@ export default function NpcIntentChangeAnimation({
       setShowNew(false);
       setNewVisible(false);
 
-      // Fade out ancienne intent
+      // Ancienne intention : fade out 500 ms
       await new Promise((resolve) =>
-        setTimeout(resolve, 600)
+        setTimeout(resolve, 500)
       );
 
       if (cancelled) return;
 
-      // Monte la nouvelle intent invisible
+      // Monte la nouvelle intention invisible
       setShowNew(true);
 
-      // On laisse le navigateur la rendre à opacity 0
+      // Laisse React / navigateur afficher opacity 0
       await new Promise<void>((resolve) =>
         requestAnimationFrame(() =>
           requestAnimationFrame(() => resolve())
@@ -49,11 +49,11 @@ export default function NpcIntentChangeAnimation({
 
       if (cancelled) return;
 
-      // Fade in
+      // Nouvelle intention : fade in 500 ms
       setNewVisible(true);
 
       await new Promise((resolve) =>
-        setTimeout(resolve, 600)
+        setTimeout(resolve, 500)
       );
 
       if (cancelled) return;
@@ -71,10 +71,9 @@ export default function NpcIntentChangeAnimation({
   return (
     <div
       style={{
-        position: "absolute",
-        top: "-55px",
-        left: "50%",
-        transform: "translateX(-50%)",
+      //  position: "absolute",
+       
+       // transform: "translateX(-50%)",
         width: "70px",
         height: "70px",
         zIndex: 10,
@@ -87,7 +86,7 @@ export default function NpcIntentChangeAnimation({
             position: "absolute",
             inset: 0,
             animation:
-              "intentFadeOut 600ms ease-in-out forwards",
+              "intentFadeOut 500ms ease-in-out forwards",
           }}
         >
           <NpcIntent
@@ -102,11 +101,9 @@ export default function NpcIntentChangeAnimation({
           style={{
             position: "absolute",
             inset: 0,
-
             opacity: newVisible ? 1 : 0,
-
             transition:
-              "opacity 600ms ease-in-out",
+              "opacity 500ms ease-in-out",
           }}
         >
           <NpcIntent

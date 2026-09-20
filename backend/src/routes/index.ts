@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { gameState } from "../game/gameStateInstance.js";
+import { getGameState } from "../game/gameStateInstance.js";
 
 const router = Router();
 
@@ -31,8 +31,8 @@ import actionRouter from "./action.js";
 router.use( actionRouter);
 
 
-/* AlechemyRoutert */
-import alchemyRouter from "./action.js";
+/* AlechemyRouter */
+import alchemyRouter from "./alchemy.js";
 router.use( alchemyRouter);
 
 /* Déplacement d'objet  */
@@ -49,17 +49,17 @@ router.use(  Ia);
 import levelUp from "./levelUp.js";
 router.use(  levelUp);
 
-router.get("/game-state", (req, res) => {
-  res.json(gameState.toView());
-});
 
-router.post("/reset", (req, res) => {
-  gameState.reset();
 
-  return res.json(
-    gameState.toView()
-  );
-});
+/* Shop  */
+import Shop from "./shop.js";
+router.use(  Shop);
+
+
+/* GameState  */
+import GameState from "./gameState.js";
+router.use( "/gameState", GameState);
+
 
 
 export default router;

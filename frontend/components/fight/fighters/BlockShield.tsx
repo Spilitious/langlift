@@ -96,7 +96,7 @@ export default function BlockShield({
           justifyContent: "center",
 
           color: "black",
-          fontSize: `${size * 0.35}px`,
+          fontSize: `${size * 0.25}px`,
           fontWeight: "bold",
 
           pointerEvents: "none",

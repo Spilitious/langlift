@@ -1,67 +1,4 @@
-import { Player } from '../classes/player';
-import { Npc } from '../classes/npc';
-import {Bm} from '../classes/bm';
-import { Fight } from '../classes/fight';
-import { ABILITY_NAME, BM_NAME } from '../constants/constants';
-import { selectNewTarget } from './selectTarget';
 
-export function Attack(player:Player, npc:Npc) {
-
-    let damage = npc.getValueAttack();
-    let shield = player.get("shield");
-    if(shield >= damage)
-        player.set("shield", player.get("shield")- damage);
-    else {
-        player.set("shield", 0);
-        player.getHit(damage-shield);
-        if(npc.haveBm(BM_NAME.TREACHEROUS_ATTACK))
-        {
-            var bm:Bm = new Bm();
-            bm.init(BM_NAME.BLEED, npc.getBmByName(BM_NAME.TREACHEROUS_ATTACK).getBonus("bleed"));
-            player.addBm(bm);
-        }    
-
-    }
-
-    if(player.haveBm(BM_NAME.GUARD_REFLEX))
-      player.set("shield", player.getAbilityByName(ABILITY_NAME.GUARD_REFLEX).get("reflex"));
-    
-
-}
-
-export function Evasion(npc:Npc) {
-
-    let bm:Bm = new Bm();
-    bm.init(BM_NAME.EVASION, npc.getValueAttack());
-    npc.addBm(bm);
-}
-
-export function Shield(npc:Npc) {
-
-    npc.set("shield", npc.get("shield")+npc.getValueAttack());
-}
-
-export function WolfCry(npc:Npc, fight:Fight):void {
-
-   
-    var bm:Bm;
-    for (var i:number = 0; i < fight.getNbOpponent() ; i++)
-    
-        if (fight.getOpponent(i).get("id_basicRace") == 3)
-        {
-            bm = new Bm();
-            bm.init(BM_NAME.WOLF_CRY, npc.getValueAttack());
-            fight.getOpponent(i).addBm(bm);
-           
-        }
-
-}
-
-export function Heal(npc:Npc, target:Npc):void
-		{
-			let hp = npc.getValueAttack();
-			target.getHealed(hp);
-		}
 		
 export function massSupport(npc:Npc, fight: Fight):void
 		{
@@ -103,25 +40,7 @@ export function Invoke(npc:Npc, fight:Fight):void
 
 		}
 
-export  function MultipleAttack(npc:Npc, player:Player):void
-		{
-			let iteration:number = 0;
-            let nb:number = 3;
-            while(iteration < nb && npc.get("currhp") > 0 && player.get("currhp")>0)
-            {
-                Attack(player,npc);
-            }			
-		}
-        
-export function Twirl(npc:Npc, fight:Fight):void
-		{
-			
-			for (let i:number = 0; i < fight.getNbPlayer(); i++)
-			{
-				Attack(fight.getPlayer(i), npc);
-            }
-			
-		}	
+  
 
 export function TrollFury(npc:Npc):void
 		{

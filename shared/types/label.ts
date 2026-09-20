@@ -23,6 +23,7 @@ export const STAT_NAMES = [
   "magicSkill",
   "armor",
   "shield",
+  "shield_bonus",
   "maxhp",
   "damage",
   "MM",
@@ -36,6 +37,8 @@ export const STAT_NAMES = [
   "ward",
   "bleed",
   "burn",
+  "provocation",
+  "shield_expert",
 ] as const;
 
 export type StatName =

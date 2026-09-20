@@ -12,6 +12,12 @@ export default function NpcIntent({
   intent,
   size = 100,
 }: NpcIntentProps) {
+
+  const value = intent.value2 ===0 
+  ? intent.value
+  : intent.value2 + "x" + intent.value
+  
+  console.log(value);
   return (
     <div
       style={{
@@ -37,13 +43,14 @@ export default function NpcIntent({
         }}
       />
 
-      <div
+      {value!=-1 && <div
         style={{
           position: "relative",
           top: "-5px",
           left: "42px",
 
-          width: "20px",
+          minWidth: "10px",
+          maxWidth: "24px",
           height: "20px",
           borderRadius: "50%",
 
@@ -59,8 +66,8 @@ export default function NpcIntent({
           fontWeight: "bold",
         }}
       >
-        {intent.value}
-      </div>
+        {value}
+      </div>}
       {/* Cible */}
 {intent.target !== 0 && (
   <>

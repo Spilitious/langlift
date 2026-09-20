@@ -1,13 +1,12 @@
 import { Pj } from "./Pj.js";
-import type { TeamView } from "../../../shared/types/teamView.js";
+import type { TeamView,TeamSave} from "../../../shared/types/teamView.js";
 import type { Equipment } from "./Equipment.js";
 import type { BuyResult } from "../../../shared/types/shop.js"
 import type { ActionResult } from "../../../shared/types/actionResult.js";
 import type { XpResult } from "../../../shared/types/actionResult.js";
 import type { Profession } from "../../../shared/types/teamView.js";
-import { basicAbilities } from "../utils/basicAbility.js";
 import type { AbilityView } from "../../../shared/types/abilityView.js";
-import { Ability } from "./Abitlity.js";
+import type { BaseAttributes } from "../../../shared/types/label.js";
 
 export class Team {
   pjs: Pj[];
@@ -17,9 +16,9 @@ export class Team {
 
 constructor() {
     this.pjs = [];
-    this.gold =1000;
+    this.gold =40;
     this.profession = {
-      alchimie: 0,
+      alchemy: 0,
       blacksmith: 0,
       armorsmith: 0
     }
@@ -34,6 +33,23 @@ toView():TeamView {
     }
 }
 
+
+toSave():TeamSave {
+    return {
+    pjs: this.pjs.map((pj) => pj.toSave()),
+    gold: this.gold,
+    profession: this.profession,
+    }
+}
+
+
+fromSave(save:TeamSave) {
+  this.gold = save.gold;
+  this.profession= save.profession;
+   this.pjs = save.pjs.map(pjSave => {
+    return Pj.fromSave(pjSave);
+  });
+}
 /* ****************************************** GESTION DES PJ ************************************************** */
 
 addPj(pj:Pj) {
@@ -48,10 +64,19 @@ getPj(pjId:number):Pj {
     return pj;
  }
 
+ endFight() {
+   for(const pj of this.pjs)
+      pj.initAfterFight();
+ }
  
 /* ****************************************** GESTION DES ABILITY ************************************************** */
-learnAbility(pjId:number, basicAbilityId:number) {
-  this.getPj(pjId).learAbility(basicAbilityId);
+learnAbility(pjId:number, basicAbilityId:number):string {
+  return this.getPj(pjId).learAbility(basicAbilityId);
+}
+
+learnAttribut(pjId:number, attribute: keyof BaseAttributes) {
+  console.log(attribute);
+  this.getPj(pjId).addBaseAtt(attribute, 1);
 }
 
 levelUp(pjId:number):number {
@@ -65,18 +90,18 @@ getLearnableAbilities(pjId:number):AbilityView[] {
 
 
 
- initNewFight() {
+initNewFight() {
    for(const pj of this.pjs)
       pj.initNewFight();
- }
+}
  
-  transferEquipment(
+transferEquipment(
     fromPjId: number,
     toPjId: number,
     equipmentId: number
   ) {
     // ...
-  }
+}
 
 
 dealXp(xp: number): XpResult[] {
@@ -185,25 +210,55 @@ sell(
 
 
 
-  canAfford(price: number): boolean {
+canAfford(price: number): boolean {
     return this.gold >= price;
-  }
+}
 
-  private spendGold(amount: number) {
+private spendGold(amount: number) {
     this.gold -= amount;
-  }
+}
 
-  private addGold(amount: number) {
+private addGold(amount: number) {
     this.gold += amount;
-  }
+}
 
-  
+moveEquipmentToPlayer(sourcePjId:number, targetPjId:number, equipmentId:number):boolean {
+    const sourcePj = this.getPj(sourcePjId);
+    const equipment = sourcePj.equipment.find(equip => (equip.id === equipmentId));
+    if(!equipment)
+        throw(new Error(`Equipement invalide`));
+
+    const targetPj = this.getPj(targetPjId);
+    if(equipment.type === "potion")
+    {
+      if(targetPj.addObjectFirstAvailableSlot(equipment))
+      {
+            sourcePj.removeEquipment(equipmentId);
+          return true;
+      }
+    }
+    if(equipment.type === "sword" || equipment.type === "helm" || equipment.type === "armor" || equipment.type === "shield")
+    {
+      if(targetPj.addEquipFirstAvailableSlot(equipment))
+      {
+            sourcePj.removeEquipment(equipmentId);
+             return true;
+      }
+    }
+    if(targetPj.addObjectFirstAvailableSlot(equipment))
+    {
+            sourcePj.removeEquipment(equipmentId);
+             return true;
+    }
+
+    return false;    
+}
 
 usePotion(
   authorId: number,
   targetId: number,
   potionId: number
-): ActionResult {
+): ActionResult[][] {
 
   const author = this.pjs.find(
     (pj) => pj.id === authorId
@@ -230,13 +285,22 @@ usePotion(
       "PJ cible introuvable"
     );
   }
+    console.log("potionId", potionId);
+   const potion = author.equipment.find(equip => (equip.id === potionId));
+   if (!potion) {
+      throw new Error(
+        "La potion n'a pas été trouvé"
+      );
+    }
 
   const result =
     target.drinkPotion(
       targetId,
-      potionId
+      potion
     );
 
+  author.removeEquipment(potionId);
+  
   author.spendAp(1);
 
   return result;

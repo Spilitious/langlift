@@ -1,0 +1,252 @@
+{
+  "date": "2026-09-19T08:55:26.009Z",
+  "currentRoomId": null,
+  "currentPageId": 20,
+  "currentShopId": null,
+  "consequenceIds": [
+    1,
+    19,
+    5,
+    7,
+    13,
+    22,
+    10
+  ],
+  "alchemyAccess": false,
+  "gladysRelation": {
+    "love": 0,
+    "trust": 2,
+    "gratitude": 4,
+    "admiration": 0,
+    "ressentment": 0,
+    "jealousy": 0
+  },
+  "roomPrologueTable": [],
+  "team": {
+    "pjs": [
+      {
+        "id": 1,
+        "image": 14,
+        "avatar": 1,
+        "name": "Troylan",
+        "level": 3,
+        "xp": 40,
+        "base_att": {
+          "constitution": 1,
+          "strength": 50,
+          "magicSkill": 0,
+          "currhp": 128,
+          "shield": 0
+        },
+        "bms": [],
+        "equipment": [
+          {
+            "id": 2,
+            "basicEquipmentId": 1,
+            "name": "Potion de vie",
+            "type": "potion",
+            "image": 1,
+            "width": 1,
+            "height": 1,
+            "price": 12,
+            "location": "belt",
+            "text": "Restaure 5 à 8 pv",
+            "x": null,
+            "y": null,
+            "bonus": {},
+            "beltSlot": 1
+          },
+          {
+            "id": 3,
+            "basicEquipmentId": 4,
+            "name": "Queue de rat",
+            "type": "ingredient",
+            "image": 1,
+            "width": 1,
+            "height": 1,
+            "price": 5,
+            "location": "inventory",
+            "text": "",
+            "x": 0,
+            "y": 0,
+            "bonus": {}
+          },
+          {
+            "id": 4,
+            "basicEquipmentId": 4,
+            "name": "Queue de rat",
+            "type": "ingredient",
+            "image": 1,
+            "width": 1,
+            "height": 1,
+            "price": 5,
+            "location": "inventory",
+            "text": "",
+            "x": 1,
+            "y": 0,
+            "bonus": {}
+          },
+          {
+            "id": 5,
+            "basicEquipmentId": 4,
+            "name": "Queue de rat",
+            "type": "ingredient",
+            "image": 1,
+            "width": 1,
+            "height": 1,
+            "price": 5,
+            "location": "inventory",
+            "text": "",
+            "x": 2,
+            "y": 0,
+            "bonus": {}
+          },
+          {
+            "id": 6,
+            "basicEquipmentId": 5,
+            "name": "Langue de crapaud",
+            "type": "ingredient",
+            "image": 2,
+            "width": 1,
+            "height": 1,
+            "price": 5,
+            "location": "inventory",
+            "text": "",
+            "x": 3,
+            "y": 0,
+            "bonus": {}
+          },
+          {
+            "id": 7,
+            "basicEquipmentId": 5,
+            "name": "Langue de crapaud",
+            "type": "ingredient",
+            "image": 2,
+            "width": 1,
+            "height": 1,
+            "price": 5,
+            "location": "inventory",
+            "text": "",
+            "x": 4,
+            "y": 0,
+            "bonus": {}
+          },
+          {
+            "id": 8,
+            "basicEquipmentId": 5,
+            "name": "Langue de crapaud",
+            "type": "ingredient",
+            "image": 2,
+            "width": 1,
+            "height": 1,
+            "price": 5,
+            "location": "inventory",
+            "text": "",
+            "x": 5,
+            "y": 0,
+            "bonus": {}
+          },
+          {
+            "id": 9,
+            "basicEquipmentId": 6,
+            "name": "Croc de chauve-souris",
+            "type": "ingredient",
+            "image": 3,
+            "width": 1,
+            "height": 1,
+            "price": 5,
+            "location": "inventory",
+            "text": "",
+            "x": 6,
+            "y": 0,
+            "bonus": {}
+          },
+          {
+            "id": 10,
+            "basicEquipmentId": 6,
+            "name": "Croc de chauve-souris",
+            "type": "ingredient",
+            "image": 3,
+            "width": 1,
+            "height": 1,
+            "price": 5,
+            "location": "inventory",
+            "text": "",
+            "x": 7,
+            "y": 0,
+            "bonus": {}
+          },
+          {
+            "id": 11,
+            "basicEquipmentId": 6,
+            "name": "Croc de chauve-souris",
+            "type": "ingredient",
+            "image": 3,
+            "width": 1,
+            "height": 1,
+            "price": 5,
+            "location": "inventory",
+            "text": "",
+            "x": 8,
+            "y": 0,
+            "bonus": {}
+          }
+        ],
+        "ability": [
+          {
+            "id": 33,
+            "basicAbilityId": 4,
+            "image": 3,
+            "name": "Autorégénération",
+            "school": "Gardien",
+            "type": "ability",
+            "detail": "Restaure les Pv du lanceur",
+            "target": "self",
+            "formula": "PV restaurés = 7 + 3 × Constitution",
+            "ap": 2,
+            "duration": 0,
+            "ignoreProvocation": false
+          },
+          {
+            "id": 66,
+            "basicAbilityId": 21,
+            "image": 30,
+            "name": "Charge",
+            "school": "Gardien",
+            "type": "ability",
+            "detail": "détruit le bouclier de la cible",
+            "target": "npc",
+            "formula": "Dégâts : 14 + 5×cons   ",
+            "ap": 1,
+            "duration": 0,
+            "ignoreProvocation": false
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "image": 13,
+        "avatar": 2,
+        "name": "Gladys",
+        "level": 0,
+        "xp": 0,
+        "base_att": {
+          "constitution": 0,
+          "strength": 0,
+          "magicSkill": 0,
+          "currhp": 18,
+          "shield": 0
+        },
+        "bms": [],
+        "equipment": [],
+        "ability": []
+      }
+    ],
+    "gold": 40,
+    "profession": {
+      "alchemy": 1,
+      "blacksmith": 0,
+      "armorsmith": 0
+    }
+  }
+}

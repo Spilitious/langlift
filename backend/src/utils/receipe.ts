@@ -1,9 +1,25 @@
-import { Const_Equipment } from "../types/basicEquipment.js";
+import { BASIC_EQUIPMENT_ID } from "../utils/constants.js";
 
+function recipeKey(...ingredients: number[]): string {
+  return [...ingredients]
+    .sort((a, b) => a - b)
+    .join("-");
+}
 const alchemyRecipes: Record<string, number> = {
-  "1-2": Const_Equipment.HP_POTION,  
-  "2-3": Const_Equipment.STR_POTION,
-  "1-3": Const_Equipment.MM_POTION,
+  [recipeKey(
+    BASIC_EQUIPMENT_ID.TOAD_TONGUE,
+    BASIC_EQUIPMENT_ID.RAT_TAIL
+  )]: BASIC_EQUIPMENT_ID.HP_POTION,
+
+  [recipeKey(
+    BASIC_EQUIPMENT_ID.RAT_TAIL,
+    BASIC_EQUIPMENT_ID.BAT_FANG,
+  )]: BASIC_EQUIPMENT_ID.STR_POTION,
+
+  [recipeKey(
+    BASIC_EQUIPMENT_ID.TOAD_TONGUE,
+    BASIC_EQUIPMENT_ID.BAT_FANG
+  )]: BASIC_EQUIPMENT_ID.MM_POTION,
 };
 
 function getRecipeKey(

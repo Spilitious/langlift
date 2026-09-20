@@ -17,10 +17,7 @@ import Shop from "./shop/Shop";
 
 export default function Game() {
 
-   const {
-    gameState,
-    setGameState,
-  } = useGame();
+   const { gameState, setGameState} = useGame();
 
    if (!gameState) {
     return null; // plus tard écran de chargement
@@ -29,30 +26,16 @@ export default function Game() {
   const currentPageId = gameState.currentPageId;
   const currentRoomId = gameState.currentRoomId;
   const currentShopId = gameState.currentShopId;
-  const currentProfessionId = gameState.currentProfessionId;
 
 
-const handleDestination = async (
-  destination: HistoryDestination
-) => {
-  const newGameState =
-    await applyDestination(destination);
-
-  setGameState(newGameState);
-
-  
+  const handleDestination = async (destination: HistoryDestination) => {
+  const newGameState =   await applyDestination(destination);
+  setGameState(newGameState);  
 };
 
   return (
     <main
-      style={{
-        position: "relative",
-        width: "100vw",
-        height: "100vh",
-        overflow: "hidden",
-          backgroundImage:
-            'url("/ui/35.png")',
-      }}
+      
     >
       {currentPageId !== null && (
         <History
@@ -73,12 +56,7 @@ const handleDestination = async (
           onDestination={handleDestination}
         />
       )}
-      {currentProfessionId !== null && (
-        <Profession
-          professionId={currentProfessionId}
-          onDestination={handleDestination}
-        />
-      )}
+    
       
       
     </main>

@@ -10,6 +10,7 @@ import type { FightPopup } from "../../../shared/types/fightPopUp";
 import type {
   NpcSprite,
   PjSprite,
+  
  
 } from "@/types/fighterSprite";
 
@@ -17,25 +18,18 @@ import type {
 type BattlefieldProps = {
   pjs: PjSprite[];
   npcs: NpcSprite[];
-   previewApCost:number;
+  previewApCost:number;
+  canTargetNpc: (npcId:number) => boolean;
 
   selectedPjId: number;
   selectedNpcId: number | undefined;
 
   onPjClick: (id: number) => void;
   onNpcClick: (id: number) => void;
-
-  onAuthorImpact: (
-    fighterType: "pj" | "npc",
-    fighterId: number
-  ) => void;
-
-  onReactionImpact: (
-    fighterType: "pj" | "npc",
-    fighterId: number
-  ) => void;
-
-  onReactionEnd: () => void;
+  onAnimationEnd: (
+  fighterType: "pj" | "npc",
+  fighterId: number
+) => void;
  
 
   fightPopups: FightPopup[];
@@ -52,13 +46,13 @@ type BattlefieldProps = {
 export default function Battlefield({
   pjs,
   npcs,
+  canTargetNpc,
   selectedPjId,
   selectedNpcId,
   onPjClick,
   onNpcClick,
-  onAuthorImpact,
-  onReactionImpact,
-  onReactionEnd,
+  onAnimationEnd,
+ 
   previewApCost,
   
   fightPopups,
@@ -67,10 +61,6 @@ export default function Battlefield({
 }: BattlefieldProps) {
   
 
-  console.log(
-  "NPCS BATTLEFIELD",
-  npcs.map(npc => npc.id)
-);
 
 
   // =========================================================
@@ -97,10 +87,9 @@ export default function Battlefield({
           pj_data={pj}
           onClick={() => onPjClick(pj.id)}
           selected={selectedPjId === pj.id}
-          onAuthorImpact={() => onAuthorImpact("pj", pj.id)}
+         
           previewApCost={pj.id === selectedPjId ? previewApCost : 0}
-          onReactionImpact={() => onReactionImpact("pj", pj.id )}
-          onReactionEnd={() => onReactionEnd()}
+          onAnimationEnd={onAnimationEnd}
           onEquipmentDrop={() => onDropEquipmentOnPj(pj.id)}
         /> 
       ))}
@@ -114,35 +103,18 @@ export default function Battlefield({
       {npcs.map((npc) => ( 
         <Npc
           key={npc.id}
-           onClick={() => {
-    console.log(
-      "NPC_ID",
-      npc.id
-    );
-      onNpcClick(npc.id)}}
+          onClick={() => {
+          
+          onNpcClick(npc.id)}}
+          canTargetNpc={canTargetNpc}
           selected={selectedNpcId === npc.id}
           npc_data={npc}
 
-          onAuthorImpact={() =>
-            onAuthorImpact(
-              "npc",
-              npc.id
-            )
-          }
+       
 
-          onReactionImpact={() =>
-            onReactionImpact(
-              "npc",
-              npc.id
-            )
-          }
+          onAnimationEnd={onAnimationEnd}
 
-          onReactionEnd={() =>
-            onReactionEnd()
-
-        
-          }
-
+      
           
         />
       ))}</div>

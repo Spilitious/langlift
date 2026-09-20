@@ -33,9 +33,11 @@ type PjProps = {
    selected:boolean;
    previewApCost:number;
     onClick: () => void;
-    onAuthorImpact?: () => void;
-    onReactionImpact?: () => void;
-    onReactionEnd: () => void;
+   
+    onAnimationEnd: (
+  fighterType: "pj" | "npc",
+  fighterId: number
+) => void;
     onEquipmentDrop: () => void;
 };
 
@@ -43,11 +45,8 @@ export default function Pj({
   pj_data,
   selected,
   onClick,
-  onAuthorImpact,
-  onReactionImpact,
   previewApCost,
-  
-  onReactionEnd,
+  onAnimationEnd,
   onEquipmentDrop,
 }: PjProps) {
 
@@ -55,129 +54,135 @@ export default function Pj({
    const animationType = getAnimationType(pj_data.animation.name);
    const [x, y] = getPjPosition(pj_data.position);
 
+const handleAnimationEnd = () => {
+  onAnimationEnd("pj", pj_data.id);
+};
 
 let animationContent;
 
-switch (animationType) {
- case "frame":
+if (pj_data.isUnconscious) {
   animationContent = (
-    <PjFrameAnimation
-      image={pj_data.image}
-      animationName={
-        pj_data.animation.name as FrameAnimationName
-      }
-      trigger={pj_data.animation.id}
-
-      onImpact={
-        pj_data.animation.name === "attack"
-          ? onAuthorImpact
-          : onReactionImpact
-      }
-
-      onEnd={
-        pj_data.animation.name === "attack"
-          ? undefined
-          : onReactionEnd
-      }
-    />
-  );
-  break;
-
-  case "overlay":
-  animationContent = (
-    <>
-      <div
-        onClick={onClick}
-        style={{
-          position: "relative",
-          zIndex: 1,
-        }}
-      >
-        <img
-          src={
-            getPjImagePath(pj_data.image) +
-            "-idle.png"
+        <div
+          style={{
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          <img
+            src={
+              getPjImagePath(pj_data.image) +
+              "-dead.png"
+            }
+            className="fighter-sprite"
+          />
+        </div>
+      );
+      
+} else {
+  switch (animationType) {
+    case "frame":
+      animationContent = (
+        <PjFrameAnimation
+          image={pj_data.image}
+          animationName={
+            pj_data.animation.name as FrameAnimationName
           }
-          className="fighter-sprite"
-          draggable={false}
+          trigger={pj_data.animation.id}
+          onEnd={handleAnimationEnd}
         />
-      </div>
+      );
+      break;
 
-      <OverlayAnimation
-        animationName={
-          pj_data.animation.name as OverlayAnimationName
-        }
-        trigger={pj_data.animation.id}
-        onImpact={onReactionImpact}
-        onEnd={onReactionEnd}
-      />
-    </>
-  );
-  break;
-  
-   case "blocked":
-  animationContent = (
-    <>
-      <div
-        onClick={onClick}
-        style={{
-          position: "relative",
-          zIndex: 1,
-        }}
-      >
-        <img
-          src={
-            getPjImagePath(pj_data.image) +
-            "-idle.png"
-          }
-          className="fighter-sprite"
-          draggable={false}
+    case "overlay":
+      animationContent = (
+        <>
+          <div
+            onClick={onClick}
+            style={{
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            <img
+              src={
+                getPjImagePath(pj_data.image) +
+                "-idle.png"
+              }
+              className="fighter-sprite"
+              draggable={false}
+            />
+          </div>
+
+          <OverlayAnimation
+            animationName={
+              pj_data.animation.name as OverlayAnimationName
+            }
+            trigger={pj_data.animation.id}
+            onEnd={handleAnimationEnd}
+          />
+        </>
+      );
+      break;
+
+    case "blocked":
+      animationContent = (
+        <>
+          <div
+            onClick={onClick}
+            style={{
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            <img
+              src={
+                getPjImagePath(pj_data.image) +
+                "-idle.png"
+              }
+              className="fighter-sprite"
+              draggable={false}
+            />
+          </div>
+
+          <PjBlockAnimation
+            trigger={pj_data.animation.id}
+            onEnd={handleAnimationEnd}
+          />
+        </>
+      );
+      break;
+
+    case "death":
+      animationContent = (
+        <PjDeathAnimation
+          trigger={pj_data.animation.id}
+          onHideUi={() => setShowUi(false)}
+          onEnd={handleAnimationEnd}
+          image={pj_data.image}
         />
-      </div>
+      );
+      break;
 
-      <PjBlockAnimation
-        trigger={pj_data.animation.id}
-        onImpact={onReactionImpact}
-        onEnd={onReactionEnd}
-      />
-    </>
-  );
-  break;
-    
-    
-
-  case "death":
-    animationContent = (
-      <PjDeathAnimation
-        
-        trigger={pj_data.animation.id}
-        onImpact={onReactionImpact}
-        onHideUi={() => setShowUi(false)}
-        onEnd={onReactionEnd}
-        image={pj_data.image}
-      />
-    );
-    break;
-
-  case "idle":
-    animationContent = (
-      <div
-        onClick={onClick}
-        style={{
-          position: "relative",
-          zIndex: 1,
-        }}
-      >
-        <img
-          src={
-            getPjImagePath(pj_data.image) +
-            "-idle.png"
-          }
-          className="fighter-sprite"
-        />
-      </div>
-    );
-    break;
+    case "idle":
+      animationContent = (
+        <div
+          onClick={onClick}
+          style={{
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          <img
+            src={
+              getPjImagePath(pj_data.image) +
+              "-idle.png"
+            }
+            className="fighter-sprite"
+          />
+        </div>
+      );
+      break;
+  }
 }
 
   return (
@@ -198,7 +203,7 @@ switch (animationType) {
         style={{
           position: "absolute",
           left: "50%",
-          bottom: "15px",
+          bottom: "-5px",
           width: "150px",
           height: "35px",
           transform: "translateX(-50%)",
@@ -252,7 +257,7 @@ switch (animationType) {
     <Bm
     bms={pj_data.bms}
     armor={pj_data.stats.armor}
-    size={28}/>
+    />
   </div>
 
 <div

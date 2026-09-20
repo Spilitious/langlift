@@ -3,10 +3,11 @@
 import { useGame } from "@/context/GameContext";
 import { getImageEquipment } from "@/utils/spritePaths";
 import type { EquipmentView } from "@shared/types/equipmentView";
+import { ShopView } from "@shared/types/shopView";
 
 type ShopInventoryProps = {
   draggedEquipmentId: number | null;
-
+  
   onEquipmentPointerDown: (
     event: React.PointerEvent,
     equipmentId: number
@@ -21,18 +22,15 @@ export default function ShopInventory({
   draggedEquipmentId,
   onEquipmentPointerDown,
   onDropOnShop,
+  
 }: ShopInventoryProps) {
 
   const { gameState } = useGame();
+  if (!gameState || !gameState.shop) return null;
 
-  if (!gameState) return null;
 
-  const shop = gameState.shops[0];
-
-  if (!shop) return null;
-
-  const shopEquipments = shop.equipments;
-
+  const shopEquipments = gameState.shop.equipments;
+  console.log(shopEquipments)
 
 const handlePointerUp = (
   event: React.PointerEvent<HTMLDivElement>
@@ -48,16 +46,30 @@ const handlePointerUp = (
 
   
 return (
-  <main>
+ <main
+  style={{
+    width: "94%",
+    height: "100%",
+    marginLeft: "auto",
+    marginRight: "auto",
+    overflow: "hidden",
+  }}
+>
     <div
    
       style={{
-        position: "absolute",
-        inset: 0,
+      
         width: "100%",
         height: "100%",
         display: "flex",
         overflow: "hidden",
+        backgroundColor: "rgba(0, 0, 0, 0.58)",
+        border: "2px solid #6f5730",
+        borderRadius: "10px",
+        boxSizing: "border-box",
+        color: "#e8d7a5",
+        userSelect:"none",
+       
       }}
     >
       {/* ========================= */}
@@ -68,19 +80,10 @@ return (
        onPointerUp={handlePointerUp}
         style={{
           
-          width: "70%",
+          width: "65%",
           height: "100%",
-
-          backgroundImage:
-            'url("/ui/background-texte.png")',
-
-          backgroundSize: "100% 100%",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center",
-
-          paddingTop: "40px",
+          paddingTop: "0px",
           boxSizing: "border-box",
-
           zIndex: 1,
         }}
       >
@@ -98,10 +101,10 @@ return (
             alignContent: "start",
 
             gap: "30px",
-            padding: "20px",
+            padding: "10px",
 
             boxSizing: "border-box",
-            overflowY: "auto",
+         //   overflowY: "auto",
           }}
         >
           {shopEquipments.map((equipment) => {
@@ -250,7 +253,7 @@ return (
       <div
         style={{
           position: "relative",
-          width: "30%",
+          width: "35%",
           height: "100%",
           overflow: "visible",
         }}
@@ -262,11 +265,11 @@ return (
           style={{
             position: "absolute",
 
-            left: "-100px",
+           // left: "-100px",
             top: "30px",
 
             width: "100%",
-            height: "90%",
+            height: "100%",
 
             transform: "scaleX(1.15)",
             transformOrigin: "left center",
@@ -283,23 +286,7 @@ return (
           }}
         />
 
-        <img
-          src="/ui/background-image3.png"
-          alt=""
-          draggable={false}
-          style={{
-            position: "absolute",
-            inset: 0,
-
-            width: "100%",
-            height: "100%",
-
-            objectFit: "fill",
-
-            zIndex: 3,
-            pointerEvents: "none",
-          }}
-        />
+     
       </div>
     </div>
   </main>

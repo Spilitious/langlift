@@ -37,12 +37,12 @@ export default function HistoryTeamDisplay({
           onClick={() => onSelectPlayer(player.id)}
           style={{
             position: "relative",
-
+            cursor: 'url("/ui/cursor/cursor6.png") 0 0, pointer',
             width: 130,
             height: 130,
             flexShrink: 0,
 
-            cursor: "pointer",
+            
           }}
         >
 

@@ -9,7 +9,9 @@ export type BasicBm = {
   name: string;
   image: number;
   life:number;
+  removable:boolean;
   display:BmDisplay;
+  mainStat:StatName;
   type:BmType;
   bonus: Partial<Record<StatName, number>>;
 

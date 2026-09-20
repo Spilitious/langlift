@@ -6,6 +6,8 @@ type MainButtonProps = {
   onClick: () => void;
   name:string;
   disabled?: boolean;
+  width?:number;
+  height?:number;
 
 };
 
@@ -13,6 +15,8 @@ export default function MainButton({
   onClick,
   disabled = false,
   name,
+  width = 200,
+  height = 80,
 }: MainButtonProps) {
   const [hover, setHover] = useState(false);
   const [pressed, setPressed] = useState(false);
@@ -48,16 +52,16 @@ export default function MainButton({
       }}
       
       style={{
-        width: "200px",
-        height: "80px",
+        width: `${width}px`,
+        height: `${height}px`,
 
         padding: 0,
         border: "none",
         background: "transparent",
 
-       // cursor: disabled
-       // ? "not-allowed"
-       // : 'url("/ui/cursor/cursor6.png") 0 0, pointer',
+        cursor: disabled
+        ? "not-allowed"
+        : 'url("/ui/cursor/cursor6.png") 0 0, pointer',
        
         overflow: "hidden",
 

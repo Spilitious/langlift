@@ -2,10 +2,14 @@
 
 import MainButton from "@/components/button/MainButton";
 import type { PjView } from "@shared/types/fighterView";
+import { BaseAttributes } from "@shared/types/label";
+import { getBasicAbility } from "../../../backend/src/utils/basicAbility_data";
 
 type LevelUpConfirmationProps = {
   pj: PjView;
   hp: number;
+  basicAbilityNameLearnt?:string;
+  attribute?: string | undefined;
   onContinue: () => void;
 };
 
@@ -13,7 +17,10 @@ export default function LevelUpConfirmation({
   pj,
   onContinue,
   hp,
+  basicAbilityNameLearnt,
+  attribute,
 }: LevelUpConfirmationProps) {
+
 
   return (
     <div
@@ -69,12 +76,26 @@ export default function LevelUpConfirmation({
           }}
         >
           <div>
-            {pj.name} atteint le niveau {pj.level}
+            {pj.name} atteint le niveau {pj.level+1}
           </div>
 
+        
+         {basicAbilityNameLearnt !== undefined && (
           <div>
+          {pj.name} a appris {basicAbilityNameLearnt}
+          </div>
+          )}
+
+          {attribute !== undefined && (
+          <div>
+          {pj.name} a gagné 1 point de {attribute}
+          </div>
+          )}
+            <div>
             {pj.name} gagne {hp} points de vie
           </div>
+
+
         </div>
 
         {/* BOUTON */}
@@ -86,8 +107,11 @@ export default function LevelUpConfirmation({
           }}
         >
           <MainButton 
-          onClick={onContinue}
-          name="next" />
+          onClick={() => {
+   
+    onContinue();
+  }}
+          name="validate" />
         </div>
       </div>
     </div>

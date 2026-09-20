@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { gameState } from "../game/gameStateInstance.js";
+import { getGameState,setGameState } from "../game/gameStateInstance.js";
 
 
 const router = Router();
@@ -9,10 +9,17 @@ router.post(
   (req, res) => {
     const {
       pjId,
-      ingredientIds,
-      power,
+     
     } = req.body;
 
+    const gameState = getGameState();
+
+    if (!gameState) {
+    return res.status(404).json({
+      error: "Aucune partie en cours",
+    });
+  }
+  
     const pj = gameState.team.pjs.find(
       pj => pj.id === pjId
     );
@@ -23,11 +30,9 @@ router.post(
       });
     }
 
-    const result = pj.makePotion(
-      ingredientIds,
-      power
-    );
-
+    console.log("route ok")
+    const result = pj.makePotion();
+    console.log(result);
     res.json({
       success: result.potion !== null,
       ingredientUsed: result.ingredientUsed,
@@ -36,3 +41,6 @@ router.post(
     });
   }
 );
+
+
+export default router;

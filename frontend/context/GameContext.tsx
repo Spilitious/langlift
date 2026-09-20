@@ -11,7 +11,7 @@ import {
 } from "react";
 
 import type { GameStateView } from "@shared/types/gameStateView";
-import { loadGameState } from "@/utils/api/gameStateApi";
+import { reloadGameState } from "@/utils/api/gameStateApi";
 
 type GameContextType = {
   gameState: GameStateView | null;
@@ -34,7 +34,7 @@ export function GameProvider({
 
    useEffect(() => {
     const initGame = async () => {
-      const data = await loadGameState();
+      const data = await reloadGameState();
       setGameState(data);
     };
 

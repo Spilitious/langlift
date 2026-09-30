@@ -1,17 +1,5 @@
 import type { HistoryChoice } from "../types/history";
 
-export const Choice1: HistoryChoice = {
-  choices: [
-    {
-      id:1,
-      text: "Next",
-      destination: {
-        type: "text",
-        id: 2,
-      },
-    },
-     ],
-};
 
 // Avant le combat du rat
 export const Choice2: HistoryChoice = {
@@ -49,49 +37,6 @@ export const Choice2: HistoryChoice = {
 };
 
 
-// Vers le combat du rat 
-export const Choice3: HistoryChoice = {
-  choices: [
-    {
-      id:5,
-      text: "Combattre",
-      destination: {
-        type: "fight",
-        id: 1,
-      },
-    },
-  ],
-};
-
-
-// Vers le marecage
-export const Choice4: HistoryChoice = {
-  choices: [
-    {
-      id:6,
-      text: "Next",
-      destination: {
-        type: "text",
-        id: 5,
-      },
-    },
-  ],
-};
-
-
-// Vers le crapaud
-export const Choice5: HistoryChoice = {
-  choices: [
-    {
-      id:7,
-      text: "Next",
-      destination: {
-        type: "text",
-        id: 6,
-      },
-    },
-  ],
-};
 
 // Choix de la potion
 export const Choice6: HistoryChoice = {
@@ -129,49 +74,8 @@ export const Choice6: HistoryChoice = {
 };
 
 
-// Combat contre le crapaud
-export const Choice7: HistoryChoice = {
-  choices: [
-    {
-      id:11,
-      text: "Combattre",
-      destination: {
-        type: "fight",
-        id: 3,
-      },
-    },
-  ],
-};
 
 
-//Fin du combat contre le crapaud
-export const Choice8: HistoryChoice = {
-  choices: [
-    {
-      id:12,
-      text: "Next",
-      destination: {
-        type: "text",
-        id: 11,
-      },
-    },
-  ],
-};
-
-
-//Arrivé dans la grotte
-export const Choice9: HistoryChoice = {
-  choices: [
-    {
-      id:13,
-      text: "Next",
-      destination: {
-        type: "text",
-        id: 12,
-      },
-    },
-  ],
-};
 
 
 // Choix du type de poursuite de Gladys
@@ -196,96 +100,6 @@ export const Choice10: HistoryChoice = {
       }
     },
          
-  ],
-};
-
-
-// Annonce du combat contre les chauves souris
-export const Choice11: HistoryChoice = {
-  choices: [
-    {
-      id:16,
-      text: "Combattre",
-      destination: {
-        type: "fight",
-        id: 5,
-      },
-    },
-  ],
-};
-
-// Rencontre avec Gladys
-export const Choice12: HistoryChoice = {
-  choices: [
-    {
-      id:17,
-      text: "Next",
-      destination: {
-        type: "text",
-        id: 15,
-      },
-    },
-  ],
-};
-
-
-// Dialogue avec Gladys
-export const Choice13: HistoryChoice = {
-  choices: [
-    {
-      id:18,
-      text: "Next",
-      destination: {
-        type: "text",
-        id: 16,
-      },
-    },
-  ],
-};
-
-
-// Quittons la grotte
-export const Choice14: HistoryChoice = {
-  choices: [
-    {
-      id:19,
-      text: "Next",
-      destination: {
-        type: "text",
-        id: 17,
-        consequenceId:22,
-      },
-    },
-  ],
-};
-
-
-// Le vieillard
-export const Choice15: HistoryChoice = {
-  choices: [
-    {
-      id:20,
-      text: "Next",
-      destination: {
-        type: "text",
-        id: 18,
-      },
-    },
-  ],
-};
-
-
-// Le campement
-export const Choice16: HistoryChoice = {
-  choices: [
-    {
-       id:21,
-      text: "Next",
-      destination: {
-        type: "text",
-        id: 19,
-      },
-    },
   ],
 };
 
@@ -326,39 +140,24 @@ export const Choice17: HistoryChoice = {
 };
 
 
-// Combat contre les loups
-export const Choice18: HistoryChoice = {
-  choices: [
-    {
-       id:25,
-      text: "Combattre",
-      destination: {
-        type: "fight",
-        id: 6,
-      },
-    },
-  ],
-};
-
-
 // Choix de confiance envers Gladys
-export const Choice19: HistoryChoice = {
+export const Choice61: HistoryChoice = {
   choices: [
     {
        id:26,
-      text: "Décider de faire confiance à Gladys et lui raconter votre amnésie partielle et votre réveil dans les égouts.",
+      text: "Faire confiance à Gladys et raconter l'histoire complète de votre amnésie partielle et votre réveil dans les égouts.",
       destination: {
         type: "text",
-        id: 21,
+        id: 66,
          consequenceId:13, 
       },
     },
     {
        id:27,
-      text: "Lui répondre honnêtement, mais rester vague sur votre amnésie et les circonstances de votre réveil.",
+      text: "Répondre honnêtement, mais rester vague sur votre amnésie et les circonstances de votre réveil.",
       destination: {
         type: "text",
-        id: 21,
+        id: 66,
          consequenceId:14, 
       },
     },
@@ -367,28 +166,14 @@ export const Choice19: HistoryChoice = {
       text: "Inventer une histoire. Après tout, vous ne connaissez presque rien de cette jeune femme.",
       destination: {
         type: "text",
-        id: 21,
+        id: 66,
          consequenceId:15, 
       },
     },
   ],
 };
 
-
-// Fin du combat contre les loups
-export const Choice20: HistoryChoice = {
-  choices: [
-    {
-       id:29,
-      text: "Next",
-      destination: {
-        type: "text",
-        id: 23,
-      },
-    },
-  ],
-};
-
+// Choix de l'équipment de récompenses pour avoir sauver le vieil homme des loups
 export const Choice21: HistoryChoice = {
   choices: [
     {
@@ -422,19 +207,6 @@ export const Choice21: HistoryChoice = {
 };
 
 
-// Le récit du chef de la garde
-export const Choice22: HistoryChoice = {
-  choices: [
-    {
-       id:33,
-      text: "Next",
-      destination: {
-        type: "text",
-        id: 25,
-      },
-    },
-  ],
-};
 
 
 
@@ -453,7 +225,7 @@ export const Choice23: HistoryChoice = {
 };
 
 
-// Gladys entraine troylan au shop
+// Choix du métier
 export const Choice24: HistoryChoice = {
    choices: [
     {
@@ -487,32 +259,170 @@ export const Choice24: HistoryChoice = {
 };
 
 
-// Gladys entraine troylan au shop
-export const Choice25: HistoryChoice = {
+
+// Choix du bouclier
+export const Choice28: HistoryChoice = {
   choices: [
     {
-       id:35,
-      text: "Next",
+       id:38,
+      text: "Laissez passer l'occasion. Le jeu n'en vaut pas la chandelle",
       destination: {
         type: "text",
-        id: 20,
+        id: 31,
+         consequenceId:22, 
       },
     },
-  ],
+    {
+       id:39,
+      text: "Descendre dans la crevasse chercher le bouclier",
+      destination: {
+        type: "text",
+        id: 48,
+         consequenceId:23, 
+      },
+    },
+    {
+       id:40,
+      text: "Demander à Gladys de descendre chercher le bouclier.",
+      destination: {
+        type: "text",
+        id: 49,
+         consequenceId:24, 
+      },
+    },
+  ]
 };
 
 
-// Gladys entraine troylan au shop
-export const Choice26: HistoryChoice = {
+// Choix de redescente
+export const Choice32: HistoryChoice = {
   choices: [
     {
-       id:36,
-      text: "Next",
+       id:39,
+      text: "Empruntez les anciennes mines",
       destination: {
-        type: "fight",
-        id: 7,
+        type: "text",
+        id: 35,     
+      },
+    },
+    {
+       id:40,
+      text: "Tentez malgré tout de redescendre par le sentier",
+      destination: {
+        type: "text",
+        id: 51, 
+        consequenceId:22,      
+      },
+    }
+  ],
+};
+
+
+
+// Liberer le prisonnier
+export const Choice36: HistoryChoice = {
+  choices: [
+    {
+       id:43,
+      text: " Tenter de libérer discrètement le prisonnier avant d'affronter les kobolds.",
+      destination: {
+        type: "text",
+        id: 40,  
+      }
+    },
+       {
+       id:44,
+      text: "Affrontez les trois Kobolds puis libérer le prisonnier.",
+      destination: {
+        type: "text",
+        id: 39,       
+      },
+       }
+  ],
+};
+
+
+// Aider Siguis
+export const Choice42: HistoryChoice = {
+  choices: [
+    {
+       id:50,
+      text: "Confier les racines de Grisal à Siguis et lui souhaiter bonne chance.",
+      destination: {
+        type: "text",
+        id: 102,
+         
+      },
+    },
+    {
+       id:51,
+      text: "Proposer à Siguis de lui vendre les racines avant de reprendre votre route avec Gladys.",
+      destination: {
+        type: "text",
+        id: 103,
+        
+      }
+    },
+       {
+       id:52,
+      text: "Accepter de suivre le plan de Siguis.",
+      destination: {
+        type: "text",
+        id: 45,
+        consequenceId:25       
+      },
+       }
+  ],
+};
+
+
+// Le choix d'ouvrir le tombeau
+export const Choice48: HistoryChoice = {
+  choices: [
+    {
+      id:58,
+      text: "Ecouter la sagesse de Siguis et laisser le tombeau scellé",
+      destination: {
+        type: "text",
+        id: 57,
+         
+      },
+    },
+    {
+       id:59,
+      text: "Affronter le chatiment réservés aux pilleurs de tombeau",
+      destination: {
+        type: "text",
+        id: 55,
+        
+      }
+    }
+  ],
+};
+
+
+// Le choix  Racine ou Fermier
+export const Choice67: HistoryChoice = {
+  choices: [
+    {
+      id:72,
+      text: "Allez dans le sens de Gladys et accepter de venir en aide aux familles de fermier",
+      destination: {
+        type: "text",
+        id: 73,
+      },
+    },
+     {
+      id:73,
+      text: "Partir pour la montagne. Vous aiderez les fermier si vous en avez encore le temps.",
+      destination: {
+        type: "text",
+        id: 29,
       },
     },
   ],
 };
 
+
+
+ 

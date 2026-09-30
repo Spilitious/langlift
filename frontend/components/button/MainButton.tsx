@@ -21,7 +21,13 @@ export default function MainButton({
   const [hover, setHover] = useState(false);
   const [pressed, setPressed] = useState(false);
 
-
+  const handleClick = () => {
+      const audio = new Audio(`/sounds/click.mp3`);
+      audio.volume = 0.5;
+      audio.play();
+      onClick();
+  }
+  
   const image =
     !disabled && pressed
       ? `/button/button-${name}-pressed.png`
@@ -31,7 +37,7 @@ export default function MainButton({
 
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
       disabled={disabled}
      // className="clickable"
       onMouseEnter={() => {

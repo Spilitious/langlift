@@ -14,6 +14,7 @@ type AppScreen =
 
 type AppContextType = {
   screen: AppScreen;
+  windowSize: {width:number, height:number};
   setScreen: (
     screen: AppScreen
   ) => void;
@@ -30,6 +31,30 @@ export function AppProvider({
  const [screen, setScreenState] =
   useState<AppScreen>("menu");
 
+  const [windowSize, setWindowSize] = useState({
+  width: 0,
+  height: 0,
+});
+
+useEffect(() => {
+  const handleResize = () => {
+    setWindowSize({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+  };
+
+  // Taille initiale
+  handleResize();
+
+  window.addEventListener("resize", handleResize);
+
+  return () => {
+    window.removeEventListener("resize", handleResize);
+  };
+}, []);
+
+
 useEffect(() => {
   const savedScreen =
     localStorage.getItem("screen") as AppScreen | null;
@@ -41,17 +66,19 @@ useEffect(() => {
 
 const setScreen = (screen: AppScreen) => {
   setScreenState(screen);
-
+   
   localStorage.setItem(
     "screen",
     screen
   );
 };
+
   return (
     <AppContext.Provider
       value={{
         screen,
         setScreen,
+        windowSize,
       }}
     >
       {children}

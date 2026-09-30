@@ -146,6 +146,7 @@ if (pj_data.isUnconscious) {
 
           <PjBlockAnimation
             trigger={pj_data.animation.id}
+            
             onEnd={handleAnimationEnd}
           />
         </>
@@ -164,9 +165,10 @@ if (pj_data.isUnconscious) {
       break;
 
     case "idle":
+      
       animationContent = (
         <div
-          onClick={onClick}
+        onClick={onClick}
           style={{
             position: "relative",
             zIndex: 1,
@@ -188,13 +190,19 @@ if (pj_data.isUnconscious) {
   return (
   
   <div
+    
+    onPointerMove={(e) => {
+   
+  }}
     onPointerUp={onEquipmentDrop}
     style={{
       position: "absolute",
       left: `${x}%`,
       top: `${y}%`,
-      width: "240px",
-      height: "160px",
+     width: "240px",
+    height: "160px", 
+
+   
       overflow: "visible",
     }}
   >
@@ -224,7 +232,9 @@ if (pj_data.isUnconscious) {
         {showUi && (
   <> 
       <div
-  style={{
+    style={{
+      position: "relative", // IMPORTANT
+    zIndex: 20,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -249,21 +259,27 @@ if (pj_data.isUnconscious) {
     </div>
 </div>
 <div
-    style={{
-      marginLeft: "30px",
-      marginTop: "-30px",
-    }}
-  >
-    <Bm
+  style={{
+    position: "relative", // IMPORTANT
+    zIndex: 30,
+
+    marginLeft: "30px",
+    marginTop: "-30px",
+  }}
+>
+  <Bm
     bms={pj_data.bms}
     armor={pj_data.stats.armor}
-    />
-  </div>
+  />
+</div>
 
 <div
   style={{
+    zIndex: 10,
     position: "absolute",
-    top: "30px",
+    top: "-5px",
+    width: "fit-content",
+    
   }}
 >
   <ActionPoints

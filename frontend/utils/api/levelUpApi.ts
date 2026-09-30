@@ -19,6 +19,24 @@ export async function getLearnableAbilities(
   return response.json();
 }
 
+
+export async function getLearnableTalent(
+  pjId: number
+): Promise<AbilityView[]> {
+  const response = await fetch(
+    `http://localhost:3001/api/levelUp/learnableTalents/${pjId}`
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Erreur lors du chargement des abilities"
+    );
+  }
+
+  return response.json();
+}
+
+
 export async function learnAbility(
   pjId: number,
   abilityId: number
@@ -45,6 +63,8 @@ export async function learnAbility(
 
    return response.json();
 }
+
+
 
 
 export async function learnAttribut(

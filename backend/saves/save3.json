@@ -1,9 +1,11 @@
 {
-  "date": "2026-09-19T20:05:00.995Z",
+  "date": "2026-09-28T10:51:45.064Z",
   "currentRoomId": null,
-  "currentPageId": 2,
+  "currentPageId": 3,
   "currentShopId": null,
-  "consequenceIds": [],
+  "consequenceIds": [
+    1
+  ],
   "alchemyAccess": false,
   "gladysRelation": {
     "love": 0,
@@ -24,12 +26,13 @@
         "level": 1,
         "xp": 0,
         "base_att": {
-          "constitution": 0,
-          "strength": 0,
+          "constitution": 1,
+          "strength": 50,
           "magicSkill": 0,
-          "currhp": 20,
+          "currhp": 72,
           "shield": 0
         },
+        "fight_absent": 0,
         "bms": [],
         "equipment": [],
         "ability": []

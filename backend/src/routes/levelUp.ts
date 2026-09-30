@@ -40,6 +40,43 @@ router.get("/levelUp/learnable/:pjId", (req, res) => {
   }
 });
 
+
+router.get("/levelUp/learnableTalents/:pjId", (req, res) => {
+  try {
+    const pjId = Number(req.params.pjId);
+
+    if (!Number.isInteger(pjId)) {
+      return res.status(400).json({
+        error: "pjId invalide",
+      });
+    }
+
+    const gameState = getGameState();
+
+    if (!gameState) {
+    return res.status(404).json({
+      error: "Aucune partie en cours",
+    });
+  }
+
+    const abilities =
+      gameState.team.getLearnableTalents(pjId);
+
+    return res.json(abilities);
+
+  } catch (error) {
+    console.error(
+      "Erreur récupération abilities :",
+      error
+    );
+
+    return res.status(400).json({
+      error: "Impossible de récupérer les abilities",
+    });
+  }
+});
+
+
 router.post("/levelUp/learnAbility", (req, res) => {
   try {
     const {

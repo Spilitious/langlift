@@ -7,6 +7,7 @@ import NpcBlockAnimation from "../animations/NpcBlockAnimation";
 import NpcDeathAnimation from "../animations/NpcDeathAnimation";
 import OverlayAnimation from "../animations/OverlayAnimation";
 import ShakeAnimation from "../animations/ShakeAnimation";
+import NpcSpawnAnimation from "../animations/NpcSpawnAnimation";
 import NpcIntentChangeAnimation from "../animations/NpcIntentChangeAnimation";
 import { getNpcPosition, getSizeNpc } from "@/utils/fighterPosition";
 
@@ -129,7 +130,21 @@ export default function Npc({
 
           <NpcBlockAnimation
             trigger={npc_data.animation.id}
+            animation={npc_data.animation.name}
             onEnd={handleAnimationEnd}
+          />
+        </>
+      );
+      break;
+    
+     case "spawn":
+     
+      animationContent = (
+        <>
+          <NpcSpawnAnimation
+           image= {getNpcImagePath(npc_data.image) +
+          "-idle.png"}
+           onEnd={handleAnimationEnd}
           />
         </>
       );

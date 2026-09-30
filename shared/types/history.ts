@@ -5,6 +5,8 @@ export type HistoryPage = {
     textId: number,
     imageId: number,
     choices:HistoryChoice,
+    teamAccess:boolean,
+    music?:string,
 }
 
 

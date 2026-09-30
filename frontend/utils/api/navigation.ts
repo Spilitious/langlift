@@ -4,7 +4,7 @@ import type { GameStateView } from "@shared/types/gameStateView";
 export const applyDestination = async (
   destination: HistoryDestination
 ): Promise<GameStateView> => {
-    console.log("hoh",destination);
+   
   const response = await fetch(
     "http://localhost:3001/api/destination",
     {

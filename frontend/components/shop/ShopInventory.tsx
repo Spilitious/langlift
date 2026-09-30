@@ -30,7 +30,7 @@ export default function ShopInventory({
 
 
   const shopEquipments = gameState.shop.equipments;
-  console.log(shopEquipments)
+ 
 
 const handlePointerUp = (
   event: React.PointerEvent<HTMLDivElement>
@@ -43,6 +43,7 @@ const handlePointerUp = (
 
   onDropOnShop(draggedEquipmentId);
 };
+
 
   
 return (
@@ -114,6 +115,7 @@ return (
             return (
               <div
                 key={equipment.id}
+                
                 style={{
                   width: isPotion
                     ? "160px"

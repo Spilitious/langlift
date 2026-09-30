@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { BmView } from "../../../../shared/types/bmView";
 import { getBmImagePath } from "@/utils/spritePaths";
+import BmDetail from "./BmDetail";
 
 type BmItemProps = {
   bm: BmView;
@@ -32,9 +33,31 @@ function BmItem({
   const [fading, setFading] = useState(false);
   const [visible, setVisible] = useState(true);
 
-   const size = 36;
+  const size = 36;
 
-    const impactTimeoutRef =
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  const tooltipTimeoutRef =
+    useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleMouseEnter = () => {
+    
+    tooltipTimeoutRef.current = setTimeout(() => {
+    setShowTooltip(true);
+  }, 1000);
+  };
+
+  const handleMouseLeave = () => {
+    if (tooltipTimeoutRef.current) {
+    clearTimeout(tooltipTimeoutRef.current);
+    tooltipTimeoutRef.current = null;
+  }
+
+  setShowTooltip(false);
+};
+
+
+  const impactTimeoutRef =
   useRef<ReturnType<typeof setTimeout> | null>(null);
 
 const triggerImpact = () => {
@@ -139,8 +162,10 @@ triggerImpact();
   // DISPARITION
   // =========================
 
+
  const shouldDisappear =
-  (bm.display === "normal" && mainValue === 0) ||
+  (bm.display === "normal" && mainValue === 0) || 
+  (bm.life ===0) || 
   (bm.display === "life" && lifeValue === 0) ||
   (bm.display === "both" &&
     (mainValue === 0 || lifeValue === 0));
@@ -178,7 +203,7 @@ triggerImpact();
   mainValue,
   lifeValue,
   bm.display,
-  onDisappear,
+
 ]);
 
   // =========================
@@ -194,25 +219,27 @@ triggerImpact();
   }
 
   return (
-    <div
-      style={{
-        position: "relative",
+   <div
+  onMouseEnter={handleMouseEnter}
+  onMouseLeave={handleMouseLeave}
+  style={{
+    position: "relative",
 
-        width: `${size}px`,
-        height: `${size}px`,
+    width: `${size}px`,
+    height: `${size}px`,
 
-        transform: impact
-          ? "scale(1.3)"
-          : "scale(1)",
+    transform: impact
+      ? "scale(1.3)"
+      : "scale(1)",
 
-        opacity: fading ? 0 : 1,
+    opacity: fading ? 0 : 1,
 
-        transition: `
-          transform 200ms ease-out,
-          opacity 350ms ease-out
-        `,
-      }}
-    >
+    transition: `
+      transform 200ms ease-out,
+      opacity 350ms ease-out
+    `,
+  }}
+>
 
       <img
         src={getBmImagePath(bm.image)}
@@ -223,6 +250,12 @@ triggerImpact();
           objectFit: "contain",
         }}
       />
+
+    
+   {showTooltip && (
+  <BmDetail bm={bm} />
+)}
+ 
 
       {/* =========================
           MAIN STAT - GAUCHE
@@ -400,6 +433,7 @@ function zeroBmDisplayValue(
         },
       };
 
+    case "empty":
     case "life":
       return {
         ...bm,
@@ -416,8 +450,8 @@ function zeroBmDisplayValue(
         },
       };
 
-    case "empty":
-      return bm;
+  
+   
 
     case "none":
       return bm;

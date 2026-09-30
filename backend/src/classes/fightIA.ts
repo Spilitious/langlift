@@ -6,10 +6,12 @@ import { Team } from "./Team.js";
 import { Room } from "./Room.js";
 import { Pj } from "./Pj.js";
 import { Npc } from "./Npc.js";
-import { BM_ID, ABILITY_ID, NPC_ID, NPC_ACTION_ID } from "../utils/constants.js";
+import { NPC_ID } from "../utils/constants.js";
+import { NPC_ACTION_ID } from "../../../shared/utils/npcActionConstant.js";
+import { BM_ID } from "../../../shared/utils/bmConstant.js";
 import { getTargetSelectMode } from "../utils/basicNpc_data.js";
 import type { FightStatus } from "../../../shared/types/actionResult.js";
-import { convertProcessSignalToExitCode } from "node:util";
+import { Bm } from "./Bm.js";
 
 export class FightIA {
    
@@ -35,7 +37,7 @@ execute(): ActionResult[][] {
    results.push(...this.newTurnNpcAction());
 
   // PHASE 2 : chaque NPC joue son action
-  for (const npc of this.room.npcs) {
+  for (const npc of [...this.room.npcs]) {
 
     if (npc.getStat("currhp") <= 0)
       continue;
@@ -109,7 +111,11 @@ private performNpcAction(npc:Npc):ActionResult[][] {
   switch(npc.intent.action) 
   {
     
-      case NPC_ACTION_ID.ATTACK:
+      case NPC_ACTION_ID.RAT_ATTACK:
+      case NPC_ACTION_ID.TOAD_ATTACK:
+      case NPC_ACTION_ID.TROLL_ATTACK:
+      case NPC_ACTION_ID.SOUL_ATTACK:
+      case NPC_ACTION_ID.WOLF_ATTACK:
         target = this.team.getPj(npc.intent.target);
         if(target.base_att.currhp <= 0)
             break;
@@ -117,6 +123,16 @@ private performNpcAction(npc:Npc):ActionResult[][] {
         result.push(
         ...this.npcAttack(npc, target));
         break;
+
+        case NPC_ACTION_ID.DEEP_WOUND:
+        target = this.team.getPj(npc.intent.target);
+        if(target.base_att.currhp <= 0)
+            break;
+        result.push([this.getActionResult(npc, "attack")]);
+        result.push(
+        ...this.npcAttack(npc, target, NPC_ACTION_ID.DEEP_WOUND));
+        break;
+        
 
       case NPC_ACTION_ID.SHIELD : 
         result = this.npcShield(npc);
@@ -133,8 +149,17 @@ private performNpcAction(npc:Npc):ActionResult[][] {
         break;
       
       case NPC_ACTION_ID.MULTIPLE_ATTACK :
-        target = this.team.getPj(npc.intent.target); 
+        target = this.team.getPj(npc.intent.target);
+         if(target.base_att.currhp <= 0)
+            break;
         result = this.npcMultipleAttack(npc,target);
+        break;
+
+        case NPC_ACTION_ID.MULTIPLE_DEEP_WOUND :
+        target = this.team.getPj(npc.intent.target);
+         if(target.base_att.currhp <= 0)
+            break;
+        result = this.npcMultipleDeepWound(npc,target);
         break;
 
 
@@ -157,7 +182,23 @@ private performNpcAction(npc:Npc):ActionResult[][] {
         result.push([this.getActionResult(npc, "attack")]);
         result.push(...this.npcAttack(npc,target, NPC_ACTION_ID.BURN_ATTACK));
         break;
+      
+      case NPC_ACTION_ID.FREEZING_RAY :
+       //  result.push([this.getActionResult(npc, "attack")]);
+        target = this.team.getPj(npc.intent.target); 
+        if(target.base_att.currhp <= 0)
+            break;
+        result.push([this.getActionResult(npc, "attack")]);
+        result.push(...this.npcAttack(npc,target, NPC_ACTION_ID.FREEZING_RAY));
+        break;
 
+       case NPC_ACTION_ID.BLEAK_ATTACK :
+        target = this.team.getPj(npc.intent.target); 
+        if(target.base_att.currhp <= 0)
+            break;
+        result.push([this.getActionResult(npc, "attack")]);
+        result.push(...this.npcAttack(npc,target, NPC_ACTION_ID.BLEAK_ATTACK));
+        break;
 
       case NPC_ACTION_ID.PIERCING_ATTACK :
         target = this.team.getPj(npc.intent.target); 
@@ -167,14 +208,109 @@ private performNpcAction(npc:Npc):ActionResult[][] {
         result.push(...this.npcPiercingAttack(npc,target));
         break;
 
-      case NPC_ACTION_ID.AUTOREGENERATION :
+       case NPC_ACTION_ID.VAMPIRE_ATTACK :
+        target = this.team.getPj(npc.intent.target); 
+        if(target.base_att.currhp <= 0)
+            break;
+        result.push([this.getActionResult(npc, "attack")]);
+        result.push(...this.npcAttack(npc,target, NPC_ACTION_ID.VAMPIRE_ATTACK));
+        break;
+
+       case NPC_ACTION_ID.AUTOREGENERATION :
         result.push(...this.npcAutoRegeneration(npc));
-      break;
+        break;
+
+       case NPC_ACTION_ID.SOUL_CURSE :
+        result.push(...this.npcSoulCurse(npc));
+        break;
+
+       case NPC_ACTION_ID.SOUL_ATTACK :
+        target = this.team.getPj(npc.intent.target); 
+        if(target.base_att.currhp <= 0)
+            break;
+        result.push([this.getActionResult(npc, "attack")]);
+        break;
+      
+       case NPC_ACTION_ID.BLEAK_ABSORB :
+        result.push([this.getActionResult(npc, "attack")]);
+        result.push(
+        ...this.npcBleakAbsorb(npc));
+        break;
+
+        case NPC_ACTION_ID.INVOKE_ZOMBIE :
+        result.push([this.getActionResult(npc, "power")]);
+        result.push(
+        ...this.npcInvokeZombie(npc));
+        break;
+
+        case NPC_ACTION_ID.ZONE_VAMPIRISME:
+        result.push([this.getActionResult(npc, "attack")]);
+        result.push(
+        ...this.npcZoneVampirisme(npc));
+        break;
+
+        case NPC_ACTION_ID.SLAY_ZOMBIE :
+        target = this.room.getNpc(npc.intent.target); 
+        if(target.base_att.currhp <= 0)
+            break;
+        result.push([this.getActionResult(npc, "power")]);
+        result.push(
+        ...this.npcSlayZombie(npc));
+        break;
+
+        case NPC_ACTION_ID.NECRO_BUFF :
+        result.push([this.getActionResult(npc, "power")]);
+        result.push(
+        ...this.npcNecroBuff(npc));
+        break;
+
+        case NPC_ACTION_ID.WHITE_ANGEL_RESURRECT :
+        result.push([this.getActionResult(npc, "power")]);
+        result.push(
+        ...this.npcResurectABlackAngel(npc));
+        break;
+
+        case NPC_ACTION_ID.BLACK_ANGEL_RESURRECT :
+        result.push([this.getActionResult(npc, "power")]);
+        result.push(
+        ...this.npcResurectAWhiteAngel(npc));
+        break;
+
+        case NPC_ACTION_ID.ANGEL_SPELL :
+        result.push([this.getActionResult(npc, "power")]);
+        result.push(
+        ...this.npcAngelSpell(npc));
+        break;
+
+        case NPC_ACTION_ID.MULTIPLE_MAGIC_ATTACK :
+          target = this.team.getPj(npc.intent.target);
+         if(target.base_att.currhp <= 0)
+            break;
+        result = this.npcMultipleMagicAttack(npc,target);
+        break;
+
+        case NPC_ACTION_ID.USE_HP_POTION : 
+          target = this.room.getNpc(npc.intent.target);
+         if(target.base_att.currhp <= 0)
+            break;
+        result = this.npcUseHpPotion(npc, target);
+        break;
+
+        
+        case NPC_ACTION_ID.USE_STR_POTION : 
+          target = this.room.getNpc(npc.intent.target);
+         if(target.base_att.currhp <= 0)
+            break;
+        result = this.npcUseStrPotion(npc, target);
+        break;
+
+
   }
   
     // L'action est complètement résolue.
    // this.room.removeDeadNpcs();
   
+    console.log("action", npc.intent.action)
     return result;
 
   
@@ -199,7 +335,8 @@ private newTurnPjAction(): ActionResult[][] {
   const result: ActionResult[][] = [];
 
   for (const player of this.team.pjs) {
-    if (player.getStat("currhp") <= 0)
+
+    if (player.getStat("currhp") <= 0 && player.fight_absent == 0)
       continue;
     result.push(...this.newTurnPj(player));
   }
@@ -210,7 +347,8 @@ private newTurnPjAction(): ActionResult[][] {
 
 private newTurnPj(player: Pj): ActionResult[][] {
 
-  
+  player.fight_absent = Math.max(0, player.fight_absent -1);
+
   if (player.getStat("shield_expert") == 0)
     player.base_att.shield = 0;
 
@@ -222,11 +360,14 @@ private newTurnPj(player: Pj): ActionResult[][] {
 
   player.setHp(regen);
   player.base_att.shield += shield;
-  player.updateBmsNewTurn();
   player.ap = player.getNewTurnAp();
+  
+  player.updateBmsNewTurn();
+ 
 
+  
   // Aucun effet
-  if (regen === 0 && shield === 0) {
+  if ((regen === 0 || player.getStat("currhp")===player.getStat("maxhp")) && shield === 0) {
     return [];
   }
 
@@ -291,13 +432,15 @@ private newTurnPj(player: Pj): ActionResult[][] {
     popup: popupData,
   };
 
+   
   return [[result]];
 }
 
 
 private newTurnNpc(npc: Npc): ActionResult[][] {
 
-  if (!npc.haveBm(BM_ID.SHIELD_EXPERT))
+  
+  if (npc.getStat("shield_expert") == 0)
     npc.base_att.shield = 0;
 
   const hpStart = npc.getStat("currhp");
@@ -306,6 +449,7 @@ private newTurnNpc(npc: Npc): ActionResult[][] {
   const regen = npc.getStat("regen");
   const shield = npc.getStat("armor");
 
+   npc.updateBmsNewTurn();
   // Aucun effet
   if (regen === 0 && shield === 0) {
     return [];
@@ -319,6 +463,8 @@ private newTurnNpc(npc: Npc): ActionResult[][] {
 
   let animationName: AnimationName;
   let popupData: FightPopupData;
+
+  
 
   if (hpEnd === 0) {
     animationName = "death";
@@ -353,7 +499,7 @@ private newTurnNpc(npc: Npc): ActionResult[][] {
     };
   }
 
-  npc.updateBmsNewTurn();
+ 
 
   const result: ActionResult = {
     fighter_type: "npc",
@@ -433,7 +579,38 @@ private changeNpcIntentAction(
      case NPC_ID.BRIGAND:
       result = this.brigandIntent(npc);
       break;
-     
+    
+    case NPC_ID.GOULE:
+      result = this.gouleIntent(npc);
+      break;
+
+    case NPC_ID.SOUL:
+      result = this.soulIntent(npc);
+      break;
+
+    case NPC_ID.ZOMBIE:
+      result = this.zombieIntent(npc);
+      break;
+
+    case NPC_ID.NECROMANCIEN:
+      result = this.necromancienIntent(npc);
+      break;
+    
+    case NPC_ID.BLACK_ANGEL:
+      result = this.blackAngelIntent(npc);
+      break;
+
+    case NPC_ID.WHITE_ANGEL:
+      result = this.whiteAngelIntent(npc);
+      break;
+    
+    case NPC_ID.MANTIS:
+      result = this.mantisIntent(npc);
+      break;
+    
+    case NPC_ID.GNOLL:
+      result = this.gnollIntent(npc);
+      break;
 
     default:
       throw new Error(
@@ -485,7 +662,7 @@ private selectNewTarget(
 ): number {
 
   const players = this.team.pjs.filter(
-    pj => !pj.isUnconscious()
+    pj => (!pj.isUnconscious() && pj.fight_absent ===0)
   );
 
   if (players.length === 0) {
@@ -582,7 +759,7 @@ private giantRatIntent(npc: Npc): ActionResult[][] {
  
   return this.newIntentNpc(
     npc,
-    NPC_ACTION_ID.ATTACK,
+    NPC_ACTION_ID.RAT_ATTACK,
     Math.max(0, npc.getStat("damage")),
     pjId,
     targetImage
@@ -614,7 +791,7 @@ private giantBatIntent(npc: Npc): ActionResult[][] {
     if(dice2 < 0) {
        return this.newIntentNpc(
           npc,
-          NPC_ACTION_ID.ATTACK,
+          NPC_ACTION_ID.RAT_ATTACK,
           npc.getStat("damage"),
           pjId,
           targetImage);
@@ -675,7 +852,7 @@ private giantToadIntent(npc: Npc): ActionResult[][] {
 
   return this.newIntentNpc(
     npc,
-    NPC_ACTION_ID.ATTACK,
+    NPC_ACTION_ID.TOAD_ATTACK,
     Math.max(0, npc.getStat("damage")),
     pjId,
     targetImage
@@ -716,7 +893,7 @@ private wolfIntent(npc: Npc): ActionResult[][] {
 
   return this.newIntentNpc(
     npc,
-    NPC_ACTION_ID.ATTACK,
+    NPC_ACTION_ID.WOLF_ATTACK,
     Math.max(0, npc.getStat("damage")),
     pjId,
     targetImage
@@ -726,7 +903,7 @@ private wolfIntent(npc: Npc): ActionResult[][] {
 
 private trollIntent(npc: Npc): ActionResult[][] {
 
-  if (npc.intent.action === NPC_ACTION_ID.ATTACK && this.round !=0)
+  if (npc.intent.action === NPC_ACTION_ID.TROLL_ATTACK && this.round !=0)
   {
     return this.newIntentNpc(
       npc,
@@ -749,11 +926,114 @@ private trollIntent(npc: Npc): ActionResult[][] {
   const targetImage = this.team.pjs.find(pj => pj.id === pjId)?.avatar;
   return this.newIntentNpc(
       npc,
-      NPC_ACTION_ID.ATTACK,
+      NPC_ACTION_ID.TROLL_ATTACK,
       Math.max(0, npc.getStat("damage")),
       pjId,
       targetImage
     );
+}
+
+private gouleIntent(npc: Npc): ActionResult[][] {
+
+  const dice = Math.floor( Math.random()*10);
+  
+  const targetMode = getTargetSelectMode(
+    npc.basicRaceId
+  );
+
+  const pjId = this.selectNewTarget(
+    targetMode.feature,
+    targetMode.mode
+  );
+
+  const targetImage = this.team.pjs.find(
+    pj => pj.id === pjId
+  )?.avatar;
+
+  const dice_bonus = 5- Math.floor((npc.getStat("currhp") / npc.getStat("maxhp"))*5)
+ 
+  if ((dice+dice_bonus) > 7)
+  {
+    return this.newIntentNpc(
+      npc,
+      NPC_ACTION_ID.VAMPIRE_ATTACK,
+      Math.floor(Math.floor(npc.getStat("damage"))),
+      pjId,
+      targetImage,
+    );
+  }
+  if ((dice +dice_bonus) === 6)
+  {
+    return this.newIntentNpc(
+      npc,
+      NPC_ACTION_ID.MULTIPLE_ATTACK,
+      Math.floor(Math.floor(npc.getStat("damage")/2)),
+      pjId,
+      targetImage,
+      npc.getStat("power")
+    );
+  }
+  
+     return this.newIntentNpc(
+      npc,
+      NPC_ACTION_ID.BLEAK_ATTACK,
+      Math.max(0, npc.getStat("damage")),
+      pjId,
+      targetImage,
+      
+    )
+  
+
+  
+
+}
+
+
+private soulIntent(npc: Npc): ActionResult[][] {
+
+ if (npc.intent.action === NPC_ACTION_ID.SOUL_ATTACK || this.round ==0)
+  {
+    return this.newIntentNpc(
+      npc,
+      NPC_ACTION_ID.SOUL_CURSE,
+      npc.getStat("power")
+    );
+  }
+
+ let value:number = 0;
+ 
+ for(const pj of this.team.pjs) {
+    const bm = pj.getBm(BM_ID.BLEAK)
+    if(bm != undefined) 
+    {
+      if(bm.getBonus("regen")) {
+        value += bm.getBonus("regen");
+     
+      }
+      
+    }
+  }
+
+  if(npc.getStat("currhp") < 20 && value < -12 && npc.intent.action != NPC_ACTION_ID.BLEAK_ABSORB)
+  {
+     return this.newIntentNpc(
+      npc,
+      NPC_ACTION_ID.BLEAK_ABSORB,
+      0
+      )
+  }
+  
+ 
+  const targetMode = getTargetSelectMode(npc.basicRaceId);
+  const pjId = this.selectNewTarget(targetMode.feature,targetMode.mode);
+  const targetImage = this.team.pjs.find(pj => pj.id === pjId)?.avatar;
+  return this.newIntentNpc(
+      npc,
+      NPC_ACTION_ID.SOUL_ATTACK,
+      npc.getStat("magicSkill"),
+      pjId,
+      targetImage,
+    )
 }
 
 
@@ -770,6 +1050,8 @@ private koboldIntent(npc: Npc): ActionResult[][] {
       targetImage
     );
 }
+
+
 
 
 private ogreIntent(npc: Npc): ActionResult[][] {
@@ -793,7 +1075,7 @@ private ogreIntent(npc: Npc): ActionResult[][] {
         const targetImage = this.team.pjs.find(pj => pj.id === pjId)?.avatar;
         return this.newIntentNpc(
           npc,
-          NPC_ACTION_ID.ATTACK,
+          NPC_ACTION_ID.TROLL_ATTACK,
           Math.max(0, npc.getStat("damage")),
           pjId,
           targetImage
@@ -849,7 +1131,260 @@ private queenAntIntent(npc: Npc): ActionResult[][] {
     );
   }
 }
+      
+
+  
+private zombieIntent(npc: Npc): ActionResult[][] {
+
+    const targetMode = getTargetSelectMode(npc.basicRaceId);
+    const pjId = this.selectNewTarget(targetMode.feature,targetMode.mode);
+    const targetImage = this.team.pjs.find(pj => pj.id === pjId)?.avatar;
+    return this.newIntentNpc(
+        npc,
+        NPC_ACTION_ID.BLEAK_ATTACK,
+        npc.getStat("damage"),
+        pjId,
+        targetImage
+        );
+}
+
+
+  
+private necromancienIntent(npc: Npc): ActionResult[][] {
+
+    const dice = Math.floor(Math.random()*10);
+    const hpRate = npc.getStat("currhp")/npc.getStat("maxhp")*10;
+    if(hpRate < 7 && dice < 10-hpRate && npc.intent.action != NPC_ACTION_ID.ZONE_VAMPIRISME) {
+        return this.newIntentNpc(
+              npc,
+              NPC_ACTION_ID.ZONE_VAMPIRISME,
+              Math.floor(npc.getStat("magicSkill"))
+          );
+    }
+
+
+
+    if (this.room.npcs.length < 5 && dice + this.room.npcs.length < 7 && npc.intent.action !== NPC_ACTION_ID.INVOKE_ZOMBIE) {
+      
+        const positions = [1, 3, 4, 6].filter( position =>!this.room.npcs.some(monster => monster.position === position));
+        const dice = Math.floor(Math.random() * positions.length);
+       
+        if(positions[dice]) {
+        
+          return this.newIntentNpc(
+              npc,
+              NPC_ACTION_ID.INVOKE_ZOMBIE,
+              -1,
+              positions[dice],
+             
+
+          );
+        }
+    }
+
+    if (this.room.npcs.length > 3 && dice + this.room.npcs.length > 8 && npc.intent.action !== NPC_ACTION_ID.SLAY_ZOMBIE) {
+      
+        return this.newIntentNpc(
+              npc,
+              NPC_ACTION_ID.SLAY_ZOMBIE,
+              -1,
               
+        );
+        
+    }
+
+   
+    
+   if(npc.intent.action != NPC_ACTION_ID.NECRO_BUFF) {
+ 
+     return this.newIntentNpc(
+        npc,
+        NPC_ACTION_ID.NECRO_BUFF,
+        npc.getStat("power"),
+       
+        );
+    }
+    
+    const targetMode = getTargetSelectMode(npc.basicRaceId);
+    const pjId = this.selectNewTarget(targetMode.feature,targetMode.mode);
+    const targetImage = this.team.pjs.find(pj => pj.id === pjId)?.avatar;
+    return this.newIntentNpc(
+        npc,
+        NPC_ACTION_ID.SOUL_ATTACK,
+        npc.getStat("magicSkill")*2,
+        pjId,
+        targetImage
+       
+        );
+}
+
+
+  
+private blackAngelIntent(npc: Npc): ActionResult[][] {
+
+    if(this.room.npcs.length< 2) {
+        return this.newIntentNpc(
+              npc,
+              NPC_ACTION_ID.WHITE_ANGEL_RESURRECT,
+              -1
+          );
+    }
+
+    if (this.round % 2 === 0) {
+        return this.newIntentNpc(
+              npc,
+              NPC_ACTION_ID.ANGEL_SPELL,
+              npc.getStat("magicSkill")*3
+          );
+    }
+    
+    const targetMode = getTargetSelectMode(npc.basicRaceId);
+    const pjId = this.selectNewTarget(targetMode.feature,targetMode.mode);
+    const targetImage = this.team.pjs.find(pj => pj.id === pjId)?.avatar;
+    return this.newIntentNpc(
+        npc,
+        NPC_ACTION_ID.MULTIPLE_ATTACK,
+        npc.getStat("damage"),
+        pjId,
+        targetImage,
+        npc.getStat("power")
+       
+        );
+}
+
+  
+private whiteAngelIntent(npc: Npc): ActionResult[][] {
+
+    if(this.room.npcs.length< 2) {
+        return this.newIntentNpc(
+              npc,
+              NPC_ACTION_ID.WHITE_ANGEL_RESURRECT,
+              -1
+          );
+    }
+
+    if (this.round % 2 === 1) {
+        return this.newIntentNpc(
+              npc,
+              NPC_ACTION_ID.ANGEL_SPELL,
+              npc.getStat("magicSkill")*3
+          );
+    }
+    
+    const targetMode = getTargetSelectMode(npc.basicRaceId);
+    const pjId = this.selectNewTarget(targetMode.feature,targetMode.mode);
+    const targetImage = this.team.pjs.find(pj => pj.id === pjId)?.avatar;
+    return this.newIntentNpc(
+        npc,
+        NPC_ACTION_ID.FREEZING_RAY,
+        npc.getStat("magicSkill") + Math.floor(npc.getStat("magicSkill")*Math.random()),
+        pjId,
+        targetImage
+       
+        );
+}
+
+
+
+private mantisIntent(npc: Npc): ActionResult[][] {
+
+  const dice = Math.floor( Math.random()*10);
+  
+  const targetMode = getTargetSelectMode(
+    npc.basicRaceId
+  );
+
+  const pjId = this.selectNewTarget(
+    targetMode.feature,
+    targetMode.mode
+  );
+
+  const targetImage = this.team.pjs.find(
+    pj => pj.id === pjId
+  )?.avatar;
+
+ 
+  if (dice < 5)
+  {
+    return this.newIntentNpc(
+      npc,
+      NPC_ACTION_ID.DEEP_WOUND,
+      Math.floor(Math.floor(npc.getStat("damage"))),
+      pjId,
+      targetImage,
+    );
+  }
+ 
+    return this.newIntentNpc(
+      npc,
+      NPC_ACTION_ID.MULTIPLE_ATTACK,
+      Math.floor(Math.floor(npc.getStat("damage")/2)),
+      pjId,
+      targetImage,
+      npc.getStat("power")
+    );
+  }
+  
+   
+
+
+private gnollIntent(npc: Npc): ActionResult[][] {
+
+  const dice = Math.floor( Math.random()*10);
+  
+  const targetMode = getTargetSelectMode(
+    npc.basicRaceId
+  );
+
+  const pjId = this.selectNewTarget(
+    targetMode.feature,
+    targetMode.mode
+  );
+
+
+  if(this.round !== 0 && this.round %3 === 0)
+  {
+    if(npc.getStat("magicSkill")> 0 && npc.getStat("currhp")/npc.getStat("maxhp")*10 < 6 )
+    {  npc.base_att.magicSkill -=1;
+     return this.newIntentNpc(
+      npc,
+      NPC_ACTION_ID.USE_HP_POTION,
+      -1,
+      npc.id,
+    
+    );
+    }
+    else {
+      return this.newIntentNpc(
+      npc,
+      NPC_ACTION_ID.USE_STR_POTION,
+      -1,
+      npc.id,
+    );
+
+
+    }  
+  }
+  const targetImage = this.team.pjs.find(
+    pj => pj.id === pjId
+  )?.avatar;
+
+  const damage = 1+Math.floor(Math.random()*(npc.getStat("damage")-2))
+  const iteration = 1+npc.getStat("damage")-damage;
+
+   return this.newIntentNpc(
+      npc,
+      NPC_ACTION_ID.MULTIPLE_DEEP_WOUND,
+      damage+1,
+      pjId,
+      targetImage,
+      iteration
+    );
+}
+  
+    
+
+
 /* **************************************************** DEBUT DES ACTIONS ***************************** */
 private npcAttack(
   npc: Npc,
@@ -935,19 +1470,204 @@ private npcAttack(
   // =========================
   // EFFETS PARTICULIERS
   // =========================
-  console.log(npcAction);
-   if (
-      npc.getStat("currhp") > 0 && (attackResult.hp_start > attackResult.hp_end) &&
-      npcAction === NPC_ACTION_ID.BURN_ATTACK)
-    {
-      
-      player.updateBm(
-        BM_ID.BURN,
-        "regen",
-        npc.base_att.power,
-      );
-      attackResult.bm_end = player.getBmViews();
+  
+   // BURN
+if (
+  npc.getStat("currhp") > 0 &&
+  attackResult.hp_start > attackResult.hp_end &&
+  npcAction === NPC_ACTION_ID.BURN_ATTACK
+) {
+
+  if (player.getStat("ward") > 0) {
+
+    player.updateBm(BM_ID.WARD, "ward", -1);
+   // attackResult.animationName ="ward";
+    if (attackResult.popup) {
+      attackResult.popup.text =
+        `-1 protection\n${attackResult.popup.text}`;
     }
+
+  } else {
+
+    player.updateBm(
+      BM_ID.BURN,
+      "regen",
+      npc.base_att.power
+    );
+
+    if (attackResult.popup) {
+      attackResult.popup.text =
+        `+${npc.base_att.power} brûlure\n${attackResult.popup.text}`;
+    }
+  }
+
+  attackResult.bm_end = player.getBmViews();
+}
+
+// BLEED
+if (
+  npc.getStat("currhp") > 0 &&
+  attackResult.hp_start > attackResult.hp_end &&
+  npcAction === NPC_ACTION_ID.DEEP_WOUND
+) {
+
+  if (player.getStat("ward") > 0) {
+
+    player.updateBm(BM_ID.WARD, "ward", -1);
+   // attackResult.animationName ="ward";
+    if (attackResult.popup) {
+      attackResult.popup.text =
+        `-1 protection\n${attackResult.popup.text}`;
+    }
+
+  } else {
+
+    player.updateBm(
+      BM_ID.BLEED,
+      "regen",
+      npc.base_att.power
+    );
+
+    if (attackResult.popup) {
+      attackResult.popup.text =
+        `+${npc.base_att.power} saignement\n${attackResult.popup.text}`;
+    }
+  }
+
+  attackResult.bm_end = player.getBmViews();
+}
+// LIEFE_STEAL
+if (
+  npc.getStat("currhp") > 0 &&
+  attackResult.hp_start > attackResult.hp_end &&
+  npc.getStat("lifeSteal") > 0)
+   {
+     const hp_start = npc.getStat("currhp");
+     const regen = npc.getHealed(npc.getStat("lifeSteal"));
+     if(regen > 0) {
+     
+        const reflexResult: ActionResult = {
+          fighter_type: "npc",
+          fighter_id: npc.id,
+          animationName: "heal",
+          fightStatus: "ongoing",
+          hp_start: hp_start,
+          hp_end: npc.getStat("currhp"),
+          shield_start: npc.getStat("shield"),
+          shield_end: npc.getStat("shield"),
+          armor_start: npc.getStat("armor"),
+          armor_end: npc.getStat("armor"),
+          bm_end: npc.getBmViews(),
+          popup: {
+          text: `+${regen} PV`,
+          type: "heal",
+        },
+  };
+
+  steps.push([reflexResult]);
+}
+   }
+  
+
+
+// BLEAK
+if (
+  npc.getStat("currhp") > 0 &&
+  attackResult.hp_start > attackResult.hp_end &&
+  npcAction === NPC_ACTION_ID.BLEAK_ATTACK
+) {
+
+  if (player.getStat("ward") > 0) {
+
+    player.updateBm(BM_ID.WARD, "ward", -1);
+
+    if (attackResult.popup) {
+      attackResult.popup.text =
+        `-1 protection\n${attackResult.popup.text}`;
+    }
+
+  } else {
+
+    player.updateBm(
+      BM_ID.BLEAK,
+      "regen",
+      1
+    );
+
+    if (attackResult.popup) {
+      attackResult.popup.text =
+        `+1 putréfaction\n${attackResult.popup.text}`;
+    }
+  }
+
+  attackResult.bm_end = player.getBmViews();
+}
+
+     //VAMPIRE_ATTACK
+    if (
+      npc.getStat("currhp") > 0 && (attackResult.hp_start > attackResult.hp_end) &&
+      npcAction === NPC_ACTION_ID.VAMPIRE_ATTACK)
+    {
+      const hp_start = npc.getStat("currhp");
+      npc.getHealed(attackResult.hp_start- attackResult.hp_end);
+      const hp_end = npc.getStat("currhp");
+
+      const vampireResult: ActionResult = {
+      fighter_type: "npc",
+      fighter_id: npc.id,
+      animationName: "heal",
+      fightStatus: "ongoing",
+
+      hp_start: hp_start,
+      hp_end: hp_end,
+
+      shield_start: npc.getStat("shield"),
+      shield_end: npc.getStat("shield"),
+
+      armor_start: player.getStat("armor"),
+      armor_end: player.getStat("armor"),
+
+      bm_end: player.getBmViews(),
+
+      popup: {
+        text: `+${hp_end-hp_start}`,
+        type: "heal",
+      },
+    };
+        steps.push([vampireResult]);
+      
+    }
+
+     //LENTEUR
+    if (
+      npc.getStat("currhp") > 0 && (attackResult.hp_start > attackResult.hp_end) &&
+      npcAction === NPC_ACTION_ID.FREEZING_RAY)
+    {
+      if (player.getStat("ward") > 0) {
+          player.updateBm(BM_ID.WARD, "ward", -1);
+          if (attackResult.popup) {
+            attackResult.popup.text =
+            `-1 protection\n${attackResult.popup.text}`;
+          }
+
+      } else {
+
+          player.updateBm(
+            BM_ID.SLOWNESS,
+            "ap",
+            1
+    );
+
+
+    if (attackResult.popup) {
+      attackResult.popup.text =
+        `Lenteur\n${attackResult.popup.text}`;
+    }
+  }
+
+  attackResult.bm_end = player.getBmViews();
+}
+
   if (player.getStat("currhp") > 0 && player.getStat("reflex") > 0) {
     const shieldStart = player.getStat("shield");
     const reflex = player.getStat("reflex");
@@ -1011,8 +1731,16 @@ private applyDamage(
   else {
     target.base_att.shield = 0;
 
-    const hpDamage = damage - shieldStart;
-    
+    let hpDamage = damage - shieldStart;
+
+    if(target.hasBm(BM_ID.DAMAGE_CURSE)) {
+        hpDamage *=2;
+        target.deleteBm(BM_ID.DAMAGE_CURSE);
+    }
+
+    if(target.getStat("ethereal")> 0)
+      hpDamage =1;
+
     target.getHit(hpDamage);
    
 
@@ -1077,7 +1805,7 @@ private npcShield(npc: Npc): ActionResult[][] {
     bm_end: npc.getBmViews(),
 
     popup: {
-      text: `+${shieldEnd - shieldStart}`,
+      text: `+${shieldEnd - shieldStart} bouclier`,
       type: "block",
     },
   }]];
@@ -1368,7 +2096,75 @@ private npcMultipleAttack(
 
     // Résolution de l'attaque
     result.push(
-      ...this.npcAttack(npc, pj, damage)
+      ...this.npcAttack(npc, pj)
+    );
+
+    if (pj.getStat("currhp") <= 0 || npc.getStat("currhp") <=0) {
+      break;
+    }
+  }
+
+  return result;
+}
+
+
+private npcMultipleMagicAttack(
+  npc: Npc,
+  pj: Pj
+): ActionResult[][] {
+
+  const result: ActionResult[][] = [];
+
+  const damage = npc.intent.value;
+
+  let iteration = npc.intent.value2;
+  if(!iteration)
+    iteration=1;
+
+  for (let i = 0; i < iteration; i++) {
+
+    // Animation d'attaque
+    result.push([
+      this.getActionResult(npc, "attack")
+    ]);
+
+    // Résolution de l'attaque
+    result.push(
+      ...this.npcAttack(npc, pj)
+    );
+
+    if (pj.getStat("currhp") <= 0 || npc.getStat("currhp") <=0) {
+      break;
+    }
+  }
+
+  return result;
+}
+
+
+private npcMultipleDeepWound(
+  npc: Npc,
+  pj: Pj
+): ActionResult[][] {
+
+  const result: ActionResult[][] = [];
+
+  const damage = npc.intent.value;
+
+  let iteration = npc.intent.value2;
+  if(!iteration)
+    iteration=1;
+
+  for (let i = 0; i < iteration; i++) {
+
+    // Animation d'attaque
+    result.push([
+      this.getActionResult(npc, "attack")
+    ]);
+
+    // Résolution de l'attaque
+    result.push(
+      ...this.npcAttack(npc, pj, NPC_ACTION_ID.DEEP_WOUND)
     );
 
     if (pj.getStat("currhp") <= 0 || npc.getStat("currhp") <=0) {
@@ -1628,5 +2424,673 @@ private npcParry(
   steps.push([npcStep]);
 
   return steps;
+}
+
+private npcSoulCurse(npc: Npc): ActionResult[][] {
+  const value = npc.getStat("power");
+  const steps: ActionResult[] = [];
+  steps.push(this.getActionResult(npc, "power"));
+  let animationName ="hurt";
+  for (const player of this.team.pjs) {
+   
+    if (player.getStat("currhp") <= 0) continue;
+
+  if(player.getStat("ward")>2)
+    animationName = "athlan";
+
+  const effects = [
+  {
+    apply: () => {
+      player.updateBm(BM_ID.SLOWNESS, "ap", 1);
+      player.updateBmLife(BM_ID.SLOWNESS, value);
+      return "+Lenteur\n";
+    },
+  },
+  {
+    apply: () => {
+      player.updateBm(BM_ID.BLEAK, "regen", value);
+      return `+${value} putréfaction\n`;
+    },
+  },
+  {
+    apply: () => {
+      player.updateBm(
+        BM_ID.SHATTERED,
+        "shield_bonus",
+        value
+      );
+      return `+${value} désorienté\n`;
+    },
+  },
+];
+
+effects.sort(() => Math.random() - 0.5);
+  let text = "";
+
+for (const effect of effects) {
+
+  if (player.getStat("ward") > 0) {
+
+    player.updateBm(
+      BM_ID.WARD,
+      "ward",
+      -1
+    );
+
+    text += "-1 protection\n";
+
+  } else {
+
+    text += effect.apply();
+
+  }
+}  
+    steps.push({
+      fighter_type: "pj",
+      fighter_id: player.id,
+      animationName: animationName as AnimationName,
+      fightStatus: "ongoing",
+      hp_start: player.getStat("currhp"),
+      hp_end: player.getStat("currhp"),
+      shield_start: player.getStat("shield"),
+      shield_end: player.getStat("shield"),
+      armor_start: player.getStat("armor"),
+      armor_end: player.getStat("armor"),
+      bm_end: player.bms.map(bm => bm.toView()),
+
+      popup: {
+        text: text,
+        type: "damage",
+      },
+    });
+  }
+
+  return [steps];
+}
+
+private npcBleakAbsorb(npc: Npc): ActionResult[][] {
+
+  const actions: ActionResult[] = [];
+  let value = 0;
+
+  for (const pj of this.team.pjs) {
+
+    const bleak = pj.getBm(BM_ID.BLEAK);
+
+    if (!bleak) continue;
+
+    const bleakValue = bleak.getBonus("regen");
+
+    value += bleakValue;
+
+    pj.deleteBm(BM_ID.BLEAK);
+
+    const step: ActionResult = {
+      fighter_type: "pj",
+      fighter_id: pj.id,
+      animationName: "heal",
+      fightStatus: "ongoing",
+
+      hp_start: pj.getStat("currhp"),
+      hp_end: pj.getStat("currhp"),
+
+      shield_start: pj.getStat("shield"),
+      shield_end: pj.getStat("shield"),
+
+      armor_start: pj.getStat("armor"),
+      armor_end: pj.getStat("armor"),
+
+      bm_end: pj.getBmViews(),
+
+      popup: {
+        text: `${bleakValue} putréfaction`,
+        type: "heal",
+      },
+    };
+
+    actions.push(step);
+  }
+
+  // Aucun BLEAK trouvé
+  if (value === 0) {
+    return [];
+  }
+
+  const hpStart = npc.getStat("currhp");
+
+  npc.getHealed(-value);
+  npc.base_att.power+=2;
+
+  const stepNpc: ActionResult = {
+    fighter_type: "npc",
+    fighter_id: npc.id,
+    animationName: "heal",
+    fightStatus: "ongoing",
+
+    hp_start: hpStart,
+    hp_end: npc.getStat("currhp"),
+
+    shield_start: npc.getStat("shield"),
+    shield_end: npc.getStat("shield"),
+
+    armor_start: npc.getStat("armor"),
+    armor_end: npc.getStat("armor"),
+
+    bm_end: npc.getBmViews(),
+
+    popup: {
+      text: `+${npc.getStat("currhp") - hpStart} HP\n +2 puissance`,
+      type: "heal",
+    },
+  };
+
+  actions.push(stepNpc);
+
+  return [actions];
+}
+
+
+private npcInvokeZombie(npc: Npc): ActionResult[][] {
+
+  const zombie = new Npc(NPC_ID.ZOMBIE, 7+ Math.floor( Math.random()*3));
+  zombie.position = npc.intent.target;
+  this.room.npcs.push(zombie);
+  
+  const new_intent = this.newTurnNpc(zombie);
+
+  
+  const action2: ActionResult = {
+    fighter_type: "npc",
+    fighter_id: zombie.id,
+    animationName: "spawn",
+    fightStatus: "ongoing",
+
+    hp_start: zombie.getStat("currhp"),
+    hp_end: zombie.getStat("currhp"),
+
+    shield_start: zombie.getStat("shield"),
+    shield_end: zombie.getStat("shield"),
+
+    armor_start: zombie.getStat("armor"),
+    armor_end: zombie.getStat("armor"),
+
+    bm_end: zombie.getBmViews(),
+
+    fighter_spawn: zombie.toView(),
+
+    popup: {
+      text: `I'm alive`,
+      type: "heal",
+    },
+  };
+
+ 
+
+ return [
+  [action2],
+  ...new_intent
+];
+}
+
+private npcZoneVampirisme(npc: Npc): ActionResult[][] {
+
+  const damage = npc.intent.value;
+  let totalHealPoint = 0;
+
+  const playerResults: ActionResult[] = [];
+
+  for (const player of this.team.pjs) {
+
+    if (player.getStat("currhp") <= 0) continue;
+
+    const hpStart = player.getStat("currhp");
+    const shieldStart = player.getStat("shield");
+    const armorStart = player.getStat("armor");
+
+    // PROTECTION
+    if (player.getStat("ward") > 0) {
+
+      player.updateBm(BM_ID.WARD, "ward", -1);
+
+      playerResults.push({
+        fighter_type: "pj",
+        fighter_id: player.id,
+        animationName: "ward",
+        fightStatus: "ongoing",
+
+        hp_start: hpStart,
+        hp_end: player.getStat("currhp"),
+
+        shield_start: shieldStart,
+        shield_end: player.getStat("shield"),
+
+        armor_start: armorStart,
+        armor_end: player.getStat("armor"),
+
+        bm_end: player.getBmViews(),
+
+        popup: {
+          text: "-1 protection",
+          type: "heal",
+        },
+      });
+
+      continue;
+    }
+
+    // DÉGÂTS
+    player.getHit(damage);
+
+    const damageTaken =
+      hpStart - player.getStat("currhp");
+
+    totalHealPoint += damageTaken;
+
+    playerResults.push({
+      fighter_type: "pj",
+      fighter_id: player.id,
+      animationName: "hurt",
+      fightStatus: "ongoing",
+
+      hp_start: hpStart,
+      hp_end: player.getStat("currhp"),
+
+      shield_start: shieldStart,
+      shield_end: player.getStat("shield"),
+
+      armor_start: armorStart,
+      armor_end: player.getStat("armor"),
+
+      bm_end: player.getBmViews(),
+
+      popup: {
+        text: `-${damageTaken} HP`,
+        type: "damage",
+      },
+    });
+  }
+
+  const steps: ActionResult[][] = [];
+
+  // Tous les PJ simultanément
+  if (playerResults.length > 0) {
+    steps.push(playerResults);
+  }
+
+  // Puis soin du NPC
+  if (totalHealPoint > 0) {
+
+    const hpStart = npc.getStat("currhp");
+
+    npc.getHealed(totalHealPoint);
+
+    steps.push([{
+      fighter_type: "npc",
+      fighter_id: npc.id,
+      animationName: "heal",
+      fightStatus: "ongoing",
+
+      hp_start: hpStart,
+      hp_end: npc.getStat("currhp"),
+
+      shield_start: npc.getStat("shield"),
+      shield_end: npc.getStat("shield"),
+
+      armor_start: npc.getStat("armor"),
+      armor_end: npc.getStat("armor"),
+
+      bm_end: npc.getBmViews(),
+
+      popup: {
+        text: `+${npc.getStat("currhp") - hpStart} HP`,
+        type: "heal",
+      },
+    }]);
+  }
+
+  return steps;
+}
+
+private npcSlayZombie(
+  npc: Npc,
+): ActionResult[][] {
+
+ 
+  const steps: ActionResult[][] = [];
+
+  // =========================
+  // 1. Mort du zombie
+  // =========================
+  const possibleTarget = this.room.npcs.filter( monster => (monster.basicRaceId = NPC_ID.ZOMBIE))
+  const dice = Math.floor(Math.random() * possibleTarget.length);
+  const target =possibleTarget[dice]
+  if(!target)
+      return steps;
+
+  const hpStart = target.getStat("currhp");
+  const shieldStart = target.getStat("shield");
+  const armorStart = target.getStat("armor");
+
+  target.getHit(hpStart);
+
+  steps.push([{
+    fighter_type: "npc",
+    fighter_id: target.id,
+    animationName: "death",
+    fightStatus: "ongoing",
+
+    hp_start: hpStart,
+    hp_end: target.getStat("currhp"),
+
+    shield_start: shieldStart,
+    shield_end: target.getStat("shield"),
+
+    armor_start: armorStart,
+    armor_end: target.getStat("armor"),
+
+    bm_end: target.getBmViews(),
+
+    popup: {
+      text: `-${hpStart - target.getStat("currhp")} HP`,
+      type: "damage",
+    },
+  }]);
+
+
+  // =========================
+  // 2. Gain de puissance
+  // =========================
+
+  
+  npc.base_att.magicSkill += 3;
+
+  steps.push([{
+    fighter_type: "npc",
+    fighter_id: npc.id,
+    animationName: "buff",
+    fightStatus: "ongoing",
+
+    hp_start: npc.getStat("currhp"),
+    hp_end: npc.getStat("currhp"),
+
+    shield_start: npc.getStat("shield"),
+    shield_end: npc.getStat("shield"),
+
+    armor_start: npc.getStat("armor"),
+    armor_end: npc.getStat("armor"),
+
+    bm_end: npc.getBmViews(),
+
+    popup: {
+      text: `+3 puissance`,
+      type: "block",
+    },
+  }]);
+
+  return steps;
+}
+
+
+private npcNecroBuff(
+  npc: Npc,
+): ActionResult[][] {
+
+ 
+  const steps: ActionResult[][] = [];
+
+  const armor_start = npc.getStat("armor");
+  const shield_start = npc.getStat("shield");
+  npc.base_att.armor += npc.intent.value;
+  npc.base_att.shield = 18+npc.intent.value;
+  
+
+  // =========================_
+  // 2. Gain de puissance
+  // =========================
+
+  
+  steps.push([{
+    fighter_type: "npc",
+    fighter_id: npc.id,
+    animationName: "buff",
+    fightStatus: "ongoing",
+
+    hp_start: npc.getStat("currhp"),
+    hp_end: npc.getStat("currhp"),
+
+    shield_start: shield_start,
+    shield_end: npc.getStat("shield"),
+
+    armor_start: armor_start,
+    armor_end: npc.getStat("armor"),
+
+    bm_end: npc.getBmViews(),
+
+    popup: {
+      text: `+${npc.getStat("armor")- armor_start} armor\n
+            +${npc.getStat("shield")-shield_start} bouclier`,
+      type: "block",
+    },
+  }]);
+
+  return steps;
+}
+
+private npcResurectABlackAngel(npc: Npc): ActionResult[][] {
+
+  const angel = new Npc(NPC_ID.BLACK_ANGEL, 10);
+  angel.position = 2;
+  this.room.npcs.push(angel);
+  
+  const new_intent = this.newTurnNpc(angel);
+  
+  const action2: ActionResult = {
+    fighter_type: "npc",
+    fighter_id: angel.id,
+    animationName: "spawn",
+    fightStatus: "ongoing",
+
+    hp_start: angel.getStat("currhp"),
+    hp_end: angel.getStat("currhp"),
+
+    shield_start: angel.getStat("shield"),
+    shield_end: angel.getStat("shield"),
+
+    armor_start: angel.getStat("armor"),
+    armor_end: angel.getStat("armor"),
+
+    bm_end: angel.getBmViews(),
+
+    fighter_spawn: angel.toView(),
+
+    popup: {
+      text: `I'm alive`,
+      type: "heal",
+    },
+  };
+  
+ return [
+  [action2],
+  ...new_intent
+];
+}
+
+
+private npcResurectAWhiteAngel(npc: Npc): ActionResult[][] {
+
+  const angel = new Npc(NPC_ID.WHITE_ANGEL, 10);
+  angel.position = 2;
+  this.room.npcs.push(angel);
+  
+  const new_intent = this.newTurnNpc(angel);
+  
+  const action2: ActionResult = {
+    fighter_type: "npc",
+    fighter_id: angel.id,
+    animationName: "spawn",
+    fightStatus: "ongoing",
+
+    hp_start: angel.getStat("currhp"),
+    hp_end: angel.getStat("currhp"),
+
+    shield_start: angel.getStat("shield"),
+    shield_end: angel.getStat("shield"),
+
+    armor_start: angel.getStat("armor"),
+    armor_end: angel.getStat("armor"),
+
+    bm_end: angel.getBmViews(),
+
+    fighter_spawn: angel.toView(),
+
+    popup: {
+      text: `I'm alive`,
+      type: "heal",
+    },
+  };
+  
+ return [
+  [action2],
+  ...new_intent
+];
+}
+
+
+private npcAngelSpell(
+  npc: Npc,
+): ActionResult[][] {
+
+ 
+  const steps: ActionResult[][] = [];
+  const armor_start = npc.getStat("armor");
+  const shield_start = npc.getStat("shield");
+ 
+  // 1. Gain Ethereal
+  npc.updateBm(BM_ID.SHORT_LIVED_ETHEREAL, "ethereal", 1);
+  
+  const step1:ActionResult = {
+    fighter_type: "npc",
+    fighter_id: npc.id,
+    animationName: "curse",
+    fightStatus: "ongoing",
+    hp_start: npc.getStat("currhp"),
+    hp_end: npc.getStat("currhp"),
+    shield_start: shield_start,
+    shield_end: npc.getStat("shield"),
+    armor_start: armor_start,
+    armor_end: npc.getStat("armor"),
+    bm_end: npc.getBmViews(),
+    popup: {
+      text: `+1 éthérée`,
+      type: "block",
+    },
+  };
+
+  // 2. Gain Shield
+ const otherAngel = this.room.npcs.find(
+  m => m.id !== npc.id
+);
+
+if (otherAngel) {
+  const shieldStart =
+    otherAngel.getStat("shield");
+
+  otherAngel.base_att.shield += npc.intent.value;
+
+  const shieldEnd =
+    otherAngel.getStat("shield");
+
+  const step2:ActionResult = {
+    fighter_type: "npc",
+    fighter_id: otherAngel.id,
+    animationName: "shield",
+    fightStatus: "ongoing",
+
+    hp_start: otherAngel.getStat("currhp"),
+    hp_end: otherAngel.getStat("currhp"),
+
+    shield_start: shieldStart,
+    shield_end: shieldEnd,
+
+    armor_start: otherAngel.getStat("armor"),
+    armor_end: otherAngel.getStat("armor"),
+
+    bm_end: otherAngel.getBmViews(),
+
+    popup: {
+      text: `+${shieldEnd - shieldStart} bouclier`,
+      type: "block",
+    }
+  }
+  return [[step1, step2]];
+}
+ return [[step1]]; 
+}
+
+
+private npcUseHpPotion(npc: Npc, target:Npc): ActionResult[][] {
+
+  const hpStart = target.getStat("currhp");
+  const regen = Math.floor(npc.getStat("maxhp")*0.4+Math.random()*10)
+  npc.getHealed(regen);
+  const hpEnd = npc.getStat("currhp");
+
+  const playerStep: ActionResult = {
+    fighter_type: "npc",
+    fighter_id: target.id,
+    animationName: "potion_hp",
+    fightStatus: "ongoing",
+
+    hp_start: hpStart,
+    hp_end: hpEnd,
+
+    shield_start: target.getStat("shield"),
+    shield_end: target.getStat("shield"),
+
+    armor_start: target.getStat("armor"),
+    armor_end: target.getStat("armor"),
+
+    bm_end: target.getBmViews(),
+
+    popup: {
+      text: `+${hpEnd - hpStart} HP`,
+      type: "heal",
+    },
+  };
+
+  return [[playerStep]];
+}
+
+
+private npcUseStrPotion(npc: Npc, target:Npc): ActionResult[][] {
+
+ 
+  const damage = 1+Math.floor(Math.random()*2);
+  npc.updateBm(BM_ID.GNOLL_POTION, "damage", damage);
+
+  const playerStep: ActionResult = {
+    fighter_type: "npc",
+    fighter_id: target.id,
+    animationName: "potion_standard",
+    fightStatus: "ongoing",
+
+    hp_start: npc.getStat("currhp"),
+    hp_end: npc.getStat("currhp"),
+
+    shield_start: target.getStat("shield"),
+    shield_end: target.getStat("shield"),
+
+    armor_start: target.getStat("armor"),
+    armor_end: target.getStat("armor"),
+
+    bm_end: target.getBmViews(),
+
+    popup: {
+      text: `+${damage} force`,
+      type: "block",
+    },
+  };
+
+  return [[playerStep]];
 }
 }

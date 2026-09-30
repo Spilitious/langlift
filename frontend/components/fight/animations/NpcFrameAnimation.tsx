@@ -33,10 +33,7 @@ export default function NpcFrameAnimation({
     npcFrameAnimations[animationName](image);
 
   const current = frames[step];
-/*
-  const audio = new Audio(getNpcAnimationSound(animationName, image));
-  audio.play();
-  console.log(animationName); */
+
 
   useEffect(() => {
     if (trigger === 0) return;
@@ -57,6 +54,8 @@ export default function NpcFrameAnimation({
         setStep(i);
          if (frames[i].sound) {
             const audio = new Audio(frames[i].sound);
+            audio.volume = 0.5;
+
             audio.play();
         }
 

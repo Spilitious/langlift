@@ -176,10 +176,13 @@ onMouseLeave={() => {
               onClick={
                 isEmpty
                   ? undefined
-                  : () =>
-                      setSelectedSaveId(
-                        save.id
-                      )
+                  : () => {
+                      if(selectedSaveId !== save.id) {
+                      const audio = new Audio(`/sounds/click.mp3`);
+                      audio.volume = 0.3;
+                      audio.play(); }
+                      setSelectedSaveId(save.id)
+                    }
               }
 
             style={{

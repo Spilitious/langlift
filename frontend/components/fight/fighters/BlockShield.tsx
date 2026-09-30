@@ -16,6 +16,26 @@ export default function BlockShield({
   const [displayBlock, setDisplayBlock] = useState(block);
   const [impact, setImpact] = useState(false);
 
+  const [showDetail, setShowDetail] = useState(false);
+
+const hoverTimeoutRef =
+  useRef<ReturnType<typeof setTimeout> | null>(null);
+
+const handleMouseEnter = () => {
+  hoverTimeoutRef.current = setTimeout(() => {
+    setShowDetail(true);
+  }, 1000);
+};
+
+const handleMouseLeave = () => {
+  if (hoverTimeoutRef.current) {
+    clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = null;
+  }
+
+  setShowDetail(false);
+};
+
  useEffect(() => {
   const oldValue = previousBlock.current;
 
@@ -54,25 +74,23 @@ export default function BlockShield({
 }, [block]);
 
   return (
-    <div
-      style={{
-        position: "relative",
+   <div
+  onMouseEnter={handleMouseEnter}
+  onMouseLeave={handleMouseLeave}
+  style={{
+    position: "relative",
+    width: `${size}px`,
+    height: `${size}px`,
+    flexShrink: 0,
 
-        width: `${size}px`,
-        height: `${size}px`,
+    transform: impact
+      ? "scale(1.25)"
+      : "scale(1)",
 
-        flexShrink: 0,
-
-        transform: impact
-          ? "scale(1.25)"
-          : "scale(1)",
-
-        transition:
-          "transform 250ms ease-out",
-
-        zIndex: 2,
-      }}
-    >
+    transition: "transform 250ms ease-out",
+    zIndex: 2,
+  }}
+>
       <img
         src="/ui/shield.png"
         alt="Block"
@@ -107,6 +125,52 @@ export default function BlockShield({
       >
         {displayBlock}
       </div>
+
+
+      {showDetail && (
+      <div
+        style={{
+          position: "absolute",
+          bottom: `${size + 5}px`,
+          left: "50%",
+          transform: "translateX(-50%)",
+
+          width: "300px",
+          padding: "8px",
+
+          background: "rgba(10, 10, 15, 0.95)",
+          border: "1px solid #c9a35d",
+          borderRadius: "5px",
+
+          color: "#d6aa5d",
+          fontWeight: "bold",
+          fontSize: "16px",
+          textAlign: "center",
+
+          pointerEvents: "none",
+          zIndex: 1000,
+        }}
+      >
+      Points de bouclier
+      
+      <div
+          style={{
+            textAlign: "center",
+            fontWeight: "normal",
+            color: "white",
+            fontSize: "12px",
+            marginBottom: "6px",
+          }}
+      >
+        Les points de bouclier absorbe les dégâts.
+        Ils peuvent être générés par une action ou automatiquement par l'armure en début de tour.
+        A la fin de tour, les points de bouclier sont perdus
+        </div>
+        
+            
+       
+  </div>
+)}
     </div>
   );
 }

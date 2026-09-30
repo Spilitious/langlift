@@ -15,6 +15,11 @@ export type AnimationName =
   | "change_intent"
   | "shake"
   | "power"
+  | "armor_break"
+  | "buff"
+  | "spawn"
+  | "curse"
+  | "ward"
 
 export type AnimationType =
   | "frame"
@@ -25,6 +30,9 @@ export type AnimationType =
   | "change_intent"
   | "shake"
   | "power"
+  | "spawn"
+  
+  
 
 
 const animationTypes: Record<
@@ -46,7 +54,12 @@ const animationTypes: Record<
   potion_standard: "overlay",
   change_intent: "change_intent",
   shake: "shake",
-  power: "frame"
+  power: "frame",
+  armor_break: "blocked",
+  buff:"overlay",
+  spawn: "spawn",
+  curse:"overlay",
+  ward:"overlay",
 };
 
 export function getAnimationType(

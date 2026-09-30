@@ -37,3 +37,16 @@ import type { EquipmentType } from "../../shared/types/equipmentView";
 export function getImageEquipment(type:EquipmentType, image:number) {
     return `/equipment/${type}${image}.png`;
 }
+
+
+
+import type { AnimationName } from "../../shared/types/animation";
+export function getBlockedImage(name:AnimationName) {
+  switch(name) {
+
+    case "armor_break" : return `/ui/armor_break.png`; break;
+    case "shield" : return `/ui/shield.png`; break;
+    case "blocked" : return `/ui/shield.png`; break;
+    default: break;
+  }
+}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 type HealthBarProps = {
   hp: number;
@@ -12,6 +12,26 @@ export default function HealthBar({
   width = 180,
 }: HealthBarProps) {
   const [displayHp, setDisplayHp] = useState(hp);
+
+
+  const [showDetail, setShowDetail] = useState(false);
+  const hoverTimeoutRef =
+    useRef<ReturnType<typeof setTimeout> | null>(null);
+  
+  const handleMouseEnter = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setShowDetail(true);
+    }, 1000);
+  };
+  
+  const handleMouseLeave = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+  
+    setShowDetail(false);
+  };
 
   useEffect(() => {
     const startHp = displayHp;
@@ -62,14 +82,23 @@ export default function HealthBar({
   )
 );
 
-
-
-  return (
+return (
+  <div
+    onMouseEnter={handleMouseEnter}
+    onMouseLeave={handleMouseLeave}
+    style={{
+      position: "relative",
+      width: `${width}px`,
+      height: "18px",
+      overflow: "visible",
+    }}
+  >
+    {/* BARRE */}
     <div
       style={{
-        position: "relative", // important pour positionner le texte
-        width: `${width}px`,
-        height: "18px",
+        position: "relative",
+        width: "100%",
+        height: "100%",
 
         background: "white",
         border: "3px solid black",
@@ -84,7 +113,6 @@ export default function HealthBar({
         overflow: "hidden",
       }}
     >
-      {/* Barre rouge */}
       <div
         style={{
           width: `${hpPercent}%`,
@@ -95,20 +123,13 @@ export default function HealthBar({
             inset 0 3px 2px rgba(255,255,255,0.25),
             inset 0 -3px 3px rgba(0,0,0,0.45)
           `,
-
-          transition: "width 550ms ease-out",
         }}
       />
 
-      {/* Texte HP */}
       <div
         style={{
           position: "absolute",
-          top: 0,
-          left: 0,
-
-          width: "100%",
-          height: "100%",
+          inset: 0,
 
           display: "flex",
           alignItems: "center",
@@ -124,5 +145,35 @@ export default function HealthBar({
         {Math.round(displayHp)}/{maxHp} HP
       </div>
     </div>
-  );
+
+    {/* TOOLTIP */}
+    {showDetail && (
+      <div
+        style={{
+          position: "absolute",
+          bottom: "30px",
+          left: "50%",
+          transform: "translateX(-50%)",
+
+          width: "300px",
+          padding: "8px",
+
+          background: "rgba(10, 10, 15, 0.95)",
+          border: "1px solid #c9a35d",
+          borderRadius: "5px",
+
+          color: "#d6aa5d",
+          fontWeight: "bold",
+          fontSize: "16px",
+          textAlign: "center",
+
+          pointerEvents: "none",
+          zIndex: 1000,
+        }}
+      >
+        Barre de vie
+      </div>
+    )}
+  </div>
+);
 }

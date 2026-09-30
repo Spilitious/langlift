@@ -53,6 +53,9 @@ export default function Shop({
       y: 0,
     });
 
+    
+   
+        
    
 useEffect(() => {
   const fetchShop = async () => {

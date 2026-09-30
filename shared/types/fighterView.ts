@@ -23,6 +23,7 @@ export type PjView = FighterView & {
   xp : number;
   nextLevelXp:number;
   avatar : number;
+  fight_absent:number;
   inventory: number[][];
   equipment: EquipmentView[];
   base_att: BaseAttributes;
@@ -50,6 +51,7 @@ export type PjSave = {
   name:string;
   level:number;
   xp : number;
+  fight_absent:number;
   base_att: BaseAttributes;
   equipment: EquipmentSave[];
   ability: AbilitySave[];

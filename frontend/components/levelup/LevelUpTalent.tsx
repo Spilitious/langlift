@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import BasicAbilityDisplay from "./BasicAbilityDisplay";
 import type { AbilityView } from "@shared/types/abilityView";
-import {getLearnableAbilities,learnAbility} from "@/utils/api/levelUpApi"
+import {getLearnableTalent,learnAbility} from "@/utils/api/levelUpApi"
 import MainButton from "../button/MainButton";
 import { PjView } from "@shared/types/fighterView";
 import { useGame } from "@/context/GameContext";
@@ -39,12 +39,8 @@ export default function LevelUpTalent({
   const [isLearning, setIsLearning] =
     useState(false);
 
-  const [activeTab, setActiveTab] =
-  useState<"ability" | "spell">("ability");
+    const [pendingGameState, setPendingGameState] = useState<typeof gameState | null>(null);
 
-  const displayedAbilities = abilities.filter(
-  ability => ability.type === activeTab
-);
   /* ======================================================
      Chargement des abilities apprenables
      ====================================================== */
@@ -56,7 +52,7 @@ export default function LevelUpTalent({
         setLoading(true);
 
         const result =
-          await getLearnableAbilities(pj.id);
+          await getLearnableTalent(pj.id);
 
         setAbilities(result);
 
@@ -96,6 +92,7 @@ export default function LevelUpTalent({
      Apprentissage
      ====================================================== */
 
+  
   const handleLearn = async () => {
   if (selectedAbilityId === null) return;
   if (isLearning) return;
@@ -104,16 +101,18 @@ export default function LevelUpTalent({
   try {
     setIsLearning(true);
 
-    const response = await learnAbility(
-      pj.id,
-      selectedAbilityId
-    );
-
+    const response = await learnAbility(pj.id, selectedAbilityId);
     setHpDelta(response.hpDelta);
+
     if(response.basicAbilityName)
       setBasicAbilityNameLearnt(response.basicAbilityName)
-    setGameState(response.gameState);
+ 
+    const audio = new Audio(`/sounds/levelup.mp3`);
+            audio.volume = 0.5;
+            audio.play();
+    setPendingGameState(response.gameState);
     setShowLevelUpConfirmation(true);
+   
 
   } catch (error) {
     console.error(
@@ -192,7 +191,7 @@ export default function LevelUpTalent({
           textAlign: "center"
         }}
       >
-      Choisissez une compétence ou un sortilège
+      Choisissez un talent
       </div>
 
 {/* ONGLETS */}
@@ -203,78 +202,10 @@ export default function LevelUpTalent({
     width: "100%",
     justifyContent: "center",
     gap: "18px",
-    marginTop: "25px",
+    
+   
   }}
 >
-  <button
-    onClick={() => {
-      setActiveTab("ability");
-      setSelectedAbilityId(null);
-    }}
-    style={{
-      width: "180px",
-      padding: "10px 20px",
-      fontFamily: "'Uncial Antiqua', serif",
-      fontSize: "18px",
-     
-      color:
-        activeTab === "ability"
-          ? "#f8e7a5"
-          : "#9c9178",
-      background:
-        activeTab === "ability"
-          ? "rgba(120, 80, 30, 0.8)"
-          : "rgba(30, 30, 30, 0.8)",
-
-      border:
-        activeTab === "ability"
-          ? "2px solid #d6a84b"
-          : "2px solid #555",
-
-      borderRadius: "6px 6px 0 0",
-
-      cursor: "pointer",
-    }}
-  >
-    Compétences
-  </button>
-
-  <button
-    onClick={() => {
-      setActiveTab("spell");
-      setSelectedAbilityId(null);
-    }}
-    style={{
-      width: "180px",
-      padding: "10px 20px",
-
-      fontFamily: "'Uncial Antiqua', serif",
-      fontSize: "18px",
-
-      color:
-        activeTab === "spell"
-          ? "#f8e7a5"
-          : "#9c9178",
-
-      background:
-        activeTab === "spell"
-          ? "rgba(120, 80, 30, 0.8)"
-          : "rgba(30, 30, 30, 0.8)",
-
-      border:
-        activeTab === "spell"
-          ? "2px solid #d6a84b"
-          : "2px solid #555",
-
-      borderRadius: "6px 6px 0 0",
-
-      cursor: "pointer",
-    }}
-  >
-    Sortilèges
-  </button>
-</div>
-
       {/* BOUTON RETOUR */}
 
      <button
@@ -333,7 +264,7 @@ export default function LevelUpTalent({
           gap: "16px",
 
           overflowY: "auto",
-
+ marginTop: "-15px",
          
           
 
@@ -341,7 +272,7 @@ export default function LevelUpTalent({
         }}
       >
 
-        {displayedAbilities.map((ability) => {
+        {abilities.map((ability) => {
 
           const selected =
             ability.basicAbilityId === selectedAbilityId;
@@ -427,9 +358,15 @@ export default function LevelUpTalent({
           pj={pj}
           hp={hpDelta}
           basicAbilityNameLearnt={basicAbilityNameLearnt}
-          onContinue={onClose}
+          onContinue={() => {
+            if (pendingGameState) {
+              setGameState(pendingGameState);
+            }
+      
+            onClose();
+          }}
         />}
 
     </div>
-  );
+  </div>)
 }

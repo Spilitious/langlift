@@ -52,6 +52,17 @@ fromSave(save:TeamSave) {
 }
 /* ****************************************** GESTION DES PJ ************************************************** */
 
+removePj(id:number)
+{
+   const index = this.pjs.findIndex(
+      pj => pj.id === id
+    );
+
+    if (index !== -1) {
+      this.pjs.splice(index, 1);
+    }
+}
+
 addPj(pj:Pj) {
     this.pjs.push(pj);
  }
@@ -89,20 +100,18 @@ getLearnableAbilities(pjId:number):AbilityView[] {
 }
 
 
+getLearnableTalents(pjId:number):AbilityView[] {
+  
+  return this.getPj(pjId).getLearnableTalents();
+}
+
+
 
 initNewFight() {
    for(const pj of this.pjs)
       pj.initNewFight();
 }
  
-transferEquipment(
-    fromPjId: number,
-    toPjId: number,
-    equipmentId: number
-  ) {
-    // ...
-}
-
 
 dealXp(xp: number): XpResult[] {
   if (this.pjs.length === 0) {

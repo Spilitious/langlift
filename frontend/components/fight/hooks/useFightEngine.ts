@@ -210,9 +210,34 @@ export function useFightEngine({
       // =====================
       // NPC
       // =====================
+        // Cas particulier : apparition d'un nouveau NPC
+if (result.fighter_spawn) {
+
+  setNpcs((current) => {
+
+    const alreadyExists = current.some(
+      npc => npc.id === result.fighter_id
+    );
+
+    if (alreadyExists) {
+      return current;
+    }
+
+    return [
+      ...current,
+      {
+        ...result.fighter_spawn!,
+        animation,
+      },
+    ];
+  });
+
+  return;
+}
 
       if (result.fighter_type === "npc") {
 
+        
         const fighter = npcs.find(
           (npc) =>
             npc.id === result.fighter_id

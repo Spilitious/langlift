@@ -10,6 +10,7 @@ export type BasicBm = {
   image: number;
   life:number;
   removable:boolean;
+  enchantment:boolean;
   display:BmDisplay;
   mainStat:StatName;
   type:BmType;

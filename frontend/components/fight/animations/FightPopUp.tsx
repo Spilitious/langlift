@@ -19,19 +19,18 @@ export default function FightPopUp({
   trigger,
   onEnd,
 }: FightPopUpProps) {
+  
   const [visible, setVisible] = useState(false);
   const [animate, setAnimate] = useState(false);
 
-  
+  const colors = {
+    damage: "red",
+    dodge: "blue",
+    block: "yellow",
+    heal: "green"
+  };
 
-const colors = {
-  damage: "red",
-  dodge: "blue",
-  block: "green",
-  heal: "green"
-};
-
-    const color = colors[details.type];
+  const color = colors[details.type];
 
   useEffect(() => {
     // Au chargement de la page : rien ne s'affiche
@@ -67,27 +66,30 @@ const colors = {
   return (
     <div
       style={{
-         position: "absolute",
-         left: `${x+8}%`,
-         top: `${y}%`,
-  //  transform: "translate(-50%, -50%)",
-  
+  position: "absolute",
+  left: `${x + 8}%`,
+  top: `${y}%`,
+  whiteSpace: "pre-line",
+  fontFamily: "'Uncial Antiqua', serif",
+  fontSize: "26px",
+  fontWeight: "bold",
+  color,
+  textShadow: "2px 2px 3px black",
 
-        fontSize: "32px",
-        fontWeight: "bold",
-        color,
-        textShadow: "2px 2px 3px black",
+  pointerEvents: "none",
+  zIndex: 100,
 
-        pointerEvents: "none",
+  opacity: animate ? 0 : 1,
 
-        opacity: animate ? 0 : 1,
-         transform: animate
-        ? "translate(-50%, -80%)"
-        : "translate(-50%, 0)",
-        zIndex:100,
-        transition:
-          "transform 1000ms ease-out, opacity 1000ms ease-out",
-      }}
+  transform: animate
+    ? "translate(-50%, -35%)"
+    : "translate(-50%, 0)",
+
+  transition: `
+    transform 1000ms linear,
+    opacity 350ms ease-out 650ms
+  `,
+}}
     >
       {details.text}
     </div>

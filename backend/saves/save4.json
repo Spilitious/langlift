@@ -1,0 +1,277 @@
+{
+  "date": "2026-09-27T12:11:35.264Z",
+  "currentRoomId": null,
+  "currentPageId": 29,
+  "currentShopId": null,
+  "consequenceIds": [
+    2,
+    19,
+    5,
+    7,
+    22,
+    13,
+    11,
+    17,
+    23
+  ],
+  "alchemyAccess": true,
+  "gladysRelation": {
+    "love": 0,
+    "trust": 3,
+    "gratitude": 4,
+    "admiration": 1,
+    "ressentment": 0,
+    "jealousy": 0
+  },
+  "roomPrologueTable": [],
+  "team": {
+    "pjs": [
+      {
+        "id": 1,
+        "image": 14,
+        "avatar": 1,
+        "name": "Troylan",
+        "level": 4,
+        "xp": 20,
+        "base_att": {
+          "constitution": 0,
+          "strength": 52,
+          "magicSkill": 0,
+          "currhp": 34,
+          "shield": 0
+        },
+        "fight_absent": 0,
+        "bms": [],
+        "equipment": [
+          {
+            "id": 3,
+            "basicEquipmentId": 1,
+            "name": "Potion de vie",
+            "type": "potion",
+            "image": 1,
+            "width": 1,
+            "height": 1,
+            "price": 24,
+            "location": "belt",
+            "text": "Restaure 5 à 8 pv",
+            "x": null,
+            "y": null,
+            "bonus": {},
+            "beltSlot": 0
+          },
+          {
+            "id": 9,
+            "basicEquipmentId": 5,
+            "name": "Langue de crapaud",
+            "type": "ingredient",
+            "image": 2,
+            "width": 1,
+            "height": 1,
+            "price": 8,
+            "location": "inventory",
+            "text": "",
+            "x": 5,
+            "y": 0,
+            "bonus": {
+              "magicSkill": 1
+            }
+          },
+          {
+            "id": 22,
+            "basicEquipmentId": 2,
+            "name": "Potion de force",
+            "type": "potion",
+            "image": 2,
+            "width": 1,
+            "height": 1,
+            "price": 35,
+            "location": "belt",
+            "text": "+1 point de force",
+            "x": null,
+            "y": null,
+            "bonus": {},
+            "beltSlot": 1,
+            "alchemySlot": 4
+          },
+          {
+            "id": 69,
+            "basicEquipmentId": 15,
+            "name": "Bouclier rond",
+            "type": "shield",
+            "image": 1,
+            "width": 2,
+            "height": 3,
+            "price": 120,
+            "location": "equipped",
+            "text": "Bouclier +1",
+            "x": null,
+            "y": null,
+            "bonus": {
+              "shield_bonus": 1
+            },
+            "slot": "shield"
+          },
+          {
+            "id": 70,
+            "basicEquipmentId": 20,
+            "name": "Sang de troll",
+            "type": "ingredient",
+            "image": 4,
+            "width": 1,
+            "height": 1,
+            "price": 24,
+            "location": "inventory",
+            "text": "",
+            "x": 0,
+            "y": 0,
+            "bonus": {
+              "regen": 3,
+              "armor": 2
+            }
+          },
+          {
+            "id": 71,
+            "basicEquipmentId": 20,
+            "name": "Sang de troll",
+            "type": "ingredient",
+            "image": 4,
+            "width": 1,
+            "height": 1,
+            "price": 24,
+            "location": "inventory",
+            "text": "",
+            "x": 1,
+            "y": 0,
+            "bonus": {
+              "regen": 3,
+              "armor": 2
+            }
+          }
+        ],
+        "ability": [
+          {
+            "id": 49,
+            "basicAbilityId": 10,
+            "image": 16,
+            "name": "Dégâts accrus",
+            "school": "Guerrier",
+            "type": "ability",
+            "detail": "inflige des dégâts supplémentaires",
+            "target": "npc",
+            "formula": "Dégâts = 11 + 3 × force ",
+            "ap": 2,
+            "duration": 0,
+            "ignoreProvocation": false
+          },
+          {
+            "id": 90,
+            "basicAbilityId": 24,
+            "image": 31,
+            "name": "Attaque dévastatrice",
+            "school": "Guerrier",
+            "type": "ability",
+            "detail": "détruit l'armure de la cible",
+            "target": "npc",
+            "formula": "Dégâts : 0 ; Armure sublit 1+2×for  ",
+            "ap": 2,
+            "duration": 0,
+            "ignoreProvocation": false
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "image": 13,
+        "avatar": 2,
+        "name": "Gladys",
+        "level": 2,
+        "xp": 10,
+        "base_att": {
+          "constitution": 10,
+          "strength": 0,
+          "magicSkill": 1,
+          "currhp": 22,
+          "shield": 0
+        },
+        "fight_absent": 0,
+        "bms": [],
+        "equipment": [
+          {
+            "id": 24,
+            "basicEquipmentId": 3,
+            "name": "Potion de mana",
+            "type": "potion",
+            "image": 3,
+            "width": 1,
+            "height": 1,
+            "price": 35,
+            "location": "belt",
+            "text": "+1 point de MM",
+            "x": null,
+            "y": null,
+            "bonus": {},
+            "beltSlot": 1,
+            "alchemySlot": 4
+          },
+          {
+            "id": 25,
+            "basicEquipmentId": 9,
+            "name": "Bâton de mage",
+            "type": "sword",
+            "image": 3,
+            "width": 2,
+            "height": 3,
+            "price": 240,
+            "location": "equipped",
+            "text": "MM +1",
+            "x": null,
+            "y": null,
+            "bonus": {
+              "magicSkill": 1
+            },
+            "slot": "sword"
+          },
+          {
+            "id": 23,
+            "basicEquipmentId": 2,
+            "name": "Potion de force",
+            "type": "potion",
+            "image": 2,
+            "width": 1,
+            "height": 1,
+            "price": 35,
+            "location": "belt",
+            "text": "+1 point de force",
+            "x": null,
+            "y": null,
+            "bonus": {},
+            "beltSlot": 2,
+            "alchemySlot": 4
+          }
+        ],
+        "ability": [
+          {
+            "id": 147,
+            "basicAbilityId": 9,
+            "image": 18,
+            "name": "Larme de vie",
+            "school": "Guérison",
+            "type": "spell",
+            "detail": "Soigne la cible",
+            "target": "pj",
+            "formula": "Pv restauré = 11+3×MM",
+            "ap": 2,
+            "duration": 0,
+            "ignoreProvocation": false
+          }
+        ]
+      }
+    ],
+    "gold": 40,
+    "profession": {
+      "alchemy": 2,
+      "blacksmith": 0,
+      "armorsmith": 1
+    }
+  }
+}

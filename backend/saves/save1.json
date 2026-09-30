@@ -1,24 +1,26 @@
 {
-  "date": "2026-09-19T19:45:56.803Z",
+  "date": "2026-09-28T16:40:18.699Z",
   "currentRoomId": null,
-  "currentPageId": 23,
+  "currentPageId": 51,
   "currentShopId": null,
   "consequenceIds": [
-    3,
+    1,
     19,
-    4,
-    7,
+    6,
+    8,
     13,
     22,
-    11,
-    17
+    10,
+    17,
+    23,
+    18
   ],
   "alchemyAccess": true,
   "gladysRelation": {
     "love": 0,
-    "trust": 2,
-    "gratitude": 2,
-    "admiration": 0,
+    "trust": 3,
+    "gratitude": 0,
+    "admiration": 1,
     "ressentment": 0,
     "jealousy": 0
   },
@@ -30,19 +32,20 @@
         "image": 14,
         "avatar": 1,
         "name": "Troylan",
-        "level": 3,
-        "xp": 90,
+        "level": 5,
+        "xp": 70,
         "base_att": {
-          "constitution": 0,
-          "strength": 0,
-          "magicSkill": 1,
-          "currhp": 24,
+          "constitution": 1,
+          "strength": 1,
+          "magicSkill": 0,
+          "currhp": 53,
           "shield": 0
         },
+        "fight_absent": 0,
         "bms": [],
         "equipment": [
           {
-            "id": 1,
+            "id": 2,
             "basicEquipmentId": 1,
             "name": "Potion de vie",
             "type": "potion",
@@ -59,21 +62,122 @@
           },
           {
             "id": 3,
-            "basicEquipmentId": 4,
-            "name": "Queue de rat",
-            "type": "ingredient",
+            "basicEquipmentId": 1,
+            "name": "Potion de vie",
+            "type": "potion",
             "image": 1,
             "width": 1,
             "height": 1,
-            "price": 5,
-            "location": "inventory",
-            "text": "",
-            "x": 0,
-            "y": 0,
-            "bonus": {}
+            "price": 12,
+            "location": "belt",
+            "text": "Restaure 5 à 8 pv",
+            "x": null,
+            "y": null,
+            "bonus": {},
+            "beltSlot": 1
           },
           {
-            "id": 12,
+            "id": 42,
+            "basicEquipmentId": 21,
+            "name": "Sabre torsadé de robutesse",
+            "type": "sword",
+            "image": 4,
+            "width": 2,
+            "height": 3,
+            "price": 700,
+            "location": "equipped",
+            "text": "Cons +1 - Dégât +2",
+            "x": null,
+            "y": null,
+            "bonus": {
+              "damage": 2,
+              "constitution": 1
+            },
+            "slot": "sword"
+          },
+          {
+            "id": 73,
+            "basicEquipmentId": 10,
+            "name": "Armure de cuir",
+            "type": "armor",
+            "image": 1,
+            "width": 2,
+            "height": 3,
+            "price": 150,
+            "location": "equipped",
+            "text": "Armure +1",
+            "x": null,
+            "y": null,
+            "bonus": {
+              "armor": 1
+            },
+            "slot": "armor"
+          }
+        ],
+        "ability": [
+          {
+            "id": 55,
+            "basicAbilityId": 18,
+            "image": 4,
+            "name": "Posture défensive",
+            "school": "Gardien",
+            "type": "ability",
+            "detail": "Octroie un puissant bouclier",
+            "target": "self",
+            "formula": "Bouclier = 7 + 3 × constitution ",
+            "ap": 2,
+            "duration": 0,
+            "ignoreProvocation": false
+          },
+          {
+            "id": 106,
+            "basicAbilityId": 21,
+            "image": 30,
+            "name": "Charge",
+            "school": "Gardien",
+            "type": "ability",
+            "detail": "détruit le bouclier de la cible",
+            "target": "npc",
+            "formula": "Dégâts : 14 + 5×cons   ",
+            "ap": 2,
+            "duration": 0,
+            "ignoreProvocation": false
+          },
+          {
+            "id": 125,
+            "basicAbilityId": 26,
+            "image": 34,
+            "name": "Provocation",
+            "school": "Gardien",
+            "type": "talent",
+            "detail": "Oblige la créature à ciblerle personnage",
+            "target": "npc",
+            "formula": "",
+            "ap": 1,
+            "duration": 0,
+            "ignoreProvocation": true
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "image": 13,
+        "avatar": 2,
+        "name": "Gladys",
+        "level": 3,
+        "xp": 80,
+        "base_att": {
+          "constitution": 0,
+          "strength": 0,
+          "magicSkill": 1,
+          "currhp": 30,
+          "shield": 0
+        },
+        "fight_absent": 0,
+        "bms": [],
+        "equipment": [
+          {
+            "id": 14,
             "basicEquipmentId": 9,
             "name": "Bâton de mage",
             "type": "sword",
@@ -91,130 +195,81 @@
             "slot": "sword"
           },
           {
-            "id": 13,
-            "basicEquipmentId": 3,
-            "name": "Potion de mana",
-            "type": "potion",
-            "image": 3,
-            "width": 1,
-            "height": 1,
-            "price": 18,
-            "location": "belt",
-            "text": "+1 point de MM",
+            "id": 37,
+            "basicEquipmentId": 15,
+            "name": "Bouclier rond",
+            "type": "shield",
+            "image": 1,
+            "width": 2,
+            "height": 3,
+            "price": 80,
+            "location": "equipped",
+            "text": "Bouclier +1",
             "x": null,
             "y": null,
-            "bonus": {},
-            "beltSlot": 1,
-            "alchemySlot": 4
+            "bonus": {
+              "shield_bonus": 1
+            },
+            "slot": "shield"
           },
           {
-            "id": 14,
-            "basicEquipmentId": 3,
-            "name": "Potion de mana",
-            "type": "potion",
-            "image": 3,
-            "width": 1,
-            "height": 1,
-            "price": 18,
-            "location": "belt",
-            "text": "+1 point de MM",
+            "id": 71,
+            "basicEquipmentId": 25,
+            "name": "Toge du dernier arcaniste",
+            "type": "armor",
+            "image": 8,
+            "width": 2,
+            "height": 3,
+            "price": 1800,
+            "location": "equipped",
+            "text": "Cons +1 - Magie +1 - Regen +1",
             "x": null,
             "y": null,
-            "bonus": {},
-            "beltSlot": 2,
-            "alchemySlot": 4
+            "bonus": {
+              "magicSkill": 1,
+              "constitution": 1,
+              "regen": 1
+            },
+            "slot": "armor"
           }
         ],
         "ability": [
           {
-            "id": 33,
-            "basicAbilityId": 9,
-            "image": 18,
-            "name": "Larme de vie",
-            "school": "Guérison",
+            "id": 176,
+            "basicAbilityId": 8,
+            "image": 19,
+            "name": "Boule de feu",
+            "school": "Destruction",
             "type": "spell",
-            "detail": "Soigne la cible",
-            "target": "pj",
-            "formula": "Pv restauré = 11+3×MM",
+            "detail": "Inflige des dégâts et des brulûres",
+            "target": "npc",
+            "formula": "Dégâts = 6+MM - Brulûres= 1 + 2 × MM ",
             "ap": 2,
-            "duration": 0,
+            "duration": 4,
             "ignoreProvocation": false
           },
           {
-            "id": 64,
-            "basicAbilityId": 11,
-            "image": 25,
-            "name": "Bouclier d'Athlan",
-            "school": "Protection",
+            "id": 227,
+            "basicAbilityId": 19,
+            "image": 21,
+            "name": "Malédiction d'Arcxos",
+            "school": "Altération",
             "type": "spell",
-            "detail": "Octroie un puissant bouclier",
-            "target": "pj",
-            "formula": "Bouclier = 3 + 1 × MM ",
-            "ap": 1,
-            "duration": 0,
-            "ignoreProvocation": false
+            "detail": "Reduit la force de l'ennemi",
+            "target": "npc",
+            "formula": "Dégât réduit de 1 + 3 × MM ",
+            "ap": 2,
+            "duration": 2,
+            "ignoreProvocation": true
           }
         ]
-      },
-      {
-        "id": 2,
-        "image": 13,
-        "avatar": 2,
-        "name": "Gladys",
-        "level": 1,
-        "xp": 40,
-        "base_att": {
-          "constitution": 0,
-          "strength": 1,
-          "magicSkill": 0,
-          "currhp": 22,
-          "shield": 0
-        },
-        "bms": [],
-        "equipment": [
-          {
-            "id": 15,
-            "basicEquipmentId": 1,
-            "name": "Potion de vie",
-            "type": "potion",
-            "image": 1,
-            "width": 1,
-            "height": 1,
-            "price": 12,
-            "location": "belt",
-            "text": "Restaure 5 à 8 pv",
-            "x": null,
-            "y": null,
-            "bonus": {},
-            "beltSlot": 0,
-            "alchemySlot": 4
-          },
-          {
-            "id": 16,
-            "basicEquipmentId": 2,
-            "name": "Potion de force",
-            "type": "potion",
-            "image": 2,
-            "width": 1,
-            "height": 1,
-            "price": 18,
-            "location": "belt",
-            "text": "+1 point de force",
-            "x": null,
-            "y": null,
-            "bonus": {},
-            "beltSlot": 1,
-            "alchemySlot": 4
-          }
-        ],
-        "ability": []
       }
     ],
     "gold": 40,
     "profession": {
-      "alchemy": 2,
+      "alchemy": 1,
       "blacksmith": 0,
-      "armorsmith": 1
+      "armorsmith": 0
     }
   }
 }

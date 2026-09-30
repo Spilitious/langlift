@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 //Les types shared
 import { HistoryDestination }
@@ -18,6 +18,7 @@ import { executeConsequence } from "@/utils/api/consequenceApi";
 import HistoryChoice from "./HistoryChoice";
 import HistoryTeamDisplay from "./HistoryTeamDisplay";
 import { useGame } from "@/context/GameContext";
+import { useApp } from "@/context/AppContext";
 import HistoryPjDisplay from "../inventory/HistoryPjDisplay";
 import type { PjView } from "@shared/types/fighterView";
 
@@ -34,15 +35,39 @@ export default function History({
 
 
   const {gameState} = useGame();
+  const {windowSize} = useApp();
+
   const [inventoryOn, setInventoryOn] = useState<boolean>(false);
   
-const [selectedPj, setSelectedPj] = useState<PjView | null>(null);
+  const [selectedPj, setSelectedPj] = useState<PjView | null>(null);
   const currentPage =   historyPages.find((page) => page.id === pageId);
-  if (!currentPage) return null;
+  
+  const music = currentPage?.music;
+  
+useEffect(() => {
+  if (!music) return;
+
+  const audio = new Audio(music);
+
+  audio.play().catch((error) => {
+    if (error.name !== "AbortError") {
+      console.error(error);
+    }
+  });
+
+  return () => {
+    audio.pause();
+    audio.currentTime = 0;
+  };
+}, [music]);
+
+if (!currentPage) return null;
+
+
 
   const currentText = historyTexts[currentPage.textId]; 
   const currentImage = getHistoryImage(currentPage.imageId);
-  
+  const teamAccess = currentPage.teamAccess;
 
   /* ********************************************* Début fonction ****************************************************/
   const handlePjClick = (id: number) => {
@@ -112,14 +137,14 @@ const [selectedPj, setSelectedPj] = useState<PjView | null>(null);
           display: "flex",
           flexDirection: "column",
 
-          paddingLeft: "100px",
+          paddingLeft: "80px",
           paddingTop: "70px",
-          paddingRight: "40px",
+          paddingRight: "50px",
          // padding: "120px 70px 120px 90px",
           boxSizing: "border-box",
 
           color: "#e8d7a5",
-          fontSize: "22px",
+          fontSize: windowSize.height <= 800 ? 16 : 22,
           fontFamily: "Georgia, serif",
           fontWeight: "bold",
           whiteSpace: "pre-line",
@@ -135,6 +160,7 @@ const [selectedPj, setSelectedPj] = useState<PjView | null>(null);
         }}
       >
         {currentText}
+        {pageId}
 
         <div
           style={{
@@ -198,14 +224,10 @@ const [selectedPj, setSelectedPj] = useState<PjView | null>(null);
     style={{
       position: "absolute",
       inset: 0,
-
       width: "100%",
       height: "100%",
-
       objectFit: "fill",
-
       zIndex: 3,
-
       pointerEvents: "none",
     }}
   />
@@ -217,23 +239,34 @@ const [selectedPj, setSelectedPj] = useState<PjView | null>(null);
 <div
   style={{
     position: "absolute",
-
     right: "6%",
     bottom: "35px",
-    
-transform: "scale(0.7)",
-   // transform: "translateX(-50%)",
-
-   // width: "500px",
-   // height: "140px",
-
+    transform: "scale(0.7)",
     zIndex: 10,
   }}
 >
+<div
+  style={{
+    position: "relative",
+    opacity: teamAccess ? 1 : 0.6,
+    filter: teamAccess ? "none" : "grayscale(60%)",
+  }}
+>
+  <HistoryTeamDisplay
+    onSelectPlayer={handlePjClick}
+  />
 
-   <HistoryTeamDisplay
-      onSelectPlayer={handlePjClick}
+  {!teamAccess && (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        cursor: 'url("/ui/cursor/cursor8.png") 0 0, pointer',
+        zIndex: 10,
+      }}
     />
+  )}
+</div>
   </div>
 
     </div>

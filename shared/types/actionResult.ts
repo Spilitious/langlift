@@ -5,6 +5,8 @@ import type { NpcIntentView } from "./npcIntentView";
 import type { GameStateView } from "./gameStateView";
 import type {EquipmentView} from "./equipmentView";
 import type label = require("./label");
+import type fighterView = require("./fighterView");
+import type {NpcView} from "./fighterView" 
 
 
 export type buildRoomResult = {
@@ -35,6 +37,8 @@ export type ActionResult = {
   armor_end: number;
 
   bm_end: BmView[];
+
+  fighter_spawn?: NpcView;
 
   popup?: FightPopupData;
   new_intent?: NpcIntentView;

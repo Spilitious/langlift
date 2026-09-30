@@ -1,5 +1,6 @@
 import type { RoomView } from "../../../shared/types/roomView.js";
 import type { BasicRoom } from "../types/basicRoom.js";
+import { NPC_ID } from "./constants.js";
 
 export const BasicRooms:BasicRoom[] = [
     {
@@ -180,7 +181,7 @@ export const BasicRooms:BasicRoom[] = [
         destination:
         {
                 type: "text",
-                id : 22,
+                id : 32,
         },
         transitionId:-1,
         prologueId:0,
@@ -223,15 +224,15 @@ export const BasicRooms:BasicRoom[] = [
         
         ],
         
-        imageId:10,
+        imageId:26,
         destination:
         {
                 type: "text",
-                id : 22,
+                id : 42,
         },
         transitionId:-1,
         prologueId:0,
-        xp:50,
+        xp:45,
     },
       {
         id:9, // Ogre
@@ -261,6 +262,241 @@ export const BasicRooms:BasicRoom[] = [
         transitionId:-1,
         prologueId:0,
         xp:50,
+    },
+      {
+        id:10, // 3 Kobolds
+        npcs: [
+        {
+            basicRaceId: 5,
+            level_min:3,
+            level_max:4,
+            position:1,
+        },
+          {
+            basicRaceId: 5,
+            level_min:3,
+            level_max:4,
+            position:3,
+        },
+          {
+            basicRaceId: 5,
+            level_min:3,
+            level_max:4,
+            position:5,
+        },
+         
+      
+        
+        ],
+        
+        imageId:26,
+        destination:
+        {
+            type: "text",
+            id : 50,
+        },
+        transitionId:-1,
+        prologueId:0,
+        xp:30,
+    },
+      {
+        id:11, // Les goules
+        npcs: [
+        {
+            basicRaceId: 9,
+            level_min:5,
+            level_max:7,
+            position:1,
+        },
+           {
+            basicRaceId: 9,
+            level_min:5,
+            level_max:7,
+            position:3,
+        },
+        {
+            basicRaceId: 9,
+            level_min:5,
+            level_max:7,
+            position:7,
+        },
+           {
+            basicRaceId: 9,
+            level_min:5,
+            level_max:7,
+            position:9,
+        },    
+        ],
+        
+        imageId:31,
+        destination:
+        {
+            type: "text",
+            id : 52,
+        },
+        transitionId:-1,
+        prologueId:0,
+        xp:45,
+    },
+      {
+        id:12, // L'âme en peine
+        npcs: [
+        {
+            basicRaceId: NPC_ID.SOUL,
+            level_min:10,
+            level_max:13,
+            position:5,
+        },
+          
+        ],
+        
+        imageId:34,
+        destination:
+        {
+            type: "text",
+            id : 56,
+        },
+        transitionId:-1,
+        prologueId:0,
+        xp:75,
+    },
+     {
+        id:13, // Le nécromancien
+        npcs: [
+       
+        {
+            basicRaceId: NPC_ID.NECROMANCIEN,
+            level_min:12,
+            level_max:15,
+            position:8,
+        },
+         {
+            basicRaceId: NPC_ID.ZOMBIE,
+            level_min:7,
+            level_max:10,
+            position:1,
+        },
+         {
+            basicRaceId: NPC_ID.ZOMBIE,
+            level_min:7,
+            level_max:10,
+            position:3,
+        },
+          
+        ],
+        
+        imageId:34,
+        destination:
+        {
+            type: "text",
+            id : 63,
+        },
+        transitionId:-1,
+        prologueId:0,
+        xp:75,
+    },
+     {
+        id:14, // Les anges
+        npcs: [
+        {
+            basicRaceId: NPC_ID.BLACK_ANGEL,
+            level_min:10,
+            level_max:10,
+            position:1,
+        },
+        {
+            basicRaceId: NPC_ID.WHITE_ANGEL,
+            level_min:10,
+            level_max:10,
+            position:9,
+        },
+        
+        
+          
+        ],
+        
+        imageId:34,
+        destination:
+        {
+            type: "text",
+            id : 63,
+        },
+        transitionId:-1,
+        prologueId:0,
+        xp:50,
+    },
+    {
+        id:15, // Le Gnoll
+        npcs: [
+        {
+            basicRaceId: NPC_ID.GNOLL,
+            level_min:10,
+            level_max:10,
+            position:5,
+        },
+       
+        
+        
+          
+        ],
+        
+        imageId:34,
+        destination:
+        {
+            type: "text",
+            id : 63,
+        },
+        transitionId:-1,
+        prologueId:0,
+        xp:50,
+    },
+     {
+        id:16, // Les mantes
+        npcs: [
+        {
+            basicRaceId: NPC_ID.MANTIS,
+            level_min:3,
+            level_max:5,
+            position:1,
+        },
+        {
+            basicRaceId: NPC_ID.MANTIS,
+            level_min:3,
+            level_max:5,
+            position:3,
+        },
+         {
+            basicRaceId: NPC_ID.MANTIS,
+            level_min:3,
+            level_max:5,
+            position:5,
+        },
+          {
+            basicRaceId: NPC_ID.MANTIS,
+            level_min:3,
+            level_max:5,
+            position:7,
+        },
+         {
+            basicRaceId: NPC_ID.MANTIS,
+            level_min:3,
+            level_max:5,
+            position:9,
+        },
+        
+        
+          
+        ],
+        
+        imageId:34,
+        destination:
+        {
+            type: "text",
+            id : 78,
+        },
+        transitionId:-1,
+        prologueId:6,
+        xp:60,
     },
 ]    
 

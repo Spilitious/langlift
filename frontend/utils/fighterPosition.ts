@@ -10,9 +10,9 @@ export const getPjPosition = (
         case 5: return [18, 37];
         case 6: return [18, 64];
 
-        case 7: return [40, 10];
-        case 8: return [40, 37];
-        case 9: return [40, 64];
+        case 7: return [28, 10];
+        case 8: return [28, 37];
+        case 9: return [28, 64];
 
         default: return [25, 10];
 
@@ -59,9 +59,11 @@ export const getNpcPosition = (
   {
     switch (position) {
         
+        case 1: return [50, 38];
         case 2: return [50, 50];
         case 5: return [67, 50];
         case 8: return [84, 50];
+        case 9: return [76, 64];
         default: return [50, 50];
   }
 }

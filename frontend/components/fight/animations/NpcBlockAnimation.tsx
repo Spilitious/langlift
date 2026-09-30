@@ -1,9 +1,12 @@
 "use client";
 
+import { AnimationName } from "@shared/types/animation";
 import { useEffect, useState } from "react";
+import { getBlockedImage } from "@/utils/spritePaths";
 
 type NpcBlockAnimationProps = {
   trigger: number;
+  animation: AnimationName;
   onEnd?: () => void;
   size?: number;
 };
@@ -11,11 +14,13 @@ type NpcBlockAnimationProps = {
 export default function NpcBlockAnimation({
   trigger,
   onEnd,
+  animation,
   size = 150,
 }: NpcBlockAnimationProps) {
   const [visible, setVisible] = useState(false);
   const [animate, setAnimate] = useState(false);
 
+  const image = getBlockedImage(animation);
   useEffect(() => {
     if (trigger === 0) return;
 
@@ -42,7 +47,7 @@ export default function NpcBlockAnimation({
 
   return (
     <img
-      src="/ui/shield.png"
+      src={image}
       alt="Block"
       style={{
         position: "absolute",

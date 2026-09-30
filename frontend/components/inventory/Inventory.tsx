@@ -1,12 +1,12 @@
 "use client";
-
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import type { PjView } from "@shared/types/fighterView";
 import { getImageEquipment } from "@/utils/spritePaths"
 import EquipmentSlots from "./EquipmentSlots";
 import type { EquipmentSlot } from "@shared/types/equipmentView";
 import Belt from "../fight/menu/Belt";
+import EquipmentToolTip from "./EquipmentToolTip"
 
 type InventoryProps = {
   pj: PjView;
@@ -40,6 +40,7 @@ type InventoryProps = {
   ) => void;
 
 };
+
 
 const CELL_WIDTH = 50;
 const CELL_HEIGHT = 50;
@@ -92,6 +93,33 @@ function snapToCell(
     : baseCell;
 }
 
+
+const [hoveredEquipmentId, setHoveredEquipmentId] =
+  useState<number | null>(null);
+
+const hoverTimeoutRef =
+  useRef<ReturnType<typeof setTimeout> | null>(null);
+
+const clearEquipmentTooltip = () => {
+  if (hoverTimeoutRef.current) {
+    clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = null;
+  }
+
+  setHoveredEquipmentId(null);
+};
+
+const handleEquipmentMouseEnter = (
+  equipmentId: number
+) => {
+  hoverTimeoutRef.current = setTimeout(() => {
+    setHoveredEquipmentId(equipmentId);
+  }, 1000);
+};
+
+const handleEquipmentMouseLeave = () => {
+  clearEquipmentTooltip();
+};
     
  
 const handlePointerUp = (
@@ -215,53 +243,64 @@ const handlePointerUp = (
     userSelect: "none",
   }}
 >
-  {inventoryEquipment.map((equipment) => {
+ {inventoryEquipment.map((equipment) => {
+  if (equipment.x === null || equipment.y === null)
+    return null;
 
-    if (equipment.x === null || equipment.y === null) 
-      return null;
-    
-    if (equipment.id === draggedEquipmentId) 
-      return null;
-  
-    return (
+  if (equipment.id === draggedEquipmentId)
+    return null;
+
+  return (
+    <div
+      key={equipment.id}
+      onMouseEnter={() =>
+        handleEquipmentMouseEnter(equipment.id)
+      }
+      onMouseLeave={handleEquipmentMouseLeave}
+      onPointerDown={(event) => {
+        // On empêche le tooltip d'apparaître
+        // dès qu'on commence à déplacer l'objet
+        clearEquipmentTooltip();
+
+        onEquipmentPointerDown(
+          event,
+          equipment.id
+        );
+      }}
+      style={{
+        position: "absolute",
+
+        left: equipment.x * CELL_WIDTH + 5,
+        top: equipment.y * CELL_HEIGHT + 2,
+
+        width: equipment.width * CELL_WIDTH,
+        height: equipment.height * CELL_HEIGHT,
+
+        cursor:
+          'url("/ui/cursor/cursor6.png") 0 0, pointer',
+      }}
+    >
       <img
-        key={equipment.id}
         src={getImageEquipment(
           equipment.type,
           equipment.image
         )}
         alt={equipment.name}
         draggable={false}
-        onPointerDown={(event) =>
-          onEquipmentPointerDown(
-            event,
-            equipment.id
-          )
-        }
         style={{
-          position: "absolute",
-
-          left:
-            equipment.x * CELL_WIDTH+5,
-
-          top:
-            equipment.y * CELL_HEIGHT+2,
-
-          width:
-            equipment.width *
-            CELL_WIDTH,
-
-          height:
-            equipment.height *
-            CELL_HEIGHT,
-
+          width: "100%",
+          height: "100%",
           objectFit: "contain",
-
-          cursor: 'url("/ui/cursor/cursor6.png") 0 0, pointer',
+          pointerEvents: "none",
         }}
       />
-    );
-  })}
+
+     {hoveredEquipmentId === equipment.id && (
+  <EquipmentToolTip equipment={equipment} />
+)}
+    </div>
+  );
+})}
 
  
 </div></div>

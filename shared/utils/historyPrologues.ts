@@ -14,6 +14,18 @@ export const historyPrologues = [
 //3
  `Vos activités noctures ne vous ont pas permis de vous reposer suffisament. Vous vous sentez fatigué de votre nuit écourtés.
  Vous subissez un malus de 1 points de Maitrise de la Magie et un point de Force.
+`,
+//4
+ `Lorsque le troll vous attaque, Gladys n'est pas encore remonté de la crevasse. Vous commencez donc le combat seul pour les 2 premiers tours.
+`,
+
+//5
+ `Lorsque le troll attaque, vous n'êtes pas encore remonté de la crevasse. Gladys commence donc le combat seule pour les 2 premiers tours.
+`,
+
+
+//6
+ `Suite à votre chute, vous commencez le combat avec la moitié de vos pv .
 `
 ]
 

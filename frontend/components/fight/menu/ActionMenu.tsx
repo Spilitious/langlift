@@ -52,7 +52,7 @@ const beltEquipment =
       id: 1,
       basicAbilityId:1,
       image: 1,
-      name: "Attack",
+      name: "Attaque de base",
       type: "ability",
       school : "Guerrier",
       formula : "",
@@ -67,7 +67,7 @@ const beltEquipment =
       id: 2,
       basicAbilityId:2,
       image: 2,
-      name: "Shield",
+      name: "Défense de base",
       type:'ability',
       school : "Guerrier",
       formula : "",
@@ -83,6 +83,20 @@ const beltEquipment =
     ...baseAbility,
     ...abilitys,
   ];
+
+
+  const displayedAbilities = allAbilitys
+  .filter(action => action.type === "spell" || action.type === "ability")
+  .slice(0, 8);
+  const emptySlots = 8 - displayedAbilities.length;
+
+
+  const displayedTalents = abilitys.filter(ab => (ab.type ==="talent")).slice(0,3);
+  const emptyTalentSlots = 3 - displayedTalents.length;
+
+  const displayedSkills = abilitys.filter(ab => (ab.type ==="skill")).slice(0,3);
+  const emptySkillsSlots = 3 - displayedSkills.length;
+
  return (
   <div
     style={{
@@ -95,52 +109,164 @@ const beltEquipment =
     <div 
      style={{
       position:"relative",
-      left : "60px",
+     flexShrink: 0,
+      left : "40px",
       top: "10px" }}
       >
     <PjProfil 
        player={pj}/>
     </div>
     
-    
-    
-    {/* ACTIONS */}
-    <div
-      style={{
-        display: "flex",
-        gap: "10px",
-        marginLeft: "150px",
-       
-      }}
-    >
-      {allAbilitys.map((action) => (
-        <ActionButton
-          key={action.basicAbilityId}
-          image={getActionImagePath(action.image)}
-          selected={selectedAction?.basicAbilityId === action.basicAbilityId}
-          disabled={pj.ap < action.ap}
-          onClick={() => onSelectAction(action)}
-        />
-      ))}
-    </div>
- <div
-      style={{
-        marginTop: "100px",
-        marginLeft: "auto",
-        marginRight: "50px",
-      }}
-    ></div>
+   <div
+  style={{
+    position: "relative",
+    marginTop: "50px",
+    marginLeft: "74px",
 
-  <Belt equipment={beltEquipment} 
-    draggedEquipmentId={dragEquipmentId}
-     onEquipmentPointerDown={onEquipmentPointerDown}
-     onDropOnBeltSlot={onDropBeltSlot}
-   />
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+  }}
+>
+  {/* LIGNE 1 : 7 ABILITIES */}
+  <div
+    style={{
+      display: "flex",
+      gap: "10px",
+    }}
+  >
+    {displayedAbilities.map((action) => (
+      <ActionButton
+        key={action.basicAbilityId}
+        pj={pj}
+        image={getActionImagePath(action.image)}
+        action={action}
+        selected={
+          selectedAction?.basicAbilityId === action.basicAbilityId
+        }
+        disabled={pj.ap < action.ap}
+        onClick={() => onSelectAction(action)}
+      />
+    ))}
+
+    {Array.from({ length: emptySlots }).map((_, index) => (
+      <ActionButton
+        key={`ability-empty-${index}`}
+         pj={pj}
+        image="/ui/action-empty2.png"
+        selected={false}
+        disabled={true}
+        onClick={() => {}}
+      />
+    ))}
+  </div>
+{/* LIGNE 2 : TALENTS + SKILLS */}
+<div
+  style={{
+    display: "flex",
+    width: "710px", // 7 × 80 + 6 × 10
+  }}
+>
+  {/* 3 TALENTS */}
+  <div
+    style={{
+      display: "flex",
+      gap: "10px",
+    }}
+  >
+    {displayedTalents.map((action) => (
+      <ActionButton
+        key={`talent-${action.basicAbilityId}`}
+         pj={pj}
+        image={getActionImagePath(action.image)}
+         action={action}
+        selected={
+          selectedAction?.basicAbilityId === action.basicAbilityId
+        }
+        disabled={pj.ap < action.ap}
+        onClick={() => onSelectAction(action)}
+      />
+    ))}
+
+    {Array.from({ length: emptyTalentSlots }).map((_, index) => (
+      <ActionButton
+        key={`talent-empty-${index}`}
+         pj={pj}
+        image="/ui/talent-empty.png"
+        selected={false}
+        disabled={true}
+        onClick={() => {}}
+      />
+    ))}
+  </div>
+
+  {/* 3 SKILLS */}
+  <div
+    style={{
+      display: "flex",
+      gap: "10px",
+      marginLeft: "auto",
+    }}
+  >
+    {displayedSkills.map((action) => (
+      <ActionButton
+        key={`skill-${action.basicAbilityId}`}
+         pj={pj}
+        image={getActionImagePath(action.image)}
+         action={action}
+        selected={
+          selectedAction?.basicAbilityId === action.basicAbilityId
+        }
+        disabled={pj.ap < action.ap}
+        onClick={() => onSelectAction(action)}
+      />
+    ))}
+
+    {Array.from({ length: emptySkillsSlots }).map((_, index) => (
+      <ActionButton
+        key={`skill-empty-${index}`}
+         pj={pj}
+        image="/ui/skill-empty.png"
+        selected={false}
+        disabled={true}
+        onClick={() => {}}
+      />
+    ))}
+  </div>
+</div></div>
+    
+    
+ 
+
+ {/* BELT */}
+  <div
+    style={{
+      position: "relative",
+
+      // sous la ligne d'abilities
+      top: "0px",
+
+      // largeur des 5 premières abilities :
+      // 5 × 86 + 4 × 10 = 470px
+      left: "250px",
+
+      // centre la Belt sur ce point
+      transform: "translateX(-50%)",
+    }}
+  >
+    <Belt
+      equipment={beltEquipment}
+      draggedEquipmentId={dragEquipmentId}
+      onEquipmentPointerDown={onEquipmentPointerDown}
+      onDropOnBeltSlot={onDropBeltSlot}
+    />
+  </div>
     
      <div
       style={{
         marginLeft: "auto",
         marginRight: "50px",
+        marginTop:"150px",
          userSelect: "none",
                 WebkitUserSelect: "none",
       }}

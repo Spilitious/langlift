@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { PjView } from "@shared/types/fighterView";
 import { getPjAvatarPath } from "@/utils/spritePaths";
+import { STAT_LABELS, StatName } from "@shared/types/label";
 
 type PjProfilProps = {
   player: PjView;
@@ -23,6 +24,35 @@ const PjProfil = ({ player }: PjProfilProps) => {
     textAlign: "center",
   };
 
+  const priorityStats: StatName[] = [
+  "armor",
+  "damage",
+];
+
+const allStats = Object.entries(STAT_LABELS)
+  .map(([stat, label]) => ({
+    stat: stat as StatName,
+    label,
+    value: player.stats[stat as StatName],
+  }));
+
+const priority = priorityStats
+  .map(stat => allStats.find(item => item.stat === stat))
+  .filter(item => item !== undefined);
+
+const others = allStats
+  .filter(item => !priorityStats.includes(item.stat))
+  .sort((a, b) => {
+    if (a.value !== 0 && b.value === 0) return -1;
+    if (a.value === 0 && b.value !== 0) return 1;
+    return 0;
+  });
+
+const displayedStats = [
+  ...priority,
+  ...others,
+].slice(0, 8);
+
   return (
     <div
       style={{
@@ -32,6 +62,7 @@ const PjProfil = ({ player }: PjProfilProps) => {
         alignItems: "center",
         padding: 10,
         boxSizing: "border-box",
+         width: 550,
       }}
     >
       {/* ===================== */}
@@ -197,42 +228,20 @@ const PjProfil = ({ player }: PjProfilProps) => {
           {/* COLONNE 2 */}
 
           <div style={statColumnStyle}>
-            
-            <div>
-              Armure : {player.stats.armor}
-            </div>
-              <div>
-              Dégâts bonus : {player.stats.damage}
-            </div>
-            <div>
-              Bouclier bonus : {player.stats.shield_bonus}
-            </div>
-            <div>
-              Bouclier reflex : {player.stats.reflex}
-            </div>
-           
+  {displayedStats.slice(0, 4).map(({ stat, label, value }) => (
+    <div key={stat}>
+      {label} : {value}
+    </div>
+  ))}
+</div>
 
-          </div>
-
-          {/* COLONNE 3 */}
-
-          <div style={statColumnStyle}>
-            <div>
-              Evasion : {player.stats.evasion}
-            </div>
-
-            <div>
-              Epine : {player.stats.spike}
-            </div>
-            <div>
-              Regen : {player.stats.regen}
-            </div>
-           
-
-            <div>
-              Protection : {player.stats.ward}
-            </div>
-          </div>
+<div style={statColumnStyle}>
+  {displayedStats.slice(4, 8).map(({ stat, label, value }) => (
+    <div key={stat}>
+      {label} : {value}
+    </div>
+  ))}
+</div>
         </div>
       </div>
     </div>

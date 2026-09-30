@@ -1,6 +1,6 @@
-export type SchoolType = "Guérison" | "Destruction" | "Altération" |  "Assassin" | "Guerrier" | "Gardien" | "Protection";
+export type SchoolType = "Gardien" | "Guerrier" |  "Assassin"  |  "Guérison" |  "Protection"  | "Altération" | "Destruction" ;
 export type TargetType = "self" | "pj" | "npc" ;
-export type AbilityType = "ability" | "spell";
+export type AbilityType = "ability" | "spell" |"talent" | "skill";
 
 export type  AbilityView = {
     id:number;

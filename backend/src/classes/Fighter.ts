@@ -3,7 +3,7 @@ import { Bm } from "./Bm.js";
 import type { BmView } from "../../../shared/types/bmView.js";
 import type { StatName } from "../../../shared/types/label.js";
 
-import { BM_ID } from "../utils/constants.js";
+import { BM_ID } from "../../../shared/utils/bmConstant.js";
 import { getBasicBm } from "../utils/basicBm_data.js";
 
 export abstract class Fighter {
@@ -52,28 +52,37 @@ export abstract class Fighter {
 
     const basicBm = getBasicBm(basicBmId);
     let bm = this.getBm(basicBmId);
+    
 
     if (bm) {
-
+     
       switch(basicBm.type) 
       {
-        case "life_cumulative" : bm.life += basicBm.life; break;
+        case "life_cumulative" : bm.life += basicBm.life;
+        break;
+
         case "value_cumulative" : 
-        
-          if(bm.getBonus(stat) > 0) 
+         if(bm.getBonus(stat) > 0) 
               bm.incBonus(stat, value); 
           else 
-          {
-           
               bm.incBonus(stat, -value); 
-                    }          break;
-        case "replaced" : bm = Bm.fromBasicBmId(basicBmId, 1); break;
-        case "both_cumulative" : bm.life += basicBm.life; bm.incBonus(stat, value); break;
+        break;
+        
+        case "both_cumulative" : bm.life = basicBm.life; 
+            if(bm.getBonus(stat) < 0 )
+                bm.incBonus(stat, -value);
+            else  
+              bm.incBonus(stat, value);    
+        break;
+        
+        case "replaced": 
+          this.deleteBm(bm.basicBmId);
+          const newBm = Bm.fromBasicBmId(basicBmId, value);
+          this.bms.push(newBm);
+          break;
       }
       
-      console.log("name", bm.name);
-      console.log("life", bm.life);
-      console.log("stat value", bm.getBonus(stat));
+    
       
       if (bm.getBonus(stat) === 0) {
         this.deleteBm(basicBmId);
@@ -87,6 +96,18 @@ export abstract class Fighter {
         Bm.fromBasicBmId(basicBmId, value)
       );
     }
+  }
+
+  
+  updateBmLife(
+    basicBmId: number,
+    value: number
+  ): void {
+
+    const basicBm = getBasicBm(basicBmId);
+    let bm = this.getBm(basicBmId);
+    if(bm)
+      bm.life = value;
   }
 
   replaceBm(
@@ -116,30 +137,41 @@ export abstract class Fighter {
     );
   }
 
-  updateBmsNewTurn(): void {
+updateBmsNewTurn(): void {
 
-    for (const bm of [...this.bms]) {
+  for (const bm of [...this.bms]) {
 
-      //Gestion cas particulier
-      switch (bm.basicBmId) {
+    // Gestion cas particulier
+    switch (bm.basicBmId) {
 
-          case BM_ID.BLEED:
-            bm.incBonus("regen", 1);
-            if(bm.getBonus("regen") == 0)
-               this.deleteBm(bm.basicBmId);
-            break;
-      }
-      if (bm.life !== -1) {
+      case BM_ID.BLEED:
+        bm.incBonus("regen", 1);
 
-        bm.life--;
+        if (bm.getBonus("regen") === 0) {
+          this.deleteBm(bm.basicBmId);
+          continue;
+        }
 
-       
-      }
-  
-    
-      if (bm.life === 0) {
-        this.deleteBm(bm.basicBmId);
-      }
+        break;
+
+      case BM_ID.BLEAK:
+        bm.incBonus("regen", -1);
+        break;
     }
+
+    if (bm.life !== -1)
+      bm.life--;
+
+    if (bm.life === 0)
+      this.deleteBm(bm.basicBmId);
   }
+}
+  
+hasBm(basicBmId:number):boolean {
+  for(const bm of this.bms) {
+    if(bm.basicBmId === basicBmId)
+        return true;
+  }
+  return false;
+}
 }

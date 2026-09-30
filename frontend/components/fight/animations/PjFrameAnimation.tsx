@@ -38,7 +38,10 @@ export default function PjFrameAnimation({
         if (cancelled) return;
 
         setStep(i);
-
+         if (frames[i].sound) {
+            const audio = new Audio(frames[i].sound);
+            audio.play();
+        }
         await new Promise((resolve) =>
           setTimeout(
             resolve,

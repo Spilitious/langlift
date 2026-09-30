@@ -1,5 +1,7 @@
 import { NpcIntentView } from "@shared/types/npcIntentView";
 import { getIntentImagePath } from "@/utils/spritePaths";
+import { useRef, useState } from "react";
+import NpcIntentDetail from  "./NpcIntentDetail";
 
 import { getPjImagePath, getPjAvatarPath } from "@/utils/spritePaths";
 
@@ -17,7 +19,38 @@ export default function NpcIntent({
   ? intent.value
   : intent.value2 + "x" + intent.value
   
-  console.log(value);
+  const [showDetail, setShowDetail] = useState(false);
+
+  const intentRef = useRef<HTMLDivElement | null>(null);
+
+const [detailBelow, setDetailBelow] = useState(false);
+
+const hoverTimeoutRef =
+  useRef<ReturnType<typeof setTimeout> | null>(null);
+
+const handleMouseEnter = () => {
+   if (intentRef.current) {
+    const rect =
+      intentRef.current.getBoundingClientRect();
+
+    // Par exemple : si l'icône est à moins de 180px du haut
+    setDetailBelow(rect.top < 180);
+  }
+
+  hoverTimeoutRef.current = setTimeout(() => {
+    setShowDetail(true);
+  }, 1000);
+};
+
+const handleMouseLeave = () => {
+  if (hoverTimeoutRef.current) {
+    clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = null;
+  }
+
+  setShowDetail(false);
+};
+  
   return (
     <div
       style={{
@@ -28,20 +61,37 @@ export default function NpcIntent({
         top: "25px"
       }}
     >
-      <img
-        src={getIntentImagePath(intent.action)}
-        alt="Intention du NPC"
-        style={{
-           position: "relative",
-          width: "48px",
-          height: "48px",
-           top: "13px",
-          left: "15px",
-          objectFit: "contain",
-          pointerEvents: "none",
-          userSelect: "none",
-        }}
-      />
+    <div
+     ref={intentRef}
+  onMouseEnter={handleMouseEnter}
+  onMouseLeave={handleMouseLeave}
+  style={{
+    position: "relative",
+    width: "48px",
+    height: "48px",
+    top: "13px",
+    left: "15px",
+     
+  }}
+>
+  <img
+    src={getIntentImagePath(intent.action)}
+    
+    alt="Intention du NPC"
+    style={{
+      width: "48px",
+      height: "48px",
+      objectFit: "contain",
+      pointerEvents: "none",
+      userSelect: "none",
+    }}
+  />
+
+  {showDetail && (
+    <NpcIntentDetail intent={intent}
+     below={detailBelow} />
+  )}
+</div>
 
       {value!=-1 && <div
         style={{
@@ -69,7 +119,7 @@ export default function NpcIntent({
         {value}
       </div>}
       {/* Cible */}
-{intent.target !== 0 && (
+{intent.target_image !== 0 && (
   <>
    <img
       src="/ui/target_arrow.png"

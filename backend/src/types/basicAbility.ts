@@ -13,5 +13,6 @@ export type  BasicAbility = {
     ap : number;
     duration : number;
     ignoreProvocation:boolean;
-    
+   
+  
 }

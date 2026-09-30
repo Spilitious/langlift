@@ -1,5 +1,4 @@
 import type { EquipmentType } from "../../../shared/types/equipmentView.js";
-
 import type { StatName } from "../../../shared/types/label.js";
 
 

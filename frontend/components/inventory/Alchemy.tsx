@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef} from "react";
 import { useGame } from "@/context/GameContext";
 import { getImageEquipment } from "@/utils/spritePaths";
 import type { EquipmentView } from "@shared/types/equipmentView";
 import MainButton from "../button/MainButton";
 import { equipEquipment } from "@/utils/api/equipmentApi";
+import EquipmentToolTip from "./EquipmentToolTip";
 
 import type { PjView } from "@shared/types/fighterView";
 
@@ -41,9 +42,9 @@ export default function Alchemy({
 
  
   const alchemySlots = [
-  { id: 0, left: "30%", top: "27%" },
+  { id: 0, left: "31%", top: "27%" },
   { id: 1, left: "50%", top: "27%" },
-  { id: 2, left: "70%", top: "27%" },
+  { id: 2, left: "68%", top: "27%" },
 ];
 const alchemyEquipment = pj.equipment.filter(
   equip => equip.location === "alchemy"
@@ -74,6 +75,34 @@ const disable =
 /* ********************************************** DEBUT DES FONCTION *************************** */
 /* **************************************************** Gestion message UI ********************************* */
 
+
+
+const [hoveredEquipmentId, setHoveredEquipmentId] =
+  useState<number | null>(null);
+
+const hoverTimeoutRef =
+  useRef<ReturnType<typeof setTimeout> | null>(null);
+
+const clearEquipmentTooltip = () => {
+  if (hoverTimeoutRef.current) {
+    clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = null;
+  }
+
+  setHoveredEquipmentId(null);
+};
+
+const handleEquipmentMouseEnter = (
+  equipmentId: number
+) => {
+  hoverTimeoutRef.current = setTimeout(() => {
+    setHoveredEquipmentId(equipmentId);
+  }, 1000);
+};
+
+const handleEquipmentMouseLeave = () => {
+  clearEquipmentTooltip();
+};
 
 
 const handlePointerUp = (
@@ -108,7 +137,7 @@ const handlePointerUp = (
         position: "relative",
         width: "100%",
         height: "100%",
-        overflow: "hidden",
+        overflow: "visible",
         backgroundColor: "rgba(0, 0, 0, 0.58)",
         border: "2px solid #6f5730",
         borderRadius: "10px",
@@ -181,21 +210,28 @@ const handlePointerUp = (
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-
+        overflow: "visible",
         zIndex: 10,
 
         // temporaire
         //background: "rgba(255, 0, 0, 0.25)",
       }}
     >
-      {ingredient && (
+      {ingredient && (<>
         <img
           src={getImageEquipment(
             ingredient.type,
             ingredient.image
           )}
-            onPointerDown={(event) => onIngredientPointerDown(event, ingredient.id,  slot.id)
-                  }
+            onMouseEnter={() =>
+            handleEquipmentMouseEnter(ingredient.id)
+          }
+            onMouseLeave={handleEquipmentMouseLeave}
+            onPointerDown={(event) => { clearEquipmentTooltip();
+                                      onIngredientPointerDown(event, ingredient.id,  slot.id)
+                          }}
+          
+                  
           alt={ingredient.name}
           draggable={false}
           style={{
@@ -206,7 +242,15 @@ const handlePointerUp = (
            
           }}
         />
-      )}
+        {hoveredEquipmentId === ingredient.id && (
+          <EquipmentToolTip equipment={ingredient}
+            below={true} />
+        )}
+        </>)
+        
+        }
+         
+      
     </div>
   );
 })}
@@ -226,25 +270,29 @@ const handlePointerUp = (
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-
-        zIndex: 10,
+      
+        zIndex: 11,
 
         // temporaire
      //  background: "rgba(255, 0, 0, 0.25)",
       }}
     >
       {potion && (potion.id !== draggedEquipmentId) &&
-        <img
+        <><img
     src={getImageEquipment(
       potion.type,
       potion.image
     )}
-    onPointerDown={(event) =>
+     onMouseEnter={() =>
+            handleEquipmentMouseEnter(potion.id)
+          }
+            onMouseLeave={handleEquipmentMouseLeave}
+          onPointerDown={(event) => { clearEquipmentTooltip
       onIngredientPointerDown(
         event,
         potion.id,
         4
-      )
+      )}
     }
     alt={potion.name}
     draggable={false}
@@ -254,6 +302,10 @@ const handlePointerUp = (
       objectFit: "contain",
     }}
   />
+   {hoveredEquipmentId === potion.id && (
+    <EquipmentToolTip equipment={potion}
+                      below={true} />
+        )} </>
 }
     </div>
  

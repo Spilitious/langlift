@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef} from "react";
 import { useGame } from "@/context/GameContext";
 import type { PjView } from "@shared/types/fighterView";
 import { getImageEquipment } from "@/utils/spritePaths"
@@ -11,6 +11,7 @@ import type { EquipmentView } from "@shared/types/equipmentView";
 import PjShopDetail from "./PjShopDetail"
 import TeamDisplay from "./TeamDisplay";
 import MainButton from "../button/MainButton";
+import EquipmentToolTip from "../inventory/EquipmentToolTip";
 
 type PjShopInventoryProps = {
     pj: PjView;
@@ -106,6 +107,32 @@ const beltEquipment =
   }
   
  
+   const [hoveredEquipmentId, setHoveredEquipmentId] =
+        useState<number | null>(null);
+      
+      const hoverTimeoutRef =
+        useRef<ReturnType<typeof setTimeout> | null>(null);
+      
+      const clearEquipmentTooltip = () => {
+        if (hoverTimeoutRef.current) {
+          clearTimeout(hoverTimeoutRef.current);
+          hoverTimeoutRef.current = null;
+        }
+      
+        setHoveredEquipmentId(null);
+      };
+      
+      const handleEquipmentMouseEnter = (
+        equipmentId: number
+      ) => {
+        hoverTimeoutRef.current = setTimeout(() => {
+          setHoveredEquipmentId(equipmentId);
+        }, 1000);
+      };
+      
+      const handleEquipmentMouseLeave = () => {
+        clearEquipmentTooltip();
+      };
 
   const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
     
@@ -279,6 +306,7 @@ return (
           return (
            <div
   key={equipment.id}
+ 
   style={{
     position: "absolute",
 
@@ -296,11 +324,17 @@ return (
     )}
     alt={equipment.name}
     draggable={false}
-    onPointerDown={(event) =>
+      onMouseEnter={() =>
+        handleEquipmentMouseEnter(equipment.id)
+      }
+      onMouseLeave={handleEquipmentMouseLeave}
+    onPointerDown={ 
+      
+      (event) => { clearEquipmentTooltip();
       onEquipmentPointerDown(
         event,
         equipment.id
-      )
+      )}
     }
     style={{
       width: "100%",
@@ -308,6 +342,10 @@ return (
       objectFit: "contain",
     }}
   />
+
+   {hoveredEquipmentId === equipment.id && (
+    <EquipmentToolTip equipment={equipment} />
+  )}
 
   <div
     style={{

@@ -50,6 +50,12 @@ export default function OverlayAnimation({
         if (cancelled) return;
 
         setStep(i);
+         if (frames[i].sound) {
+            const audio = new Audio(frames[i].sound);
+            audio.volume = 0.5;
+
+            audio.play();
+        }
 
         await new Promise((resolve) =>
           setTimeout(

@@ -198,7 +198,7 @@ const {
   useEffect(() => {
   if (!gameState) return;
 
-  const newPjs = gameState.team.pjs.map((pj) => ({
+  const newPjs = gameState.team.pjs.filter(pj => (pj.fight_absent == 0)).map((pj) => ({
     ...pj,
     animation: {
       id: 0,
@@ -253,10 +253,7 @@ useEffect(() => {
 useEffect(() => {
   if (!gameState?.room) return;
 
-   console.log(
-    "NPC DU GAMESTATE :",
-    gameState.room.npcs.map(npc => npc.id)
-  );
+ 
   
   const newNpcs = gameState.room.npcs.map((npc) => ({
     ...npc,
@@ -266,10 +263,7 @@ useEffect(() => {
     },
   }));
 
-  console.log(
-    "NPC CRÉÉS :",
-    newNpcs.map(npc => npc.id)
-  );
+  
 
   setNpcs(newNpcs);
 }, [gameState?.room]);

@@ -33,6 +33,7 @@ export type GameStateView = {
   
   consequenceIds: Set<number>;
   alchemyAccess:boolean;
+  
   shop:ShopView | null;
   room:RoomView | null;
   team:TeamView;
@@ -49,6 +50,7 @@ export type GameStateSave = {
   currentShopId: number | null;
   consequenceIds: number[];
   alchemyAccess:boolean;
+  
   team:TeamSave;
   roomPrologueTable: [number, number][];
   gladysRelation:Relation;

@@ -19,7 +19,7 @@ router.post(
       error: "Aucune partie en cours",
     });
   }
-  
+
     const pj = gameState.team.pjs.find(
       pj => pj.id === pjId
     );
@@ -30,7 +30,7 @@ router.post(
       });
     }
 
-    console.log("route ok")
+   
     const result = pj.makePotion();
     console.log(result);
     res.json({

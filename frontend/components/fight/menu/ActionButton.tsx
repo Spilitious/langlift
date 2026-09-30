@@ -1,9 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import type { AbilityView } from "@shared/types/abilityView";
+import ActionTooltip from "./ActionToolTip";
+import { getActionImagePath } from "@/utils/spritePaths";
+import type { PjView } from "@shared/types/fighterView";
 
 type ActionButtonProps = {
-  image: string;
+  image:string;
+   action?: AbilityView;
+   pj: PjView;
   selected: boolean;
   disabled?: boolean;
   onClick: () => void;
@@ -11,34 +17,85 @@ type ActionButtonProps = {
 
 export default function ActionButton({
   image,
+  action,
   selected,
+  pj,
   onClick,
   disabled = false,
 }: ActionButtonProps) {
   const [hover, setHover] = useState(false);
 
+  const [showTooltip, setShowTooltip] = useState(false);
+
+const hoverTimeoutRef =
+  useRef<ReturnType<typeof setTimeout> | null>(null);
+const handleMouseEnter = () => {
+  if (!disabled) {
+    setHover(true);
+  }
+
+  if (!action) return;
+
+  hoverTimeoutRef.current = setTimeout(() => {
+    setShowTooltip(true);
+  }, 1000);
+};
+
+const handleMouseLeave = () => {
+  setHover(false);
+
+  if (hoverTimeoutRef.current) {
+    clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = null;
+  }
+
+  setShowTooltip(false);
+};
+
+ const handleClick = () => {
+      const audio = new Audio(`/sounds/click.mp3`);
+      audio.volume = 0.3;
+      audio.play();
+      onClick();
+  }
+
+const handlePointerDown = () => {
+  if (hoverTimeoutRef.current) {
+    clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = null;
+  }
+
+  setShowTooltip(false);
+};
+
   return (
+    <div
+       onMouseEnter={handleMouseEnter}
+  onMouseLeave={handleMouseLeave}
+  onPointerDown={handlePointerDown}
+   style={{
+      position: "relative",
+      width: "80px",
+      height: "80px",
+    }}
+    >
     <button
-      onClick={onClick}
-       onMouseEnter={() => {
-       if (!disabled) setHover(true);
-       }}
-      onMouseLeave={() => setHover(false)}
+      onClick={handleClick}
       style={{
         padding: 0,
         border: "none",
         background: "transparent",
         cursor: 'url("/ui/cursor/cursor6.png") 0 0, pointer',
 
-        width: "86px",
-        height: "86px",
+        width: "80px",
+        height: "80px",
       }}
     >
       {/* Corps / tranche du bouton */}
       <div
         style={{
-          width: "80px",
-          height: "80px",
+          width: "74px",
+          height: "74px",
 
           padding: "4px",
 
@@ -135,5 +192,9 @@ export default function ActionButton({
         </div>
       </div>
     </button>
+    {showTooltip && action && (
+  <ActionTooltip action={action} pj={pj} />
+)}
+</div>
   );
 }

@@ -12,7 +12,7 @@ export type upgradeRates = {
   damage:number;
   magicSkill:number;
   power: number;
-  bm_start:number;
+  bm:number;
 };
 
 export type BasicNpc= {
@@ -24,9 +24,11 @@ export type BasicNpc= {
   level_start: number;
   armor_start:number;
   hp_start: number;
+  shield_start:number;
   damage_start:number;
   magicSkill_start:number
   power_start:number;
+  bm_start:number[];
   upgradeRate:upgradeRates;
   bms:number[];
 };

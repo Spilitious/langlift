@@ -1,6 +1,6 @@
 import type { learAbilityCondition } from "../types/learnAbilityCondition.js";
-import { ABILITY_ID, ABILITY_NAME, SCHOOL_NAME} from "./constants.js";
-
+import {  ABILITY_NAME, SCHOOL_NAME} from "./constants.js";
+import { ABILITY_ID } from "../../../shared/utils/abilityConstant.js";
 
 
 
@@ -65,6 +65,17 @@ export const learAbilityCondition_data: learAbilityCondition[] = [
         hasOneOf:[],
         schoolRequirements:{Destruction:2}      
     },
+     {
+        id:ABILITY_ID.WARD,
+        strength_min:0,
+        constitution_min:0,
+        magicSkill_min:0,
+        level_min:1,
+        hasAtLeast:[],
+        hasOneOf:[],
+        schoolRequirements:{Protection:1}      
+    },
+     
 ];
 
 

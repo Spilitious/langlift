@@ -1,4 +1,6 @@
 import { getImageEquipment } from "@/utils/spritePaths"
+import { useRef, useState } from "react";
+import EquipmentTooltip from "./EquipmentToolTip"
 import type {
   EquipmentView,
   EquipmentType,
@@ -63,9 +65,43 @@ export default function EquipmentSlots({
   );
 };
 
+const [hoveredEquipmentId, setHoveredEquipmentId] =
+  useState<number | null>(null);
+
+const hoverTimeoutRef =
+  useRef<ReturnType<typeof setTimeout> | null>(null);
+
+const clearEquipmentTooltip = () => {
+  if (hoverTimeoutRef.current) {
+    clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = null;
+  }
+
+  setHoveredEquipmentId(null);
+};
+
+const handleEquipmentMouseEnter = (
+  equipmentId: number
+) => {
+  hoverTimeoutRef.current = setTimeout(() => {
+    setHoveredEquipmentId(equipmentId);
+  }, 1000);
+};
+
+const handleEquipmentMouseLeave = () => {
+  clearEquipmentTooltip();
+};
+
   return (
     <div
       onPointerUp={(event) => handlePointerUp(event, slot)}
+       onMouseEnter={() => {
+    if (item) {
+      handleEquipmentMouseEnter(item.id);
+    }
+  }}
+
+  onMouseLeave={handleEquipmentMouseLeave}
       style={{
         position: "relative",
 
@@ -89,6 +125,7 @@ export default function EquipmentSlots({
 
       {item &&
         item.id !== draggedEquipmentId && (
+          <>
           <img
             src={getImageEquipment(
               item.type,
@@ -117,7 +154,12 @@ export default function EquipmentSlots({
              
             }}
           />
+           {hoveredEquipmentId === item.id && (
+      <EquipmentTooltip equipment={item} />
+    )}
+          </>
         )}
+        
     </div>
   );
 };

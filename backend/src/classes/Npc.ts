@@ -10,6 +10,7 @@ import { basicNpcs } from "../utils/basicNpc_data.js";
 
 import   {Bm } from "./Bm.js"
 import { Fighter } from "./Fighter.js";
+import { getBasicNpcAction } from "../utils/basicNpcAction_data.js";
 
 
 
@@ -41,18 +42,30 @@ constructor(basicRaceId: number, level:number) {
     this.size = basicNpc.size;
     this.level = level;
     this.base_att = {
-      maxHp: basicNpc.hp_start+Math.floor(Math.random()*basicNpc.hp_start/7),
+      maxHp: basicNpc.hp_start,
+      
       damage: basicNpc.damage_start,
       magicSkill: basicNpc.magicSkill_start,
       currhp:0,
-      shield:0,
+      shield:basicNpc.shield_start,
       armor:basicNpc.armor_start,
       power:basicNpc.power_start,
     };
-    this.bms = [];
-    for(const basicBmId of basicNpc.bms) {
-        this.bms.push(Bm.fromBasicBmId(basicBmId, 1))
-    }
+
+    if(basicNpc.upgradeRate.hp != 0)
+        this.base_att.maxHp += Math.floor(Math.random()*basicNpc.hp_start/7),
+    
+   this.bms = [];
+
+for (const [i, basicBmId] of basicNpc.bms.entries()) {
+  const startValue = basicNpc.bm_start[i];
+
+  if (startValue !== undefined) {
+    this.bms.push(
+      Bm.fromBasicBmId(basicBmId, startValue)
+    );
+  }
+}
 
     const levelsToGenerate = level - basicNpc.level_start;
     for (let i = 0; i < levelsToGenerate; i++) {
@@ -63,6 +76,7 @@ constructor(basicRaceId: number, level:number) {
     this.position = 0;
     this.intent = {
       action:1,
+      name:"initialisation",
       target:1,
       target_image:1,
       value:this.getStat("damage"),
@@ -181,7 +195,7 @@ private upgrade(basicNpc: BasicNpc) {
     return;
   }
 
-  limit += basicNpc.upgradeRate.bm_start;
+  limit += basicNpc.upgradeRate.bm;
   if(dice < limit) {
     for(const bm of this.bms)
     { 
@@ -201,8 +215,10 @@ private upgrade(basicNpc: BasicNpc) {
 
 
 setIntent(basicActionId: number, value:number, value2?:number, targetId?: number,  target_image?: number): void {
+  const name = getBasicNpcAction(basicActionId).name;
   this.intent = {
     action: basicActionId,
+    name:name,
     target: targetId ?? 0,
     target_image: target_image ?? 0,
     value: value,

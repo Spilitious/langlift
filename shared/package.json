@@ -1,0 +1,5 @@
+{
+  "name": "@langlift/shared",
+  "private": true,
+  "type": "module"
+}

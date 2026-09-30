@@ -3,13 +3,14 @@ import type { ActionRequest } from "../../../shared/types/action.js";
 import type { ActionResult, VictoryResult } from "../../../shared/types/actionResult.js";
 import type { GameStateView, GameStateSave, Relation} from "../../../shared/types/gameStateView.js";
 import type { HistoryDestination } from "../../../shared/types/history.js";
-import { Troylan, Gladys} from "../utils/basicPj_data.js";
+import { basicTroylan, basicGladys, basicSiguis, basicGunthar} from "../utils/basicPj_data.js";
 import { Shop } from "./Shop.js";
 import { Equipment } from "./Equipment.js";
 import { Team } from "./Team.js";
 import { Room } from "./Room.js";
-import {BASIC_EQUIPMENT_ID } from "../utils/constants.js";
-import {BM_ID, ABILITY_ID} from "../utils/constants.js"
+import {BASIC_EQUIPMENT_ID, COMPANION_ID, } from "../utils/constants.js";
+import {ABILITY_ID} from "../../../shared/utils/abilityConstant.js";
+import { BM_ID } from "../../../shared/utils/bmConstant.js";
 
 import  {Pj} from "./Pj.js"
 import { Fight } from "./Fight.js";
@@ -24,11 +25,13 @@ export class GameState {
   currentShopId: number | null;
   consequenceIds: Set<number>;
   roomPrologueTable: Map<number, number>;
+  companion: Pj[];
   shop:Shop | null;
   room:Room | null;
   fight:Fight | null;
   gladysRelation:Relation;
   alchemyAccess:boolean;
+  
 
   constructor(emptySlotId:number) {
     
@@ -43,6 +46,8 @@ export class GameState {
     this.room = null;
     this.fight = null;
     this.alchemyAccess = false;
+    this.companion = [];
+   
     this.gladysRelation = {
       love:0,
       trust:0,
@@ -62,6 +67,7 @@ export class GameState {
       consequenceIds: new Set(this.consequenceIds),
       alchemyAccess: this.alchemyAccess,
       
+      
       team:this.team.toView(),
 
       room: this.room? this.room.toView() : null,
@@ -80,6 +86,7 @@ export class GameState {
       currentShopId:this.currentShopId,
       consequenceIds: [...this.consequenceIds],
       alchemyAccess: this.alchemyAccess,
+     
       gladysRelation: this.gladysRelation,
       roomPrologueTable: Array.from(this.roomPrologueTable.entries()),
       team:this.team.toSave(),
@@ -107,25 +114,58 @@ buildRoom(basicRoomId:number):ActionResult[][] {
 
     this.room = new Room(basicRoomId);
     this.room.loaded = true;
-    this.setPositionPj();
+   
 
     // Conséquence à traiter avant le initFight
 
      // Loup + pas reposé 
-    if(basicRoomId === 6 && (this.consequenceIds.has(11) || this.consequenceIds.has(12)))
-    {
-        this.room.prologueId = 3;
-        if(this.team.pjs[0]) {
-          this.team.pjs[0].updateBm(BM_ID.FATIGUE_STR,"strength", 1);
-          this.team.pjs[0].updateBm(BM_ID.FATIGUE_MM,"magicSkill", 1);
-         }
+    if(basicRoomId === 6) {
+      const pj = this.companion.find(pj => (pj.id ==COMPANION_ID.GLADYS));
+       if(pj)
+        this.addPj(pj);
+      if(this.consequenceIds.has(11) || this.consequenceIds.has(12))
+      {
+          this.room.prologueId = 3;
+          if(this.team.pjs[0]) {
+            this.team.pjs[0].updateBm(BM_ID.FATIGUE_STR,"strength", 1);
+            this.team.pjs[0].updateBm(BM_ID.FATIGUE_MM,"magicSkill", 1);
+          }
+      }
+    }
+    
+    if(basicRoomId === 8) {
+       const pj = this.companion.find(pj => (pj.id ===COMPANION_ID.SIGUIS));
+      
+       if(pj)
+        this.addPj(pj);
+       
+       
     }
 
+    //Combat contre les goules
+    if(basicRoomId === 11) {
+       const pj = this.companion.find(pj => (pj.id ==COMPANION_ID.SIGUIS));
+       if(pj)
+       this.addPj(pj);
+      
+       
+    }
+
+     //Combat contre les mantes
+    if(basicRoomId === 16) {
+       const pj = this.companion.find(pj => (pj.id ==COMPANION_ID.GUNTHAR));
+       if(pj)
+       this.addPj(pj);
+      
+       
+    }
    
-    
+    this.setPositionPj();
     this.team.initNewFight();
+
     this.fight = new Fight(this.team, this.room);
     result = this.fight.playIntentNpcIa();
+
 
     //Crapaud + retard
     if(basicRoomId === 3 && this.consequenceIds.has(4))
@@ -143,6 +183,16 @@ buildRoom(basicRoomId:number):ActionResult[][] {
           this.team.pjs[0].getHit(3);
     }
 
+     // Troll
+    if(basicRoomId === 7 && this.consequenceIds.has(23))
+      this.room.prologueId = 5;
+    
+    if(basicRoomId === 7 && this.consequenceIds.has(24))
+      this.room.prologueId = 4;
+    
+     //Combat contre les mantes
+    if(basicRoomId === 16) 
+        this.team.getPj(1).getHit(Math.floor(this.team.getPj(1).getStat("currhp")/2));
    
     return result;
 
@@ -164,9 +214,9 @@ executeVictory():VictoryResult {
     
  
     victoryResult.xpResult = this.team.dealXp(this.room.xp);
-  
-    
     this.team.endFight();
+
+
     //Room 2 
     if(this.room.id == 2){
         
@@ -179,30 +229,31 @@ executeVictory():VictoryResult {
 
     // Room 4 : bonus d'alchimie
     if (this.room.id === 4 && this.team.profession.alchemy > 0 ) {
-      console.log("pas deux fois")
-        let tongue = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.TOAD_TONGUE);
-       this.team.pjs[0]?.addObjectFirstAvailableSlot(tongue);
-       victoryResult.loots.push(tongue);
-       tongue = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.TOAD_TONGUE);
-       this.team.pjs[0]?.addObjectFirstAvailableSlot(tongue);
-       victoryResult.loots.push(tongue);
-       tongue = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.TOAD_TONGUE);
-       this.team.pjs[0]?.addObjectFirstAvailableSlot(tongue);
-        victoryResult.loots.push(tongue);
+     
+        if(this.team.profession.alchemy > 0) {
+         for (let i = 0; i < 3; i++) {
+            const dust = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.TOAD_TONGUE);
+            if (this.team.pjs[0]?.addObjectFirstAvailableSlot(dust)) {
+                victoryResult.loots.push(dust);
+            }
+          }
+        }
+      
+        this.team.getPj(1).deleteBm(BM_ID.FATIGUE_MM);
+        this.team.getPj(1).deleteBm(BM_ID.FATIGUE_STR);
+        
     }
 
     // Room 5 : bonus d'alchimie
     if (this.room.id === 5 && this.team.profession.alchemy > 0 ) {
-
-        let claw = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.BAT_FANG);
-       this.team.pjs[0]?.addObjectFirstAvailableSlot(claw);
-       victoryResult.loots.push(claw);
-       claw = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.BAT_FANG);
-       this.team.pjs[0]?.addObjectFirstAvailableSlot(claw);
-       victoryResult.loots.push(claw);
-       claw = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.BAT_FANG);
-       this.team.pjs[0]?.addObjectFirstAvailableSlot(claw);
-        victoryResult.loots.push(claw);
+ 
+         for (let i = 0; i < 3; i++) {
+            const dust = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.BAT_FANG);
+            if (this.team.pjs[0]?.addObjectFirstAvailableSlot(dust)) {
+                victoryResult.loots.push(dust);
+            }
+          }
+        
     }
 
     // Room 6 : Loup
@@ -213,7 +264,92 @@ executeVictory():VictoryResult {
        
        
     }
-    this.room.victoryResult = victoryResult;
+ 
+
+   // Room 7 : Troll et alchimie
+    if (this.room.id === 7 && this.team.profession.alchemy > 0 ) {
+         for (let i = 0; i < 2; i++) {
+            const dust = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.TROLL_BLOOD);
+            if (this.team.pjs[0]?.addObjectFirstAvailableSlot(dust)) {
+                victoryResult.loots.push(dust);
+            }
+          }
+        
+    }
+
+
+   // Room 8 : Kobold avec Siguis
+    if (this.room.id === 8) {
+      this.team.removePj(3);
+     
+    }
+
+    // Room 12 : Ame en peine
+    if (this.room.id === 12) {
+        if(this.team.profession.alchemy > 0) {
+         for (let i = 0; i < 3; i++) {
+            const dust = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.ETHEREAL_DUST);
+            if (this.team.pjs[0]?.addObjectFirstAvailableSlot(dust)) {
+                victoryResult.loots.push(dust);
+            }
+          }
+        }
+      
+      const dice = Math.floor(Math.random()*4 + 23);
+      const toga = Equipment.fromBasicEquipmentId(dice);
+      this.team.pjs[0]?.addObjectFirstAvailableSlot(toga);
+
+    }
+
+    // Room 13 : Necromancien
+    if (this.room.id === 13) {
+      
+        const siguisSword = this.team.getPj(basicSiguis.id).equipment.find(equip => (equip.basicEquipmentId === BASIC_EQUIPMENT_ID.SIGIS_SWORD))
+        if(siguisSword)
+        {
+            console.log("ici")
+          this.team.moveEquipmentToPlayer(basicSiguis.id, basicTroylan.id, siguisSword.id );
+        
+        }
+         if(this.team.profession.alchemy > 0) {
+         for (let i = 0; i < 2; i++) {
+            const dust = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.EYE);
+            if (this.team.pjs[0]?.addObjectFirstAvailableSlot(dust)) {
+                victoryResult.loots.push(dust);
+            }
+          }
+        
+         for (let i = 0; i < 3; i++) {
+            const dust = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.ROOT);
+            if (this.team.pjs[0]?.addObjectFirstAvailableSlot(dust)) {
+                victoryResult.loots.push(dust);
+            }
+          }
+          for (let i = 0; i < 2; i++) {
+            const dust = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.BONE_MARROW);
+            if (this.team.pjs[0]?.addObjectFirstAvailableSlot(dust)) {
+                victoryResult.loots.push(dust);
+            }
+          }
+           for (let i = 0; i < 2; i++) {
+            const dust = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.RAT_TAIL);
+            if (this.team.pjs[0]?.addObjectFirstAvailableSlot(dust)) {
+                victoryResult.loots.push(dust);
+            }
+          }
+         
+          
+        }
+     
+    }
+    
+     
+    
+
+
+
+
+       this.room.victoryResult = victoryResult;
 
   return this.room.victoryResult;
 }
@@ -274,7 +410,6 @@ addConsequence(id:number) {
       
       
       //Dire la vérité à Gladys sur les égoûts
-      case 12 : 
       case 13 : this.gladysRelation.trust += 1; 
       case 14 : this.gladysRelation.trust += 1;break;
      
@@ -287,12 +422,12 @@ addConsequence(id:number) {
 
       case 17 : 
         equipment = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.BASE_STAFF)
-        this.team.pjs[0].addObjectFirstAvailableSlot(equipment);
+        this.team.pjs[0].addObjectAuto(equipment);
         break;
 
       case 18 : 
         equipment = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.BASE_ARMOR)
-        this.team.pjs[0].addObjectFirstAvailableSlot(equipment);
+        this.team.pjs[0].addObjectAuto(equipment);
         break;
 
           // Choix du métier après le rat
@@ -312,8 +447,29 @@ addConsequence(id:number) {
       case 21 :
         this.team.profession.armorsmith += 1; break;
       
-      case 22 :
-          this.addPj(Pj.fromBasicPj(Gladys)); break;
+      //Descente par le chemin escarpé 
+      case 22:  this.team.getPj(2).fight_absent = 4;
+                break;
+            
+      //Troylan descend prendre le bouclier    
+      case 23:
+          equipment = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.BASE_SHIELD);
+          this.team.getPj(1).addObjectAuto(equipment);
+          this.team.getPj(1).fight_absent = 2; 
+          this.gladysRelation.trust +=1; 
+          this.gladysRelation.admiration+= 1; break;
+      
+      //Gladys descend prendre le bouclier  
+      case 24: 
+          equipment = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.BASE_SHIELD);
+          this.team.getPj(2).addObjectAuto(equipment);
+          this.team.getPj(2).fight_absent = 2; break;
+      
+      case 25: 
+         this.team.gold += 150; break;
+
+      
+
       
     }
     
@@ -339,7 +495,7 @@ reset() {
       jealousy:0,
     }
 
-    const newPj = Pj.fromBasicPj(Troylan);
+    const newPj = Pj.fromBasicPj(basicTroylan);
     this.team.addPj(newPj);
   
 }
@@ -350,92 +506,54 @@ fromSave(save:GameStateSave) {
     this.currentPageId = save.currentPageId;
     this.consequenceIds = new Set(save.consequenceIds);
     this.alchemyAccess = save.alchemyAccess;
+   
     this.roomPrologueTable = new Map(save.roomPrologueTable);
     this.gladysRelation = {
     ...save.gladysRelation,
   };
     this.team = new Team();
     this.team.fromSave(save.team);
+
+    this.companion = [];
+    this.createCompagnion();
     
 
 }
 
 newGame() {
-   const newPj = Pj.fromBasicPj(Troylan);
+   const newPj = Pj.fromBasicPj(basicTroylan);
     this.team.addPj(newPj);
+
+    this.createCompagnion();
 }
 
-loadGame() {
 
-    
-    this.currentRoomId = 8;
-    this.currentShopId = null;
-   
-    this.currentPageId = null;
-    this.consequenceIds = new Set();
-    this.shop = new Shop(1);
-    this.team = new Team();
-    this.roomPrologueTable = new Map([]);
-    this.room = new Room(8);
-    
-    this.fight = new Fight(this.team, this.room);
-    this.gladysRelation = {
-      love:0,
-      trust:0,
-      gratitude:0,
-      admiration:0,
-      ressentment:0,
-      jealousy:0,
-    }
+createCompagnion() {
   
-    const newPj = Pj.fromBasicPj(Troylan);
-    /* Profil Warrior */ 
-    newPj.addBaseAtt("strength", 1);
-    newPj.xp = 10;
-    this.addPj(newPj);
-    newPj.learAbility(ABILITY_ID.BRUTAL_BLOW);
-    newPj.learAbility(ABILITY_ID.AUTOREGENERATION);
-    // newPj.learAbility(ABILITY_ID.AUTOREGENERATION);
-    // newPj.learAbility(ABILITY_ID.ROCK_SKIN);
-    this.team.profession.alchemy += 1;
-    let equipment = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.RAT_TAIL);
-        newPj.addObjectFirstAvailableSlot(equipment);
-        equipment = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.BAT_FANG);
-        newPj.addObjectFirstAvailableSlot(equipment);
-        equipment = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.TOAD_TONGUE);
-        newPj.addObjectFirstAvailableSlot(equipment);
-          equipment = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.TOAD_TONGUE);
-        newPj.addObjectFirstAvailableSlot(equipment);
-          equipment = Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.HP_POTION);
-        newPj.addPotionFirstAvailableSlot(equipment);
+      const Siguis = Pj.fromBasicPj(basicSiguis);
+      Siguis.addBaseAtt("strength", 2);
+      Siguis.addBaseAtt("magicSkill", 1);
+      Siguis.learAbility(ABILITY_ID.PARRY);
+      Siguis.learAbility(ABILITY_ID.WARD);
+      Siguis.learAbility(ABILITY_ID.TREACHEROUS_ATTACK);
+      Siguis.learAbility(ABILITY_ID.FIRST_AID);
+      Siguis.addEquipment(Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.SIGIS_SWORD), "sword");
+      this.companion.push(Siguis);
 
-  const Pj2 = Pj.fromBasicPj(Gladys);
-  Pj2.xp = 15;
-  this.addPj(Pj2); 
-  Pj2.addBaseAtt("magicSkill", 1);
-/*
- const Pj3 = new Pj({
-  id: 3,
-  image: 2,
-  avatar:2,
-  name: "Xaran",
-  level: 0,
-  position: 3,
-});
-  
- 
-this.addPj(Pj3); */
- 
-  /*
-  let p1 = new Equipment(BASIC_EQUIPMENT_ID.HP_POTION);   
-  this.team.pjs[0]?.addObjectAuto(p1);
-  p1 = new Equipment(BASIC_EQUIPMENT_ID.HP_POTION);   
-  this.team.pjs[0]?.addObjectAuto(p1);
-  let tongue = new Equipment(BASIC_EQUIPMENT_ID.TOAD_TONGUE);
-  this.team.pjs[0]?.addObjectFirstAvailableSlot(tongue);
-  tongue = new Equipment(BASIC_EQUIPMENT_ID.TOAD_TONGUE);
-  this.team.pjs[0]?.addObjectFirstAvailableSlot(tongue); */
+      const Gladys = Pj.fromBasicPj(basicGladys);
+      this.companion.push(Gladys);
 
+      const Gunthar = Pj.fromBasicPj(basicGunthar);
+      Gunthar.addBaseAtt("constitution", 2);
+      Gunthar.addBaseAtt("magicSkill", 1);
+      Gunthar.addEquipment(Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.GUNTHAR_AXE), "sword");
+      Gunthar.addEquipment(Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.MEDIUM_ARMOR), "armor");
+      Gunthar.addEquipment(Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.MEDIUM_HELM), "helm");
+      Gunthar.addEquipment(Equipment.fromBasicEquipmentId(BASIC_EQUIPMENT_ID.MEDIUM_SHIELD), "shield");
+      Gunthar.learAbility(ABILITY_ID.GUARD);
+      Gunthar.learAbility(ABILITY_ID.PROVOCATION);
+      Gunthar.learAbility(ABILITY_ID.CALL_OF_LIGHT);
+      this.companion.push(Gunthar);
 }
 
 setPositionPj() {
